@@ -1,4 +1,4 @@
-# PAMANA – Co-Developer Setup Guide
+# PAMANA – Gamified Educational Website
 
 **PAMANA** is a web-based digital storytelling and gamified learning platform for Grade 8 Araling Panlipunan. It combines animated lessons, mini-games, quizzes, and automated progress tracking.
 
