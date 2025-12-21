@@ -40,7 +40,7 @@ function HomePage() {
         style={{ backgroundImage: `url(${bgHome})` }}
       >
         <div className="pt-32">
-            <h2 className="text-xl font-extrabold text-[#5a2d0c] mb-8 font-[var(--font-heading)]">
+            <h2 className="text-3xl font-extrabold text-[#5a2d0c] mb-8 font-[var(--font-heading)]">
             MGA KABIHASNAN
             </h2>
 
@@ -54,7 +54,7 @@ function HomePage() {
             ].map((item) => (
                 <div
                 key={item}
-                className="bg-white/95 rounded-xl shadow-md p-4 flex items-center gap-4 transition-transform hover:scale-[1.01]"
+                className="bg-white/85 rounded-xl shadow-md p-4 flex items-center gap-4 transition-transform hover:scale-[1.01]"
                 >
                 <div className="w-24 h-20 bg-amber-200 rounded-md shrink-0" />
 
