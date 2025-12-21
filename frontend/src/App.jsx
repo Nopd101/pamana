@@ -3,6 +3,8 @@ import Navbar from './components/Nav.jsx';
 import Home from './views/MainHomePage.jsx';
 import About from './views/AboutUsPage.jsx';
 import Contact from './views/ContactUsPage.jsx';
+import Login from './views/LoginPage.jsx'; 
+import SignUp from './views/SignUpPage.jsx';
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </div>
     </Router>
