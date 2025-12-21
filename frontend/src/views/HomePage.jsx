@@ -1,8 +1,17 @@
 import React from "react";
 import heroBanner from "../assets/hero-banner.png";
 import bgHome from "../assets/bg-home.png";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
+  const navigate = useNavigate();
+  const kabihasnanList = [
+    { id: "mesopotamia", name: "Kabihasnang Mesopotamia" },
+    { id: "indus", name: "Kabihasnang Indus" },
+    { id: "tsino", name: "Kabihasnang Tsino" },
+    { id: "egypt", name: "Kabihasnang Egypt" },
+    { id: "mesoamerica", name: "Kabihasnang Mesoamerica" },
+  ];
   return (
     <div className="w-full">
 
@@ -45,41 +54,35 @@ function HomePage() {
             </h2>
 
             <div className="space-y-6">
-            {[
-                "Kabihasnang Mesopotamia",
-                "Kabihasnang Indus",
-                "Kabihasnang Tsina",
-                "Kabihasnang Egypt",
-                "Kabihasnang Mesoamerica",
-            ].map((item) => (
-                <div
-                key={item}
-                className="bg-white/85 rounded-xl shadow-md p-4 flex items-center gap-4 transition-transform hover:scale-[1.01]"
-                >
+            {kabihasnanList.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => navigate(`/kabihasnan/${item.id}`)} 
+                className="bg-white/85 rounded-xl shadow-md p-4 flex items-center gap-4 transition-transform hover:scale-[1.01] cursor-pointer"
+              >
                 <div className="w-24 h-20 bg-amber-200 rounded-md shrink-0" />
 
                 <div className="flex-1">
-                    <h3 className="font-bold text-[#5a2d0c] font-[var(--font-heading)]">
-                    {item}
-                    </h3>
-                    <p className="text-sm text-gray-600 font-[var(--font-body)]">
+                  <h3 className="font-bold text-[#5a2d0c] font-[var(--font-heading)]">
+                    {item.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 font-[var(--font-body)]">
                     Maikling paglalarawan ng kabihasnan
-                    </p>
+                  </p>
 
-                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
                     <div className="bg-blue-500 h-2 rounded-full w-[30%]" />
-                    </div>
+                  </div>
                 </div>
 
-                <button className="text-amber-700 font-bold text-xl cursor-pointer">
-                    →
-                </button>
+                <div className="text-amber-700 font-bold text-xl">
+                  →
                 </div>
+              </div>
             ))}
-            </div>
+          </div>
         </div>
       </section>
-
     </div>
   );
 }
