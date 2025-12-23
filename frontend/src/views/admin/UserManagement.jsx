@@ -84,7 +84,7 @@ const UserManagement = () => {
 
   return (
     // Updated Background Color to #FFF3D1
-    <div className="min-h-screen bg-[#FFF3D1] p-6 font-[var(--font-body)]">
+    <div className="min-h-screen bg-[#FFF3D1] p-6 font-(--font-body)">
       
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -236,7 +236,7 @@ const UserManagement = () => {
 
       {/* EDIT/ADD MODAL (Unchanged logic, kept consistent with style) */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-100 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
             <div className="bg-[#52392F] px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">

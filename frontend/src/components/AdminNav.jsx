@@ -11,18 +11,18 @@ const AdminNav = () => {
     }`;
 
   return (
-    <div className="flex min-h-screen bg-[#FFF3D1] font-[var(--font-body)]">
+    <div className="flex min-h-screen bg-[#FFF3D1] font-(--font-body)">
       
       {/* ================= SIDEBAR (The "Nav" part) ================= */}
       <aside className="w-64 bg-[#52392F] min-h-screen p-6 flex flex-col fixed left-0 top-0 z-50 shadow-xl">
         <div className="mb-10 text-center">
-          <Link to="/admin/dashboard" className="text-white text-3xl font-extrabold tracking-widest font-[var(--font-heading)]">
+          <Link to="/admin/dashboard" className="text-white text-3xl font-extrabold tracking-widest">
             PAMANA
           </Link>
           <p className="text-[#FFDC88] text-sm tracking-widest uppercase mt-2 opacity-80">Admin Portal</p>
         </div>
 
-        <nav className="flex-1 space-y-2 font-[var(--font-body)]">
+        <nav className="flex-1 space-y-2 font-(--font-body)">
           <NavLink to="/admin/dashboard" className={linkClasses}>
             Dashboard
           </NavLink>

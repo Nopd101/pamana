@@ -17,14 +17,14 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full z-[1000] bg-[#52392F] shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-300
+      className={`fixed top-0 left-0 w-full z-1000 bg-[#52392F] shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-300
       ${isOpen ? "rounded-b-none" : "rounded-b-[30px]"} 
       md:rounded-b-[62.4px]`}
     >
       <div className="w-full flex items-center justify-between px-6 py-4 md:px-10 md:py-6 lg:px-24">
         <Link
           to="/"
-          className="text-white text-2xl md:text-3xl lg:text-[2.34rem] font-extrabold tracking-widest no-underline font-[var(--font-heading)] shrink-0"
+          className="text-white text-2xl md:text-3xl lg:text-[2.34rem] font-extrabold tracking-widest no-underline shrink-0"
         >
           PAMANA
         </Link>
@@ -49,7 +49,7 @@ const Navbar = () => {
           </ul>
 
           <Link to="/login">
-            <button className="bg-gradient-to-b from-[#772402] to-[#551900] text-white px-6 py-3 lg:px-[3.12rem] lg:py-[0.78rem] rounded-[18.72px] font-semibold lowercase transition-transform hover:scale-105 cursor-pointer whitespace-nowrap">
+            <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-6 py-3 lg:px-[3.12rem] lg:py-[0.78rem] rounded-[18.72px] font-semibold lowercase transition-transform hover:scale-105 cursor-pointer whitespace-nowrap">
               login
             </button>
           </Link>
@@ -116,7 +116,7 @@ const Navbar = () => {
           </ul>
 
           <Link to="/login" onClick={toggleMenu}>
-            <button className="bg-gradient-to-b from-[#772402] to-[#551900] text-white px-10 py-3 rounded-[18.72px] font-semibold lowercase w-full">
+            <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-10 py-3 rounded-[18.72px] font-semibold lowercase w-full">
               login
             </button>
           </Link>
