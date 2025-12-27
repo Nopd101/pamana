@@ -7,6 +7,7 @@ import Login from './views/LoginPage.jsx';
 import SignUp from './views/SignUpPage.jsx';
 import HomePage from './views/HomePage.jsx';
 import KabihasnanDetails from './views/KabihasnanDetails.jsx';
+import CasteGame from './views/IndusCasteGame.jsx'; 
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/kabihasnan/:id" element={<KabihasnanDetails />} />
+          <Route path="/caste-game" element={<CasteGame />} />
         </Routes>
       </div>
     </Router>

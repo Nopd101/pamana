@@ -100,6 +100,14 @@ function KabihasnanDetails() {
     "Polyteismo",
     "Monoteismo",
   ]; //
+
+  const handleStartGame = (gameTitle) => {
+    if (gameTitle === "CASTE YOUR ANSWER") {
+      navigate("/caste-game");
+    } else {
+      console.log("game does not exist", gameTitle);
+    }
+  };
   const handleConnect = (idB) => {
     if (selectedA) {
       // Updates connections: if the item in Hanay A was already connected, it replaces it
@@ -338,7 +346,10 @@ function KabihasnanDetails() {
                   <p className="text-amber-800/70 font-medium mb-6">
                     {game.desc}
                   </p>
-                  <button className="w-full bg-[#772402] text-white py-3 rounded-lg flex items-center justify-center gap-3 font-bold shadow-md">
+                  <button
+                    onClick={() => handleStartGame(game.title)}
+                    className="w-full bg-[#772402] text-white py-3 rounded-lg flex items-center justify-center gap-3 font-bold shadow-md hover:bg-[#5a2d0c] transition-colors cursor-pointer"
+                  >
                     <span>∞</span> Start Game
                   </button>
                 </div>
