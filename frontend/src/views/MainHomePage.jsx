@@ -27,6 +27,17 @@ export default function Home() {
 
       {/* FEATURES */}
       <section className={styles.featuresSection}>
+        <img 
+          src="/src/assets/main-home-character-left.png" 
+          alt="Character Left" 
+          className={styles.characterLeft}
+        />
+        <img 
+          src="/src/assets/main-home-character-right.png" 
+          alt="Character Right" 
+          className={styles.characterRight}
+        />
+        
         <div className={styles.sectionTitleWrapper}>
           <h2 className={styles.sectionTitle}>MGA KATANGIAN</h2>
           <p className={styles.sectionSubtitle}>NG PAMANA</p>
@@ -34,20 +45,24 @@ export default function Home() {
 
         <div className={styles.featuresGrid}>
           <FeatureCard
-            title="Interactive Stories"
-            desc="Explore ancient civilizations through guided storytelling."
+            icon={<i className="fa-solid fa-video"></i>}
+            color="Tan"
+            desc="Animated na video lectures para makilahok ang mga kabataan sa sinaynt kabihasnaan"
           />
           <FeatureCard
-            title="User Profiles"
-            desc="Track progress and achievements."
+            icon={<i className="fa-solid fa-people-group"></i>}
+            color="DarkBrown"
+            desc="Unang kikilayanin ang mailuluturang ng mga mag-aaral"
           />
           <FeatureCard
-            title="Mini Games"
-            desc="Learn history through engaging activities."
+            icon={<i className="fa-solid fa-gamepad"></i>}
+            color="Orange"
+            desc="Sampung interactive games ang nakataan para sa masayang pag-aaral"
           />
           <FeatureCard
-            title="Assessments"
-            desc="Evaluate learning with interactive quizzes."
+            icon={<i className="fa-solid fa-star"></i>}
+            color="Brown"
+            desc="Automatic na pagsubaybay ng lakas para sa mga mag-aaral"
           />
         </div>
       </section>

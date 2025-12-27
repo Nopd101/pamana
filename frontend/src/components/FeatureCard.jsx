@@ -1,9 +1,17 @@
-export default function FeatureCard({ title, desc }) {
+import styles from './FeatureCard.module.css';
+
+export default function FeatureCard({ title, desc, icon: IconComponent, color }) {
+  const colorClass = styles[`card${color}`] || styles.cardBrown;
+  
   return (
-    <div className="w-48 bg-[#8b4f2e] text-white rounded-xl p-5 text-center shadow-lg">
-      <div className="h-12 w-12 bg-white/30 rounded-full mx-auto mb-4" />
-      <h3 className="font-semibold">{title}</h3>
-      <p className="text-xs mt-2 opacity-90">{desc}</p>
+    <div className={`${styles.card} ${colorClass}`}>
+      <div className={styles.iconCircle}>
+        {IconComponent}
+      </div>
+      <div className={styles.textContent}>
+        <h3 className={styles.title}>{title}</h3>
+        <p className={styles.description}>{desc}</p>
+      </div>
     </div>
   );
 }
