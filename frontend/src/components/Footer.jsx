@@ -1,39 +1,49 @@
+import styles from './Footer.module.css';
+import footerCharacter from '../assets/footer-character.png';
+
 export default function Footer() {
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
-    <footer className="bg-[#3b2a1a] text-white py-10">
-      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-6">
-        
-        <div>
-          <h3 className="font-bold text-lg">PAMANA</h3>
-          <p className="text-sm mt-2 opacity-80">
-            Isang interaktibong platform para sa pag-aaral ng sinaunang
-            kabihasnan.
-          </p>
-        </div>
+    <footer className={styles.footer}>
+      <div className={styles.footerTop}>
+        <div className={styles.footerContent}>
+          <div className={styles.leftSection}>
+            <h3 className={styles.logo}>PAMANA</h3>
+            <p className={styles.description}>
+              Isang interactive learning platform para sa Grade 8 Araling
+              Panlipunan students.
+            </p>
+            <button onClick={scrollToTop} className={styles.backToTopBtn}>
+              Back on top
+            </button>
+          </div>
 
-        <div>
-          <h4 className="font-semibold mb-2">Site Map</h4>
-          <ul className="space-y-1 text-sm opacity-80">
-            <li>Homepage</li>
-            <li>Mga Aralin</li>
-            <li>Mga Laro</li>
-            <li>Profile</li>
-          </ul>
+          <div className={styles.siteMap}>
+            <h3>Site Map</h3>
+            <ul>
+              <li><a href="/">Homepage</a></li>
+              <li><a href="/faq">FAQ Page</a></li>
+              <li><a href="/contact">Contact Us</a></li>
+              <li><a href="/about">About Us</a></li>
+              <li><a href="/privacy">Privacy & Terms</a></li>
+            </ul>
+          </div>
         </div>
-
-        <div>
-          <h4 className="font-semibold mb-2">Contact</h4>
-          <p className="text-sm opacity-80">
-            Bulacan State University<br />
-            pamana@bulsu.edu.ph
-          </p>
-        </div>
-
+        <img src={footerCharacter} alt="Character" className={styles.characterImage} />
       </div>
 
-      <p className="text-center text-xs opacity-60 mt-8">
-        © 2025 PAMANA. All rights reserved.
-      </p>
+
+      <div className={styles.copyrightWrapper}>
+        <p className={styles.copyright}>
+          Copyright © 2025, pamana.edu, All Rights Reserved.
+        </p>
+      </div>
     </footer>
   );
 }
