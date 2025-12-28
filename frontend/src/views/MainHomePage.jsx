@@ -2,6 +2,8 @@ import Footer from "../components/Footer";
 import FeatureCard from "../components/FeatureCard";
 import KabihasnanCard from "../components/KabihasnanCard";
 import styles from "./MainHomePage.module.css";
+import characterLeft from "../assets/main-home-character-left.png";
+import characterRight from "../assets/main-home-character-right.png";
 
 export default function Home() {
   return (
@@ -29,42 +31,33 @@ export default function Home() {
       {/* FEATURES */}
       <div className={styles.featuresSectionWrapper}>
         <section className={styles.featuresSection}>
-          <img 
-            src="/src/assets/main-home-character-left.png" 
-            alt="Character Left" 
-            className={styles.characterLeft}
-          />
-          <img 
-            src="/src/assets/main-home-character-right.png" 
-            alt="Character Right" 
-            className={styles.characterRight}
-          />
-          
+          <img src={characterLeft} alt="" className={styles.characterLeft} />
+          <img src={characterRight} alt="" className={styles.characterRight} />
           <div className={styles.sectionTitleWrapper}>
-            <h2 className={styles.sectionTitle}>MGA KATANGIAN</h2>
-            <p className={styles.sectionSubtitle}>NG PAMANA</p>
+            <h2 className={styles.sectionTitle}>FEATURES</h2>
+            <p className={styles.sectionSubtitle}>OF PAMANA</p>
           </div>
 
           <div className={styles.featuresGrid}>
             <FeatureCard
               icon={<i className="fa-solid fa-video"></i>}
               color="Tan"
-              desc="Animated na video lectures para makilahok ang mga kabataan sa sinaynt kabihasnaan"
+              desc="Animated video lectures to engage the youth in ancient civilizations."
             />
             <FeatureCard
               icon={<i className="fa-solid fa-people-group"></i>}
               color="DarkBrown"
-              desc="Unang kikilayanin ang mailuluturang ng mga mag-aaral"
+              desc="Prioritizing the assessment of student's prior knowledge."
             />
             <FeatureCard
               icon={<i className="fa-solid fa-gamepad"></i>}
               color="Orange"
-              desc="Sampung interactive games ang nakataan para sa masayang pag-aaral"
+              desc="Ten interactive games are prepared for a fun learning experience."
             />
             <FeatureCard
               icon={<i className="fa-solid fa-star"></i>}
               color="Brown"
-              desc="Automatic na pagsubaybay ng lakas para sa mga mag-aaral"
+              desc="Automatic progress tracking for students."
             />
           </div>
         </section>
@@ -72,43 +65,43 @@ export default function Home() {
 
       {/* KABIHASNAN SECTION */}
       <section className={styles.kabihasnanSection}>
-        <h2 className={styles.kabihasnanTitle}>Mga</h2>
-        <h1 className={styles.kabihasnanMainTitle}>KABIHASNANG</h1>
-        <p className={styles.kabihasnanSubtitle}>Matutunghayan</p>
+        <h2 className={styles.kabihasnanTitle}>The</h2>
+        <h1 className={styles.kabihasnanMainTitle}>CIVILIZATIONS</h1>
+        <p className={styles.kabihasnanSubtitle}>To Discover</p>
 
         <div className={styles.kabihasnanList}>
           <KabihasnanCard
             number={1}
             title="Kabihasnang Mesopotamia"
-            description='Matatagpuan sa pagitan ng ilog Tigris at Euphrates, ito ang tinaguriang "Cradle of Civilization." Dito umusbong ang unang sistema ng pagsulat at batas.'
+            description='Found between the Tigris and Euphrates rivers, it is called the "Cradle of Civilization." The first system of writing and law emerged here.'
             imagePosition="right"
             patternOffsetY="0%"
           />
           <KabihasnanCard
             number={2}
             title="Kabihasnang Indus"
-            description="Kilala sa maayos na lungsod at sistema ng kanal. Ipinapakita nito ang kahalagahan ng disiplina at pagpaplano sa pamayanan."
+            description="Known for its well-planned cities and canal systems. It shows the importance of discipline and planning in a community."
             imagePosition="left"
             patternOffsetY="25%"
           />
           <KabihasnanCard
             number={3}
             title="Kabihasnang Tsina (Shang Dynasty)"
-            description="Dito nagsimula ang mga ideya tungkol sa pamahalaan, pamilya, at pilosopiya na may impluwensiya hanggang sa kasalukuyan."
+            description="Ideas about government, family, and philosophy that influence the present day began here."
             imagePosition="right"
             patternOffsetY="50%"
           />
           <KabihasnanCard
             number={4}
             title="Kabihasnang Egypt"
-            description="Sumibol sa tabing Ilog Nile at kilala sa mga piramide, paniniwala sa kabilang-buhay, at mahusay na kaalaman sa agham at sining."
+            description="Flourished along the Nile River and is known for its pyramids, belief in the afterlife, and excellent knowledge of science and art."
             imagePosition="left"
             patternOffsetY="75%"
           />
           <KabihasnanCard
             number={5}
             title="Kabihasnang Mesoamerica"
-            description="Tahanan ng mga Maya at Aztec na may kakaibang kaalaman sa kalendaryo, matematika, at astronomiya."
+            description="Home to the Maya and Aztec civilizations, with unique knowledge in calendars, mathematics, and astronomy."
             imagePosition="right"
             patternOffsetY="100%"
           />

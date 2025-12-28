@@ -106,3 +106,58 @@
   font-size: 1.1rem;
   color: #B89336;
 }
+
+/* Media Queries for Responsiveness */
+@media (max-width: 1024px) {
+  .footerTop,
+  .copyrightWrapper {
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+  }
+
+  .footerContent {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 40px;
+  }
+
+  .leftSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .siteMap {
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .characterImage {
+    display: none; /* Hide character on smaller screens for simplicity */
+  }
+}
+
+@media (max-width: 767px) {
+  .footerTop {
+    padding: 30px 10px 40px;
+  }
+
+  .logo {
+    font-size: 2.5rem;
+  }
+
+  .description,
+  .siteMap a,
+  .backToTopBtn {
+    font-size: 1rem;
+  }
+
+  .siteMap h3 {
+    font-size: 2rem;
+  }
+
+  .copyright {
+    font-size: 0.9rem;
+  }
+}

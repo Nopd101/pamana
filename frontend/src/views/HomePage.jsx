@@ -29,11 +29,11 @@ function HomePage() {
         <div className="relative z-10 w-full px-8 md:px-20 -mt-20">
           <div className="max-w-xl text-white">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight font-[var(--font-heading)]">
-              Maligayang pagdating, Juan!
+              Welcome, Juan!
             </h1>
 
             <p className="mt-4 text-lg font-[var(--font-body)]">
-              Pumili ng kabihasnang pag-aaralan
+              Choose a civilization to study
             </p>
 
             <button className="mt-6 bg-amber-700 hover:bg-amber-800 transition px-6 py-3 rounded-md font-semibold cursor-pointer font-[var(--font-body)]">
@@ -50,7 +50,7 @@ function HomePage() {
       >
         <div className="pt-32">
             <h2 className="text-3xl font-extrabold text-[#5a2d0c] mb-8 font-[var(--font-heading)]">
-            MGA KABIHASNAN
+            THE CIVILIZATIONS
             </h2>
 
             <div className="space-y-6">
@@ -67,7 +67,7 @@ function HomePage() {
                     {item.name}
                   </h3>
                   <p className="text-sm text-gray-600 font-[var(--font-body)]">
-                    Maikling paglalarawan ng kabihasnan
+                    A brief description of the civilization
                   </p>
 
                   <div className="mt-2 w-full bg-gray-200 rounded-full h-2">

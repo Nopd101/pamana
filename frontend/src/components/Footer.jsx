@@ -16,8 +16,7 @@ export default function Footer() {
           <div className={styles.leftSection}>
             <h3 className={styles.logo}>PAMANA</h3>
             <p className={styles.description}>
-              Isang interactive learning platform para sa Grade 8 Araling
-              Panlipunan students.
+              An interactive learning platform for Grade 8 Social Studies students.
             </p>
             <button onClick={scrollToTop} className={styles.backToTopBtn}>
               Back on top
@@ -41,7 +40,7 @@ export default function Footer() {
 
       <div className={styles.copyrightWrapper}>
         <p className={styles.copyright}>
-          Copyright © 2025, pamana.edu, All Rights Reserved.
+          Copyright © 2025, Pamana.edu, All Rights Reserved.
         </p>
       </div>
     </footer>

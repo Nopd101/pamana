@@ -70,3 +70,45 @@
   margin: 0;
   font-weight: 400;
 }
+
+/* Media Queries for Responsiveness */
+@media (max-width: 1024px) {
+  .card {
+    height: auto;
+    padding: 1.5rem 2rem;
+    flex-direction: column;
+  }
+
+  .left > .cardContent,
+  .right > .cardContent {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .card::before {
+    display: none; /* Hide decorative background on smaller screens */
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .description {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .card {
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .description {
+    font-size: 0.85rem;
+  }
+}

@@ -218,3 +218,126 @@
   gap: 2rem;
   padding: 0 1rem;
 }
+
+/* Media Queries for Responsiveness */
+
+/* Tablets (e.g., iPads) */
+@media (max-width: 1024px) {
+  .heroSection {
+    height: auto;
+    min-height: 80vh;
+    padding: 8rem 2rem;
+  }
+
+  .heroTitleImage {
+    max-width: 600px;
+  }
+
+  .heroSubtitle {
+    font-size: 1.125rem;
+  }
+
+  .featuresSection {
+    padding: 3rem 1rem;
+  }
+
+  .characterLeft,
+  .characterRight {
+    height: 500px;
+    opacity: 0.5;
+  }
+  .characterLeft {
+    left: -150px;
+    top: 0;
+  }
+  .characterRight {
+    right: -150px;
+    top: 120px;
+  }
+
+  .sectionSubtitle {
+    letter-spacing: 1.5rem;
+    padding-left: 1rem;
+  }
+
+  .kabihasnanSection {
+    padding: 4rem 1rem 12rem 1rem;
+  }
+
+  .kabihasnanMainTitle {
+    font-size: 3rem;
+  }
+
+  .kabihasnanSubtitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 767px) {
+  .heroSection {
+    min-height: 60vh;
+    padding: 6rem 1rem;
+  }
+
+  .titleWrapper {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .heroTitleImage {
+    max-width: 90%;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+
+  .featuresSection {
+    padding: 3rem 1rem;
+  }
+
+  .characterLeft,
+  .characterRight {
+    display: none;
+  }
+
+  .sectionTitle {
+    font-size: 1.75rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 0.75rem;
+    letter-spacing: 1rem;
+    padding-left: 0.75rem;
+  }
+
+  .featuresGrid {
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .kabihasnanSection {
+    padding: 3rem 0.5rem 10rem 0.5rem;
+  }
+
+  .kabihasnanTitle {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+  }
+
+  .kabihasnanMainTitle {
+    font-size: 2.5rem;
+  }
+
+  .kabihasnanSubtitle {
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 3rem;
+  }
+
+  .kabihasnanList {
+    gap: 1.5rem;
+  }
+}
