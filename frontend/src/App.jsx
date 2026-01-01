@@ -8,6 +8,8 @@ import SignUp from './views/SignUpPage.jsx';
 import HomePage from './views/HomePage.jsx';
 import KabihasnanDetails from './views/KabihasnanDetails.jsx';
 import CasteGame from './views/IndusCasteGame.jsx'; 
+import FAQPage from './views/FAQPage.jsx';
+import TermsAndAgreementPage from './views/TermsAndAgreementPage.jsx';
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/kabihasnan/:id" element={<KabihasnanDetails />} />
           <Route path="/caste-game" element={<CasteGame />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/privacy" element={<TermsAndAgreementPage />} />
         </Routes>
       </div>
     </Router>
