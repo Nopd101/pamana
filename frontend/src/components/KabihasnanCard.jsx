@@ -4,15 +4,15 @@ export default function KabihasnanCard({ number, title, description, imagePositi
   };
 
   // Mobile-first base classes
-  const baseClasses = "w-full max-w-[900px] mx-auto my-0 p-6 rounded-[20px] text-white bg-[#52392F] flex flex-col items-center text-center shadow-[0_12px_10px_rgba(0,0,0,0.452)] relative overflow-hidden h-auto p-6 rounded-[15px] md:p-4";
+  const baseClasses = "w-full max-w-[900px] mx-auto my-0 p-6 rounded-[20px] text-white bg-[#52392F] flex flex-col items-center text-center shadow-[0_12px_10px_rgba(0,0,0,0.452)] relative overflow-hidden h-auto";
 
   // Desktop-specific overrides
   const desktopClasses = imagePosition === 'left'
-    ? "lg:flex-row lg:text-right lg:pl-[250px]"
-    : "lg:flex-row lg:text-left lg:pr-[250px]";
+    ? "md:flex-row md:text-right md:pl-[250px]"
+    : "md:flex-row md:text-left md:pr-[250px]";
 
   const patternClasses = imagePosition
-    ? `before:hidden lg:before:block before:content-[''] before:absolute before:top-0 before:w-[400px] before:h-full before:bg-no-repeat before:grayscale before:brightness-75 before:opacity-25 before:z-0 before:bg-cover`
+    ? `before:hidden md:before:block before:content-[''] before:absolute before:top-0 before:w-[400px] before:h-full before:bg-no-repeat before:grayscale before:brightness-75 before:opacity-25 before:z-0 before:bg-cover`
     : '';
   
   const patternImageClass = imagePosition === 'left'
@@ -25,15 +25,15 @@ export default function KabihasnanCard({ number, title, description, imagePositi
       className={`${baseClasses} ${desktopClasses} ${patternClasses} ${imagePosition ? patternImageClass : ''}`}
       style={cardStyles}
     >
-      <div className="flex-grow p-4 rounded-[10px] relative z-[1] lg:p-4">
+      <div className="flex-grow p-4 rounded-[10px] relative z-[1]">
         {children ? (
           children
         ) : (
           <>
-            <h3 className="text-2xl font-bold mb-2 text-[#B89336] tracking-wider lg:text-xl md:text-lg">
+            <h3 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider md:text-2xl">
               {number}. {title}
             </h3>
-            <p className="text-lg leading-relaxed font-normal lg:text-base md:text-sm">• {description}</p>
+            <p className="text-base leading-relaxed font-normal md:text-lg">• {description}</p>
           </>
         )}
       </div>

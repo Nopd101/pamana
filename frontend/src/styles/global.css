@@ -106,6 +106,24 @@ a {
   }
 }
 
+.chevron-icon {
+  transition: transform 0.3s ease;
+}
+
+.chevron-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out;
+}
+
+.collapsible-content.expanded {
+  max-height: 500px; /* Adjust as needed */
+}
+
 /* Animation Utility Classes */
 .fadeInUp {
   animation: fadeInUp 1s ease-out forwards;

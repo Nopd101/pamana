@@ -10,14 +10,14 @@ export default function FeatureCard({ title, desc, icon, color }) {
 
   return (
     <div
-      className={`w-[230px] h-[310px] rounded-[20px] p-12 text-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-white flex flex-col items-center gap-5 mx-4 mb-10 bg-gradient-to-b ${cardColor} lg:w-[200px] lg:h-[280px] lg:p-8 lg:mb-8 md:w-[150px] md:h-[240px] md:p-6 md:gap-3`}
+      className={`w-full max-w-[230px] h-auto rounded-[20px] p-6 text-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-white flex flex-col items-center gap-4 mx-auto mb-8 bg-gradient-to-b ${cardColor} sm:w-[200px] sm:p-8 sm:gap-5 md:w-[230px] md:h-[310px] md:p-12`}
     >
-      <div className="w-[104px] h-[104px] bg-white rounded-[15px] flex items-center justify-center text-5xl text-[var(--icon-color)] shadow-[inset_0_6px_8px_rgba(0,0,0,0.349)] lg:w-[90px] lg:h-[90px] lg:text-4xl md:w-[70px] md:h-[70px] md:text-3xl">
+      <div className="w-[80px] h-[80px] bg-white rounded-[15px] flex items-center justify-center text-4xl text-[var(--icon-color)] shadow-[inset_0_6px_8px_rgba(0,0,0,0.349)] sm:w-[90px] sm:h-[90px] sm:text-5xl md:w-[104px] md:h-[104px]">
         <i className={`${icon} filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.301)]`}></i>
       </div>
-      <div className="flex-1 flex flex-col justify-center gap-3">
-        <h3 className="text-lg font-semibold leading-tight">{title}</h3>
-        <p className="text-lg leading-snug font-extrabold">{desc}</p>
+      <div className="flex-1 flex flex-col justify-center gap-2">
+        <h3 className="text-base font-semibold leading-tight sm:text-lg">{title}</h3>
+        <p className="text-base leading-snug font-extrabold sm:text-lg">{desc}</p>
       </div>
     </div>
   );
