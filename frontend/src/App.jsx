@@ -12,7 +12,11 @@ import MindFlipGame from "./views/MesoMemoryGame.jsx";
 import RiddleGame from "./views/MesoRiddleGame.jsx";
 import WordHuntGame from "./views/TsinoWordHunt.jsx";
 import FAQPage from "./views/FAQPage.jsx";
-import TermsAndAgreementPage from "./views/TermsAndAgreementPage.jsx";
+import TermsAndAgreementPage from "./views/TermsAndAgreementPage";
+import TsinoWordHunt from "./views/TsinoWordHunt";
+import SaanAkoNabibilang from "./views/SaanAkoNabibilang";
+import PostTest from "./views/PostTest";
+import ItamaMoAko from "./views/ItamaMoAko";
 
 function App() {
   return (
@@ -33,6 +37,11 @@ function App() {
           <Route path="/wordhunt-game" element={<WordHuntGame />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/privacy" element={<TermsAndAgreementPage />} />
+          <Route path="/itama-mo-ako" element={<ItamaMoAko />} />
+          <Route path="/terms-and-agreement" element={<TermsAndAgreementPage />} />
+          <Route path="/tsino-word-hunt" element={<TsinoWordHunt />} />
+          <Route path="/saan-ako-nabibilang" element={<SaanAkoNabibilang />} />
+          <Route path="/post-test" element={<PostTest />} />
         </Routes>
       </div>
     </Router>
