@@ -104,6 +104,8 @@ function KabihasnanDetails() {
   const handleStartGame = (gameTitle) => {
     if (gameTitle === "CASTE YOUR ANSWER") {
       navigate("/caste-game");
+    } else if (gameTitle === "MindFlip") {
+      navigate("/mindflip-game");
     } else {
       console.log("game does not exist", gameTitle);
     }
