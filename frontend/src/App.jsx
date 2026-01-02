@@ -13,6 +13,9 @@ import RiddleGame from "./views/MesoRiddleGame.jsx";
 import WordHuntGame from "./views/TsinoWordHunt.jsx";
 import FAQPage from "./views/FAQPage.jsx";
 import TermsAndAgreementPage from "./views/TermsAndAgreementPage.jsx";
+import AdminNav from './components/AdminNav.jsx';
+import AdminDashboard from './views/admin/AdminDashboard.jsx';
+import UserManagement from './views/admin/UserManagement.jsx';
 
 function App() {
   return (
@@ -32,6 +35,10 @@ function App() {
           <Route path="/wordhunt-game" element={<WordHuntGame />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/privacy" element={<TermsAndAgreementPage />} />
+          <Route path="/admin" element={<AdminNav />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+          </Route>
         </Routes>
       </div>
     </Router>
