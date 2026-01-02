@@ -12,17 +12,19 @@ import MindFlipGame from "./views/MesoMemoryGame.jsx";
 import RiddleGame from "./views/MesoRiddleGame.jsx";
 import WordHuntGame from "./views/TsinoWordHunt.jsx";
 import FAQPage from "./views/FAQPage.jsx";
-import TermsAndAgreementPage from "./views/TermsAndAgreementPage";
+import TermsAndAgreementPage from "./views/TermsAndAgreementPage.jsx";
 import TsinoWordHunt from "./views/TsinoWordHunt";
 import SaanAkoNabibilang from "./views/SaanAkoNabibilang";
 import PostTest from "./views/PostTest";
 import ItamaMoAko from "./views/ItamaMoAko";
+import AdminNav from './components/AdminNav.jsx';
+import AdminDashboard from './views/admin/AdminDashboard.jsx';
+import UserManagement from './views/admin/UserManagement.jsx';
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -42,6 +44,10 @@ function App() {
           <Route path="/tsino-word-hunt" element={<TsinoWordHunt />} />
           <Route path="/saan-ako-nabibilang" element={<SaanAkoNabibilang />} />
           <Route path="/post-test" element={<PostTest />} />
+          <Route path="/admin" element={<AdminNav />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+          </Route>
         </Routes>
       </div>
     </Router>
