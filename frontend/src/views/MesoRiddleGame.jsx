@@ -112,7 +112,7 @@ const MesoRiddleGame = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 pb-10">
+      <div className="max-w-4xl mx-auto px-4 pb-10 mt-15">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-[#5a2d0c] font-bold mb-4 transition-transform hover:scale-[1.01] text-sm md:text-base cursor-pointer"
