@@ -111,7 +111,11 @@ function KabihasnanDetails() {
     } 
     else if (gameTitle === "DynasSeek") {
       navigate("/wordhunt-game");
-    }else {
+    } else if (gameTitle === "MistakeMaze") {
+      navigate("/itama-mo-ako");
+    } else if (gameTitle === "Selectify") {
+      navigate("/saan-ako-nabibilang");
+    } else {
       console.log("game does not exist", gameTitle);
     }
   };
@@ -196,16 +200,17 @@ function KabihasnanDetails() {
       quizInstructions:
         "Ayusin ang mga magulong titik upang mabuo ang tamang termino na may kaugnayan sa Kabihasnang Tsino. Gamit ang ibinigay na clue o pangungusap, isulat ang tamang sagot sa patlang.",
     },
-    egypt: {
-      title: "Egyptian",
-      subtitle: "Ang lupain ng mga piramide at mga paraon.", //
+    africa: {
+      title: "Africa",
+      subtitle: "Ang mga sinaunang imperyo ng Africa",
       games: [
-        { title: "PictoWord", desc: "Fkhfai afiafhaw jfa iwifhaihf" }, //
-        { title: "EgyptHunt", desc: "Fkhfai afiafhaw jfa iwifhaihf" }, //
+        { title: "Selectify", desc: "Fkhfai afiafhaw jfa iwifhaihf" },
+        { title: "BrainTease", desc: "Fkhfai afiafhaw jfa iwifhaihf" },
       ],
-      quizTitle: "MatChieve - MATCHING TYPE", //
+      quizType: "multiple-choice",
+      quizTitle: "QuizStory - Multiple Choice",
       quizInstructions:
-        "Piliin ang titik ng tamang sagot sa Hanay B na tumutugma sa bawat bilang sa Hanay A.", //
+        "Basahin nang mabuti ang bawat tanong. Piliin ang letra ng tamang sagot.",
     },
     mesoamerica: {
       title: "Mesoamerica",
