@@ -36,7 +36,6 @@ const Card = ({ card, handleChoice, flipped, disabled }) => {
           flipped ? "rotate-y-180" : ""
         }`}
       >
-        {/* FRONT (Question Mark) */}
         <div
           className="absolute inset-0 backface-hidden w-full h-full bg-gradient-to-br from-[#8B5E3C] to-[#5a2d0c] rounded-xl border-2 border-[#C8AA86]/50 shadow-inner flex items-center justify-center"
           style={{ backfaceVisibility: "hidden" }}
@@ -46,7 +45,6 @@ const Card = ({ card, handleChoice, flipped, disabled }) => {
           </span>
         </div>
 
-        {/* BACK (Image) */}
         <div
           className="absolute inset-0 backface-hidden w-full h-full bg-[#FDFBF7] rounded-xl border-4 border-[#8B5E3C] overflow-hidden rotate-y-180 flex items-center justify-center"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
@@ -152,7 +150,7 @@ const MesoMemoryGame = () => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 pb-10">
+      <div className="max-w-5xl mx-auto px-4 pb-10 mt-15">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-[#5a2d0c] font-bold mb-4 transition-transform hover:scale-[1.01] text-sm md:text-base cursor-pointer"
@@ -166,7 +164,10 @@ const MesoMemoryGame = () => {
           </h1>
           <p className="text-[#964B1D] font-bold text-xs md:text-base max-w-2xl mx-auto leading-relaxed px-4">
             Obserbahan ang anim (6) na pares ng larawan sa loob ng sampung (10)
-            segundo. Pagkatapos ng oras, babaliktarin ang lahat ng cards.
+            segundo. Pagkatapos ng oras, babaliktarin ang lahat ng cards. Pumili
+            ng dalawang cards sa bawat turn upang tukuyin kung alin ang
+            magkapareha. Ipagpatuloy ang pagpili hanggang matagpuan ang lahat ng
+            tamang pares.
           </p>
         </div>
 

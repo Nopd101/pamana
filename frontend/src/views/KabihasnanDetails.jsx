@@ -106,6 +106,8 @@ function KabihasnanDetails() {
       navigate("/caste-game");
     } else if (gameTitle === "MindFlip") {
       navigate("/mindflip-game");
+    } else if (gameTitle === "BrainTease") {
+      navigate("/riddle-game");
     } else {
       console.log("game does not exist", gameTitle);
     }
