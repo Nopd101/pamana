@@ -60,9 +60,9 @@ export default function TermsAndAgreementPage() {
                     <div className="relative z-10 text-left">
                         <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Data Privacy</h2>
                         <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white">
-                            <li>Student names, sections, and grades are secure and considered private.</li>
-                            <li>Teachers can only see data from their assigned sections.</li>
-                            <li>Admins have the ability to manage accounts, but cannot change student performance records.</li>
+                            <li>Student names, sections, and scores are stored securely.</li>
+                            <li>Teachers only see data from their assigned sections.</li>
+                            <li>Admins manage accounts but cannot alter student performance records.</li>
                         </ul>
                     </div>
                 </KabihasnanCard>
@@ -73,8 +73,8 @@ export default function TermsAndAgreementPage() {
                         <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Terms of Use</h2>
                         <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white">
                             <li>PAMANA is for educational purposes only.</li>
-                            <li>Users must log in with correct information.</li>
-                            <li>Accounts may be deactivated if used improperly.</li>
+                            <li>Users must log in with accurate information.</li>
+                            <li>Accounts may be deactivated if misused.</li>
                         </ul>
                     </div>
                 </KabihasnanCard>
@@ -84,7 +84,7 @@ export default function TermsAndAgreementPage() {
                     <div className="relative z-10 text-left">
                         <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Confidentiality</h2>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        All project-related communication is handled professionally. No personal information of the developers will be disclosed.
+                        All project-related communications are handled professionally. No personal information of the development team will be disclosed.
                         </p>
                     </div>
                 </KabihasnanCard>

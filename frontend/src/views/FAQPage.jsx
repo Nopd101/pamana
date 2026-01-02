@@ -65,9 +65,9 @@ export default function FAQPage() {
                         </p>
                         <h3 className="text-lg font-semibold mt-4 text-white">What can I do inside PAMANA?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        Watch video lectures, play mini-games, and answer short quizzes. Your scores will be automatically recorded.
+                        Watch video lectures, play mini-games, and answer quizzes. Your scores are saved automatically.
                         </p>
-                        <h3 className="text-lg font-semibold mt-4 text-white">How can I track my progress?</h3>
+                        <h3 className="text-lg font-semibold mt-4 text-white">How do I track my progress?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
                         Visit your Profile Page to see completed modules, quiz scores, and game results.
                         </p>
@@ -78,13 +78,24 @@ export default function FAQPage() {
                 <KabihasnanCard imagePosition="left">
                     <div className="relative z-10 text-left">
                         <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">For Teachers</h2>
-                        <h3 className="text-lg font-semibold mt-4 text-white">How can I see the students' progress?</h3>
+                        <h3 className="text-lg font-semibold mt-4 text-white">How do I view student progress?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
                         Use the Teacher Dashboard to see class performance, quiz scores, and game results.
                         </p>
                         <h3 className="text-lg font-semibold mt-4 text-white">Can I download reports?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        Yes, you can export reports for submission to the school administration.
+                        Yes, reports can be exported for submission to school administration.
+                        </p>
+                    </div>
+                </KabihasnanCard>
+            </AnimatedElement>
+            <AnimatedElement animation="slideInRight" className="w-full">
+                <KabihasnanCard imagePosition="right">
+                    <div className="relative z-10 text-left">
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">For Admins</h2>
+                        <h3 className="text-lg font-semibold mt-4 text-white">How do I manage users?</h3>
+                        <p className="text-base leading-relaxed font-normal text-white">
+                        Use the Admin Dashboard to create accounts, assign sections, and reset passwords.
                         </p>
                     </div>
                 </KabihasnanCard>

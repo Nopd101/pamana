@@ -58,9 +58,9 @@ export default function AboutUsPage() {
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">MISSION</h2>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Mission</h2>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        To provide a new way of learning Social Studies towards a more interesting, interactive, and meaningful experience by integrating digital storytelling and gamified learning. PAMANA aims to focus on eighth-grade students to appreciate cultural heritage, think critically about history, and connect ancient civilizations to the modern era.
+                        To transform the study of Araling Panlipunan into an engaging, interactive, and meaningful journey by combining digital storytelling with gamified learning. PAMANA seeks to empower Grade 8 learners to appreciate cultural heritage, think critically about history, and connect ancient civilizations to modern life.
                         </p>
                     </div>
                 </KabihasnanCard>
@@ -68,9 +68,9 @@ export default function AboutUsPage() {
             <AnimatedElement animation="slideInLeft" className="w-full">
                 <KabihasnanCard imagePosition="left">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">VISION</h2>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Vision</h2>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        PAMANA envisions a generation of students who see history not as distant data, but as living narratives that inspire curiosity, creativity, and social responsibility. Through PAMANA, we aim to shape lifelong learners who value cultural diversity, embrace innovation, and carry the legacy of humanity's earliest civilizations.
+                        We envision a generation of students who see history not as distant facts, but as living narratives that inspire curiosity, creativity, and civic responsibility. Through PAMANA, we aim to cultivate lifelong learners who value cultural diversity, embrace innovation, and carry forward the legacy of humanity’s earliest civilizations.
                         </p>
                     </div>
                 </KabihasnanCard>
@@ -78,12 +78,12 @@ export default function AboutUsPage() {
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">ACADEMIC BASIS</h2>
-                        <p className="text-base leading-relaxed font-normal text-white">PAMANA is rooted in:</p>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Academic Foundation</h2>
+                        <p className="text-base leading-relaxed font-normal text-white">PAMANA is anchored on:</p>
                         <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white mt-2">
-                            <li>Constructivist Learning Theory - promoting active, participatory learning.</li>
-                            <li>Mayer's Cognitive Theory of Multimedia Learning - integrating visuals and narration for deeper comprehension.</li>
-                            <li>Dale's Cone of Experience - ensuring students learn through immersive experiences.</li>
+                            <li>Constructivist Learning Theory – promoting active, participatory learning.</li>
+                            <li>Mayer’s Cognitive Theory of Multimedia Learning – integrating visuals and narration for deeper comprehension.</li>
+                            <li>Dale’s Cone of Experience – ensuring students learn through immersive experiences.</li>
                         </ul>
                     </div>
                 </KabihasnanCard>
@@ -91,14 +91,14 @@ export default function AboutUsPage() {
             <AnimatedElement animation="slideInLeft" className="w-full">
                 <KabihasnanCard imagePosition="left">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">THE RESEARCHERS</h2>
-                        <p className="text-base leading-relaxed font-normal text-white">This was developed by Social Studies majors from Bulacan State University - Bustos Campus:</p>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Our Team</h2>
+                        <p className="text-base leading-relaxed font-normal text-white">Developed by Social Studies majors of Bulacan State University – Bustos Campus:</p>
                         <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white mt-2">
-                            <li>Jahn Darius A. Mayuyo</li>
-                            <li>Gillane Anne D. Palo</li>
+                            <li>John Darius A. Mayuyo</li>
+                            <li>Gillene Anne D. Polo</li>
                             <li>Rafaela Pauline G. Cruz</li>
-                            <li>Althea Jane E. Labajo</li>
-                            <li>Cristalyn Garcia</li>
+                            <li>Althea Jane R. Labajo</li>
+                            <li>Cristalyn B. Garcia</li>
                         </ul>
                     </div>
                 </KabihasnanCard>

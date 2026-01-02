@@ -60,11 +60,8 @@ export default function ContactUsPage() {
                     <div className="relative z-10 text-left">
                         <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">We value your feedback and are here to help.</h2>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        For any concerns, technical issues, academic questions, or general suggestions, please email us at:
+                        For any concerns, whether technical issues, academic inquiries, or general suggestions, please message us directly through our email: (our group will create one)
                         </p>
-                        <a href="mailto:pamanadevteam@gmail.com" className="text-base font-bold mt-4 inline-block text-[#f6efe6] hover:underline">
-                        pamanadevteam@gmail.com
-                        </a>
                     </div>
                 </KabihasnanCard>
             </AnimatedElement>
