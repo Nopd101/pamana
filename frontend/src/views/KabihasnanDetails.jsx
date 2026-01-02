@@ -108,7 +108,10 @@ function KabihasnanDetails() {
       navigate("/mindflip-game");
     } else if (gameTitle === "BrainTease") {
       navigate("/riddle-game");
-    } else {
+    } 
+    else if (gameTitle === "DynasSeek") {
+      navigate("/wordhunt-game");
+    }else {
       console.log("game does not exist", gameTitle);
     }
   };

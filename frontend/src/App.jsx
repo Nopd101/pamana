@@ -10,6 +10,7 @@ import KabihasnanDetails from "./views/KabihasnanDetails.jsx";
 import CasteGame from "./views/IndusCasteGame.jsx";
 import MindFlipGame from "./views/MesoMemoryGame.jsx";
 import RiddleGame from "./views/MesoRiddleGame.jsx";
+import WordHuntGame from "./views/TsinoWordHunt.jsx";
 import FAQPage from "./views/FAQPage.jsx";
 import TermsAndAgreementPage from "./views/TermsAndAgreementPage.jsx";
 
@@ -29,6 +30,7 @@ function App() {
           <Route path="/caste-game" element={<CasteGame />} />
           <Route path="/mindflip-game" element={<MindFlipGame />} />
           <Route path="/riddle-game" element={<RiddleGame />} />
+          <Route path="/wordhunt-game" element={<WordHuntGame />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/privacy" element={<TermsAndAgreementPage />} />
         </Routes>
