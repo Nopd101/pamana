@@ -19,7 +19,7 @@ const AnimatedElement = ({ children, className, animation = "fadeInUp", style })
   );
 };
 
-export default function AboutUsPage() {
+export default function TermsAndAgreementPage() {
   return (
     <div className="bg-[#f6efe6] text-[#3b2a1a]">
       
@@ -48,58 +48,44 @@ export default function AboutUsPage() {
       {/* Title */}
       <div className="shadow-[0_-10px_30px_rgba(0,0,0,0.5)] bg-[#f6efe6] py-32">
           <AnimatedElement className="relative z-[2] text-center">
-            <h2 className="text-4xl font-bold tracking-[0.15em] m-0 p-0 text-[#772402] text-center filter drop-shadow-[0_12px_5px_rgba(0,0,0,0.452)]">ABOUT US</h2>
+            <h2 className="text-4xl font-bold tracking-[0.15em] m-0 p-0 text-[#772402] text-center filter drop-shadow-[0_12px_5px_rgba(0,0,0,0.452)]">TERMS & AGREEMENT</h2>
           </AnimatedElement>
       </div>
 
-      {/* ABOUT US CONTENT */}
+      {/* CONTENT */}
       <div className="py-20 px-8 pb-60 text-center bg-[#f6efe6] relative isolate mb-[-62.4px] z-0 shadow-[inset_0_10px_30px_rgba(0,0,0,0.5)] before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-[url('/src/assets/main-home-bg-2.png')] before:bg-cover before:bg-center before:opacity-25 before:z-[-1]">
         <div className="flex flex-col items-center gap-8 w-full">
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Mission</h2>
-                        <p className="text-base leading-relaxed font-normal text-white">
-                        To transform the study of Araling Panlipunan into an engaging, interactive, and meaningful journey by combining digital storytelling with gamified learning. PAMANA seeks to empower Grade 8 learners to appreciate cultural heritage, think critically about history, and connect ancient civilizations to modern life.
-                        </p>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Data Privacy</h2>
+                        <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white">
+                            <li>Student names, sections, and scores are stored securely.</li>
+                            <li>Teachers only see data from their assigned sections.</li>
+                            <li>Admins manage accounts but cannot alter student performance records.</li>
+                        </ul>
                     </div>
                 </KabihasnanCard>
             </AnimatedElement>
             <AnimatedElement animation="slideInLeft" className="w-full">
                 <KabihasnanCard imagePosition="left">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Vision</h2>
-                        <p className="text-base leading-relaxed font-normal text-white">
-                        We envision a generation of students who see history not as distant facts, but as living narratives that inspire curiosity, creativity, and civic responsibility. Through PAMANA, we aim to cultivate lifelong learners who value cultural diversity, embrace innovation, and carry forward the legacy of humanity’s earliest civilizations.
-                        </p>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Terms of Use</h2>
+                        <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white">
+                            <li>PAMANA is for educational purposes only.</li>
+                            <li>Users must log in with accurate information.</li>
+                            <li>Accounts may be deactivated if misused.</li>
+                        </ul>
                     </div>
                 </KabihasnanCard>
             </AnimatedElement>
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Academic Foundation</h2>
-                        <p className="text-base leading-relaxed font-normal text-white">PAMANA is anchored on:</p>
-                        <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white mt-2">
-                            <li>Constructivist Learning Theory – promoting active, participatory learning.</li>
-                            <li>Mayer’s Cognitive Theory of Multimedia Learning – integrating visuals and narration for deeper comprehension.</li>
-                            <li>Dale’s Cone of Experience – ensuring students learn through immersive experiences.</li>
-                        </ul>
-                    </div>
-                </KabihasnanCard>
-            </AnimatedElement>
-            <AnimatedElement animation="slideInLeft" className="w-full">
-                <KabihasnanCard imagePosition="left">
-                    <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Our Team</h2>
-                        <p className="text-base leading-relaxed font-normal text-white">Developed by Social Studies majors of Bulacan State University – Bustos Campus:</p>
-                        <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white mt-2">
-                            <li>John Darius A. Mayuyo</li>
-                            <li>Gillene Anne D. Polo</li>
-                            <li>Rafaela Pauline G. Cruz</li>
-                            <li>Althea Jane R. Labajo</li>
-                            <li>Cristalyn B. Garcia</li>
-                        </ul>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Confidentiality</h2>
+                        <p className="text-base leading-relaxed font-normal text-white">
+                        All project-related communications are handled professionally. No personal information of the development team will be disclosed.
+                        </p>
                     </div>
                 </KabihasnanCard>
             </AnimatedElement>
