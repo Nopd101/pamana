@@ -356,10 +356,15 @@ function KabihasnanDetails() {
               <h2 className="text-2xl font-bold text-[#5a2d0c] mb-6 font-[var(--font-heading)]">
                 Kabihasnang {currentData.title}
               </h2>
-              <div className="flex-1 bg-gray-400 rounded-lg relative flex items-center justify-center min-h-[400px] shadow-inner">
-                <div className="w-20 h-20 border-4 border-black/40 rounded-full flex items-center justify-center">
-                  <div className="w-0 h-0 border-t-[15px] border-t-transparent border-l-[25px] border-l-black/40 border-b-[15px] border-b-transparent ml-2" />
-                </div>
+              <div className="relative flex-1 rounded-lg shadow-inner overflow-hidden" style={{ paddingTop: '56.25%' /* 16:9 Aspect Ratio */ }}>
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
               </div>
               <button className="mt-8 self-end border-2 border-emerald-600 text-emerald-700 px-6 py-1 rounded-lg font-bold">
                 Next →
