@@ -20,6 +20,9 @@ import ItamaMoAko from "./views/ItamaMoAko";
 import AdminNav from './components/AdminNav.jsx';
 import AdminDashboard from './views/admin/AdminDashboard.jsx';
 import UserManagement from './views/admin/UserManagement.jsx';
+import FourPicsOneWord from "./views/FourPicsOneWord.jsx";
+import GameOfElimination from "./views/GameOfElimination.jsx";
+import ArtifactHiddenObject from "./views/ArtifactHiddenObject.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -47,6 +50,9 @@ const AppContent = () => {
         <Route path="/tsino-word-hunt" element={<TsinoWordHunt />} />
         <Route path="/saan-ako-nabibilang" element={<SaanAkoNabibilang />} />
         <Route path="/post-test" element={<PostTest />} />
+        <Route path="/four-pics-one-word" element={<FourPicsOneWord />} />
+        <Route path="/game-of-elimination" element={<GameOfElimination />} />
+        <Route path="/artifact-hidden-object" element={<ArtifactHiddenObject />} />
         <Route path="/admin" element={<AdminNav />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />

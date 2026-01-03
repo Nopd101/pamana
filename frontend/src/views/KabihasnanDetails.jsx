@@ -115,6 +115,12 @@ function KabihasnanDetails() {
       navigate("/itama-mo-ako");
     } else if (gameTitle === "Selectify") {
       navigate("/saan-ako-nabibilang");
+    } else if (gameTitle === "4 Pics 1 Word") {
+      navigate("/four-pics-one-word");
+    } else if (gameTitle === "Game of Elimination") {
+      navigate("/game-of-elimination");
+    } else if (gameTitle === "Artifact Hidden Object") {
+      navigate("/artifact-hidden-object");
     } else {
       console.log("game does not exist", gameTitle);
     }
@@ -193,12 +199,30 @@ function KabihasnanDetails() {
       subtitle: "Ang duyan ng sinaunang imbensyon at pilosopiya.",
       games: [
         { title: "DynasSeek", desc: "Fkhfai afiafhaw jfa iwifhaihf" },
-        { title: "ScratchVenture", desc: "Fkhfai afiafhaw jfa iwifhaihf" },
+        { title: "Game of Elimination", desc: "Eliminate the wrong choices to find the correct answer." },
       ],
       quizType: "identification",
       quizTitle: "IdentiFun - IDENTIFICATION",
       quizInstructions:
         "Ayusin ang mga magulong titik upang mabuo ang tamang termino na may kaugnayan sa Kabihasnang Tsino. Gamit ang ibinigay na clue o pangungusap, isulat ang tamang sagot sa patlang.",
+    },
+    egypt: {
+      title: "Egypt",
+      subtitle: "Ang Kabihasnang Egyptian at ang pamana ng mga Paraon.",
+      games: [
+        {
+          title: "4 Pics 1 Word",
+          desc: "Hulaan ang salita batay sa apat na larawan.",
+        },
+        {
+          title: "Artifact Hidden Object",
+          desc: "Tuklasin ang mga nakatagong kayamanan ng sinaunang Egypt.",
+        },
+      ],
+      quizType: "matching-type",
+      quizTitle: "Egypto-Connect",
+      quizInstructions:
+        "Pagtambalin ang mga konsepto mula sa Hanay A patungo sa Hanay B sa pamamagitan ng pagguhit ng linya.",
     },
     africa: {
       title: "Africa",
@@ -272,7 +296,6 @@ function KabihasnanDetails() {
       ans: "HUITZILOPOCHTLI",
     },
   ];
-  // Fallback to Mesopotamia if id not found, or use current id
   const currentData = civilizationData[id] || civilizationData.mesopotamia;
 
   return (
