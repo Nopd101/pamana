@@ -102,7 +102,9 @@ function KabihasnanDetails() {
   ]; //
 
   const handleStartGame = (gameTitle) => {
-    if (gameTitle === "CASTE YOUR ANSWER") {
+    if (gameTitle === "HARAPPUZZLE QUEST") {
+      navigate("/harappuzzle-quest");
+    } else if (gameTitle === "CASTE YOUR ANSWER") {
       navigate("/caste-game");
     } else if (gameTitle === "MindFlip") {
       navigate("/mindflip-game");
