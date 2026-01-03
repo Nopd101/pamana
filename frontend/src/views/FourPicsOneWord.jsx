@@ -83,14 +83,14 @@ const FourPicsOneWord = () => {
   if (isGameFinished) {
     return (
         <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4" style={{ backgroundImage: `url(${bgHome})` }}>
-            <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-10 border-4 border-[#C8AA86]/50 max-w-lg w-full">
-                <h2 className="text-5xl font-bold mb-4 text-[#5a2d0c]">Congratulations!</h2>
-                <p className="text-3xl mb-8 text-[#5a2d0c]">
+            <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 max-w-md md:max-w-lg w-full">
+                <h2 className="text-3xl md:text-5xl font-bold mb-4 text-[#5a2d0c]">Congratulations!</h2>
+                <p className="text-xl md:text-3xl mb-6 md:mb-8 text-[#5a2d0c]">
                 Your Final Score: <span className="font-extrabold">{score}/{puzzles.length}</span>
                 </p>
                 <button
                 onClick={() => navigate(-1)}
-                className="bg-[#772402] text-white py-3 px-12 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-2xl"
+                className="bg-[#772402] text-white py-3 px-8 md:px-12 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg md:text-2xl"
                 >
                 Finish
                 </button>
@@ -101,7 +101,7 @@ const FourPicsOneWord = () => {
 
   return (
     <div className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center p-4" style={{ backgroundImage: `url(${bgHome})` }}>
-        <div className="w-full max-w-6xl mx-auto px-4 pb-10">
+        <div className="w-full max-w-4xl mx-auto px-4 pb-10">
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center text-[#5a2d0c] font-bold mb-4 transition-transform hover:scale-[1.01] text-lg md:text-xl cursor-pointer"
@@ -114,18 +114,18 @@ const FourPicsOneWord = () => {
                 </h1>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-4 border-[#7B3306] w-full max-w-xl mx-auto">
-                <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-2xl font-bold text-[#5a2d0c]">Puzzle {currentPuzzleIndex + 1} of {puzzles.length}</h2>
-                    <h2 className="text-2xl font-bold text-[#5a2d0c]">Score: {score}/{puzzles.length}</h2>
+            <div className="bg-white/80 backdrop-blur-sm p-4 md:p-8 rounded-2xl shadow-lg border-4 border-[#7B3306] w-full max-w-lg md:max-w-xl mx-auto">
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-5">
+                    <h2 className="text-lg sm:text-2xl font-bold text-[#5a2d0c] mb-2 sm:mb-0">Puzzle {currentPuzzleIndex + 1}/{puzzles.length}</h2>
+                    <h2 className="text-lg sm:text-2xl font-bold text-[#5a2d0c]">Score: {score}/{puzzles.length}</h2>
                 </div>
-                <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="grid grid-cols-2 gap-2 md:gap-3 mb-5">
                     {currentPuzzle.images.map((img, index) => (
                         <img key={index} src={img} alt={`Puzzle clue ${index + 1}`} className="rounded-lg shadow-md w-full h-auto" />
                     ))}
                 </div>
                 {showHint && (
-                <p className="text-base text-center text-[#5a2d0c] mb-5 italic">{currentPuzzle.hint}</p>
+                <p className="text-sm md:text-base text-center text-[#5a2d0c] mb-5 italic">{currentPuzzle.hint}</p>
                 )}
                 <form onSubmit={handleSubmit}>
                 <input
@@ -133,13 +133,13 @@ const FourPicsOneWord = () => {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Isulat ang sagot dito..."
-                    className="w-full p-3 border-2 border-[#7B3306] rounded-lg mb-5 text-center text-lg"
+                    className="w-full p-3 border-2 border-[#7B3306] rounded-lg mb-5 text-center text-base md:text-lg"
                 />
-                <div className="flex justify-between">
-                    <button type="submit" className="bg-[#772402] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#5a2d0c] transition-colors text-lg">
+                <div className="flex flex-col sm:flex-row justify-between gap-3">
+                    <button type="submit" className="w-full sm:w-auto bg-[#772402] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#5a2d0c] transition-colors text-base md:text-lg">
                     Submit Answer
                     </button>
-                    <button type="button" onClick={() => setShowHint(!showHint)} className="border-2 border-[#772402] text-[#772402] font-bold py-3 px-6 rounded-lg hover:bg-amber-50 transition-colors text-lg">
+                    <button type="button" onClick={() => setShowHint(!showHint)} className="w-full sm:w-auto border-2 border-[#772402] text-[#772402] font-bold py-3 px-6 rounded-lg hover:bg-amber-50 transition-colors text-base md:text-lg">
                     {showHint ? 'Hide Hint' : 'Show Hint'}
                     </button>
                 </div>

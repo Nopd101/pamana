@@ -19,7 +19,7 @@ const artifacts = [
   {
     name: 'SCARAB',
     hint: 'Kadalasang gawa sa bato o precious stones.',
-    coords: { x: 78, y: 84, width: 10, height: 10 }, // in %
+    coords: { x: 80, y: 85, width: 10, height: 10 }, // in %
     found: false,
   },
   {
@@ -45,21 +45,13 @@ const ArtifactHiddenObject = () => {
   const isGameFinished = foundItems.length === artifacts.length;
 
   const handleImageClick = (e) => {
-    if (isGameFinished) return;
-
     const rect = imageContainerRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
     artifacts.forEach((artifact) => {
-      if (
-        !foundItems.includes(artifact.name) &&
-        x >= artifact.coords.x &&
-        x <= artifact.coords.x + artifact.coords.width &&
-        y >= artifact.coords.y &&
-        y <= artifact.coords.y + artifact.coords.height
-      ) {
-        setFoundItems([...foundItems, artifact.name]);
+      if (!foundItems.includes(artifact.name) && x >= artifact.coords.x && x <= artifact.coords.x + artifact.coords.width && y >= artifact.coords.y && y <= artifact.coords.y + artifact.coords.height) {
+        setFoundItems((prev) => [...prev, artifact.name]);
         setActiveHint(null); // Hide hint once found
       }
     });
@@ -68,14 +60,14 @@ const ArtifactHiddenObject = () => {
   if (isGameFinished) {
     return (
       <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4" style={{ backgroundImage: `url(${bgHome})` }}>
-        <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-10 border-4 border-[#C8AA86]/50 max-w-lg w-full">
-          <h2 className="text-5xl font-bold mb-4 text-[#5a2d0c]">Congratulations!</h2>
-          <p className="text-3xl mb-8 text-[#5a2d0c]">
+        <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 max-w-md md:max-w-lg w-full">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-[#5a2d0c]">Congratulations!</h2>
+          <p className="text-xl md:text-3xl mb-6 md:mb-8 text-[#5a2d0c]">
             You have found all the artifacts!
           </p>
           <button
             onClick={() => navigate(-1)}
-            className="bg-[#772402] text-white py-3 px-12 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-2xl"
+            className="bg-[#772402] text-white py-3 px-8 md:px-12 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg md:text-2xl"
           >
             Finish
           </button>
@@ -102,42 +94,43 @@ const ArtifactHiddenObject = () => {
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start">
-          <div ref={imageContainerRef} onClick={handleImageClick} className="w-full md:w-3/4 relative cursor-pointer rounded-lg overflow-hidden shadow-lg border-4 border-[#7B3306]">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <div ref={imageContainerRef} onClick={handleImageClick} className="w-full lg:w-3/4 relative cursor-pointer rounded-lg overflow-hidden shadow-lg border-4 border-[#7B3306]">
             <img src={mainImage} alt="Ancient Egyptian Tomb" className="w-full h-auto" />
             {artifacts.map((artifact) =>
               foundItems.includes(artifact.name) && (
                 <div
                   key={artifact.name}
-                  className="absolute border-4 border-yellow-400 rounded-full animate-ping"
+                  className="absolute border-4 border-yellow-400 rounded-full"
                   style={{
                     left: `${artifact.coords.x + artifact.coords.width / 2}%`,
                     top: `${artifact.coords.y + artifact.coords.height / 2}%`,
                     width: '20px',
                     height: '20px',
                     transform: 'translate(-50%, -50%)',
+                    animation: 'pulse 1.5s infinite',
                   }}
                 />
               )
             )}
           </div>
 
-          <div className="w-full md:w-1/4 bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border-4 border-[#7B3306]">
-            <h3 className="text-2xl font-bold text-[#5a2d0c] mb-4 text-center">Items to Find</h3>
-            <ul>
+          <div className="w-full lg:w-1/4 bg-white/80 backdrop-blur-sm p-4 md:p-6 rounded-2xl shadow-lg border-4 border-[#7B3306]">
+            <h3 className="text-xl md:text-2xl font-bold text-[#5a2d0c] mb-4 text-center">Items to Find</h3>
+            <ul className="space-y-2">
               {artifacts.map((artifact) => (
                 <li
                   key={artifact.name}
                   onClick={() => !foundItems.includes(artifact.name) && setActiveHint(activeHint === artifact.name ? null : artifact.name)}
-                  className={`p-2 my-1 rounded-md cursor-pointer transition-all ${
+                  className={`p-3 my-1 rounded-lg cursor-pointer transition-all shadow-sm ${
                     foundItems.includes(artifact.name)
-                      ? 'bg-green-300 text-gray-500 line-through'
+                      ? 'bg-green-200 text-gray-500 line-through'
                       : 'bg-amber-100 hover:bg-amber-200'
                   }`}
                 >
-                  <p className="font-bold text-[#5a2d0c]">{artifact.name}</p>
+                  <p className="font-bold text-sm md:text-base text-[#5a2d0c]">{artifact.name}</p>
                   {activeHint === artifact.name && (
-                    <p className="text-sm italic text-amber-800 mt-1">{artifact.hint}</p>
+                    <p className="text-xs md:text-sm italic text-amber-800 mt-1">{artifact.hint}</p>
                   )}
                 </li>
               ))}

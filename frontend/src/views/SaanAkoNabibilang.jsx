@@ -3,7 +3,6 @@ import { DndProvider, useDrag, useDrop, useDragLayer } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
-import Navbar from "../components/Nav";
 
 const ItemTypes = {
   WORD: "word",
@@ -158,16 +157,44 @@ const SaanAkoNabibilang = () => {
 
   const getWordById = (id) => WORDS.find(w => w.id === id);
 
+  if (isGameFinished) {
+    return (
+      <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4" style={{ backgroundImage: `url(${bgHome})` }}>
+        <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 max-w-md w-full">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-[#5a2d0c]">Congratulations!</h2>
+          <p className="text-xl md:text-3xl mb-6 md:mb-8 text-[#5a2d0c]">
+            Your Final Score: <span className="font-extrabold">{score}/{WORDS.length}</span>
+          </p>
+          <div className="flex flex-col gap-4">
+            <button
+              onClick={handleReset}
+              className="bg-white text-[#772402] py-3 px-8 rounded-lg shadow-lg border-2 border-[#772402] hover:bg-amber-50 transition-colors font-bold text-lg md:text-xl"
+            >
+              Play Again
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg md:text-xl"
+            >
+              Finish
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
   return (
     <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
       <CustomDragLayer />
       <div
-        className="min-h-screen bg-cover bg-center font-[var(--font-body)]"
+        className="min-h-screen bg-cover bg-center font-[var(--font-body)] p-4"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
-        <Navbar />
-        <div className="flex flex-col items-center justify-center min-h-screen pt-24 md:pt-32">
-          <div className="w-full max-w-6xl mx-auto px-4 pb-10">
+        
+        <div className="flex flex-col items-center justify-center min-h-screen pt-16 md:pt-24">
+          <div className="w-full max-w-5xl mx-auto pb-10">
             <button
               onClick={() => navigate(-1)}
               className="flex items-center text-[#5a2d0c] font-bold mb-4 transition-transform hover:scale-[1.01] text-sm md:text-base cursor-pointer"
@@ -184,54 +211,39 @@ const SaanAkoNabibilang = () => {
               </p>
             </div>
 
-            {!isGameFinished ? (
-              <>
-                <DropTarget categoryId="source" onDrop={handleDrop} title="Mga Pagpipilian">
-                    {wordPlacements.source.map(id => {
-                        const word = getWordById(id);
-                        return <DraggableWord key={id} id={id} label={word.label} origin="source" />
-                    })}
-                </DropTarget>
+            <div className="bg-white/80 backdrop-blur-sm p-4 md:p-6 rounded-2xl shadow-lg border-4 border-[#7B3306]">
+              <DropTarget categoryId="source" onDrop={handleDrop} title="Mga Pagpipilian">
+                  {wordPlacements.source.map(id => {
+                      const word = getWordById(id);
+                      return <DraggableWord key={id} id={id} label={word.label} origin="source" />
+                  })}
+              </DropTarget>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                  {Object.values(CATEGORIES).map((cat) => (
-                    <DropTarget
-                      key={cat.id}
-                      categoryId={cat.id}
-                      onDrop={handleDrop}
-                      title={cat.label}
-                      color={cat.color}
-                    >
-                      {wordPlacements[cat.id].map(id => {
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                {Object.values(CATEGORIES).map((cat) => (
+                  <DropTarget
+                    key={cat.id}
+                    categoryId={cat.id}
+                    onDrop={handleDrop}
+                    title={cat.label}
+                    color={cat.color}
+                  >
+                    {wordPlacements[cat.id].map(id => {
                         const word = getWordById(id);
                         return <DraggableWord key={id} id={id} label={word.label} origin={cat.id} />
-                      })}
-                    </DropTarget>
-                  ))}
-                </div>
-                <div className="text-center mt-8">
-                    <button
-                        onClick={checkAnswers}
-                        className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-xl"
-                    >
-                        Check Answers
-                    </button>
-                </div>
-              </>
-            ) : (
-              <div className="text-center bg-[#FDFBF7] rounded-3xl shadow-2xl p-10 border-4 border-[#C8AA86]/50">
-                <h2 className="text-4xl font-bold mb-4 text-[#5a2d0c]">Congratulations!</h2>
-                <p className="text-2xl mb-6 text-[#5a2d0c]">
-                  Your Final Score: <span className="font-extrabold">{score}/{WORDS.length}</span>
-                </p>
-                <button
-                  onClick={() => navigate(-1)}
-                  className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-xl"
-                >
-                  Finish
+                    })}
+                  </DropTarget>
+                ))}
+              </div>
+              <div className="flex flex-col md:flex-row gap-4 mt-6">
+                <button onClick={handleReset} className="w-full md:w-auto border-2 border-[#772402] text-[#772402] font-bold py-3 px-8 rounded-lg hover:bg-amber-50 transition-colors text-lg">
+                  Reset
+                </button>
+                <button onClick={checkAnswers} className="w-full md:w-auto bg-[#772402] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#5a2d0c] transition-colors text-lg flex-grow">
+                  Check Answers
                 </button>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

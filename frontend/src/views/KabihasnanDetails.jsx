@@ -313,9 +313,9 @@ function KabihasnanDetails() {
 
       <div className="max-w-5xl mx-auto">
         {/* Header Section */}
-        <div className="flex items-center gap-6 mb-8">
+        <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
           <div className="w-24 h-24 bg-gray-300 rounded-sm shadow-inner shrink-0" />
-          <div>
+          <div className="text-center md:text-left">
             <h1 className="text-3xl font-extrabold text-[#7B3306] font-[var(--font-heading)] uppercase">
               Kabihasnang {currentData.title}
             </h1>
@@ -356,9 +356,9 @@ function KabihasnanDetails() {
               <h2 className="text-2xl font-bold text-[#5a2d0c] mb-6 font-[var(--font-heading)]">
                 Kabihasnang {currentData.title}
               </h2>
-              <div className="relative flex-1 rounded-lg shadow-inner overflow-hidden" style={{ paddingTop: '56.25%' /* 16:9 Aspect Ratio */ }}>
+              <div className="relative w-full" style={{ paddingTop: '56.25%' /* 16:9 Aspect Ratio */ }}>
                 <iframe
-                  className="absolute top-0 left-0 w-full h-full"
+                  className="absolute top-0 left-0 w-full h-full rounded-lg shadow-inner"
                   src="https://www.youtube.com/embed/dQw4w9WgXcQ"
                   title="YouTube video player"
                   frameBorder="0"
@@ -366,7 +366,7 @@ function KabihasnanDetails() {
                   allowFullScreen
                 ></iframe>
               </div>
-              <button className="mt-8 self-end border-2 border-emerald-600 text-emerald-700 px-6 py-1 rounded-lg font-bold">
+              <button className="mt-8 self-center md:self-end border-2 border-emerald-600 text-emerald-700 px-6 py-1 rounded-lg font-bold">
                 Next →
               </button>
             </div>
@@ -587,7 +587,7 @@ function KabihasnanDetails() {
               {id === "egypt" && (
                 <div className="space-y-6">
                   <div className="relative" ref={containerRef}>
-                    <div className="grid grid-cols-2 gap-20 border-2 border-[#5a2d0c]/30 rounded-xl p-8 bg-white shadow-sm z-10 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20 border-2 border-[#5a2d0c]/30 rounded-xl p-4 md:p-8 bg-white shadow-sm z-10 relative">
                       {/* Hanay A */}
                       <div className="space-y-4">
                         <p className="font-black text-center text-[#5a2d0c] mb-2 uppercase">
@@ -629,7 +629,7 @@ function KabihasnanDetails() {
                             key={i}
                             id={`b${i}`}
                             onClick={() => handleConnect(`b${i}`)}
-                            className={`w-full border-2 border-[#772402] p-6 mb-5.5 rounded-lg font-black uppercase transition-colors min-h-[60px] ${
+                            className={`w-full border-2 border-[#772402] p-4 md:p-6 rounded-lg font-black uppercase transition-colors min-h-[60px] ${
                               connections.find((c) => c.toId === `b${i}`)
                                 ? "bg-[#772402] text-white"
                                 : "text-[#772402] hover:bg-amber-50"
@@ -687,14 +687,14 @@ function KabihasnanDetails() {
                   </div>
                 </div>
               )}
-              <div className="flex justify-end pt-4">
+              <div className="flex flex-col md:flex-row justify-end pt-4 gap-4">
                 <button
                   onClick={handleClearAnswers}
-                  className="border-2 border-[#772402] text-[#772402] px-8 py-3 mr-4 rounded-xl font-black text-lg shadow-md hover:bg-amber-50 transition-all active:scale-95"
+                  className="w-full md:w-auto border-2 border-[#772402] text-[#772402] px-8 py-3 rounded-xl font-black text-lg shadow-md hover:bg-amber-50 transition-all active:scale-95"
                 >
                   Clear Answer
                 </button>
-                <button className="bg-[#772402] text-white px-12 py-3 rounded-xl font-black text-xl shadow-xl hover:bg-[#5a2d0c] transition-all transform active:scale-95">
+                <button className="w-full md:w-auto bg-[#772402] text-white px-12 py-3 rounded-xl font-black text-xl shadow-xl hover:bg-[#5a2d0c] transition-all transform active:scale-95">
                   Submit Answer
                 </button>
               </div>
