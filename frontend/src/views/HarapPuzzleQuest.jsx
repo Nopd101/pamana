@@ -31,10 +31,10 @@ const getPuzzleImages = (puzzleName) => {
 // --- Data ---
 const PUZZLE_DATA = [
   { name: 'Caste System', grid: { rows: 3, cols: 4 } },
-  { name: 'Harappa', grid: { rows: 3, cols: 4 } },
   { name: 'Indus River', grid: { rows: 3, cols: 4 } },
-  { name: 'Mohenjo-Daro', grid: { rows: 3, cols: 4 } },
+  { name: 'Harappa', grid: { rows: 3, cols: 4 } },
   { name: 'Vedas', grid: { rows: 3, cols: 4 } },
+  { name: 'Mohenjo-Daro', grid: { rows: 3, cols: 4 } },
 ];
 
 const puzzles = PUZZLE_DATA.map((p, index) => ({
@@ -51,6 +51,29 @@ const ItemTypes = {
   PIECE: 'piece',
 };
 
+// --- MANUAL PIECE CONFIGURATION ---
+// "default" applies to any piece you haven't listed specifically.
+// Add specific IDs (0, 1, 2...) to override them.
+const PIECE_CONFIG = {
+  default: { scaleX: '135%', scaleY: '135%', nudgeX: '0%', nudgeY: '0%' },
+  
+  // EXAMPLE: Manually adjusting specific pieces
+  // Top Row (0-3)
+  0: { scaleX: '150%', scaleY: '140%', nudgeX: '4%', nudgeY: '7%' }, 
+  1: { scaleX: '145%', scaleY: '120%', nudgeX: '-3%', nudgeY: '0%' }, 
+  2: { scaleX: '145%', scaleY: '145%', nudgeX: '2%', nudgeY: '8%' }, 
+  3: { scaleX: '133%', scaleY: '135%', nudgeX: '1%', nudgeY: '5%' }, 
+  4: { scaleX: '138%', scaleY: '135%', nudgeX: '1%', nudgeY: '8%' }, 
+  5: { scaleX: '150%', scaleY: '155%', nudgeX: '0%', nudgeY: '1%' }, 
+  6: { scaleX: '140%', scaleY: '115%', nudgeX: '2%', nudgeY: '0%' }, 
+  7: { scaleX: '135%', scaleY: '150%', nudgeX: '0%', nudgeY: '4%' }, 
+  8: { scaleX: '135%', scaleY: '125%', nudgeX: '0%', nudgeY: '0%' }, 
+  9: { scaleX: '140%', scaleY: '125%', nudgeX: '0%', nudgeY: '0%' }, 
+  10: { scaleX: '155%', scaleY: '142%', nudgeX: '7%', nudgeY: '-6%' }, 
+  11: { scaleX: '120%', scaleY: '125%', nudgeX: '7%', nudgeY: '0%' }, 
+
+};
+
 // --- Draggable Piece Component ---
 const DraggablePiece = ({ piece, isBankPiece }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -61,10 +84,48 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
     }),
   }));
 
+  // === INDIVIDUAL PIECE CONFIGURATION ===
+  const getPieceStyle = () => {
+    // 1. If it's in the bank, keep it standard
+    if (isBankPiece) {
+      return {
+        width: '100%',
+        height: '100%',
+        transform: 'scale(0.8)',
+        position: 'relative',
+      };
+    }
+
+    // 2. Load settings for THIS specific piece (or use default)
+    const config = PIECE_CONFIG[piece.id] || PIECE_CONFIG.default;
+    
+    // 3. Fallback values if you forgot to define one property
+    const width = config.scaleX || PIECE_CONFIG.default.scaleX;
+    const height = config.scaleY || PIECE_CONFIG.default.scaleY;
+    const nudgeX = config.nudgeX || '0%';
+    const nudgeY = config.nudgeY || '0%';
+
+    return {
+      width: width,
+      height: height,
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      // Combine centering with your manual nudge
+      transform: `translate(calc(-50% + ${nudgeX}), calc(-50% + ${nudgeY}))`,
+      zIndex: 10,
+    };
+  };
+
+  const customStyle = getPieceStyle();
+
   const style = {
     opacity: isDragging ? 0.5 : 1,
-    transform: isBankPiece ? 'scale(0.8)' : 'scale(1)',
     transition: 'transform 0.2s ease',
+    maxWidth: 'none',  // Allow overflow
+    maxHeight: 'none', // Allow overflow
+    pointerEvents: isDragging ? 'none' : 'auto',
+    ...customStyle,
   };
 
   return (
@@ -72,14 +133,15 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
       ref={drag}
       src={piece.img}
       alt={`Puzzle piece ${piece.id}`}
-      className="w-full h-full object-contain cursor-grab active:cursor-grabbing"
-      style={style}
+      className="cursor-grab active:cursor-grabbing"
+      // Force 'fill' so your scaleX/scaleY settings actually stretch the image
+      style={{ ...style, objectFit: 'fill' }} 
     />
   );
 };
 
 // --- Drop Slot Component (on the board) ---
-const DropSlot = ({ slotId, piece, onDrop, isComplete }) => {
+const DropSlot = ({ slotId, piece, onDrop, isComplete, gridSize }) => { // Accept gridSize
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.PIECE,
     drop: (item) => onDrop(slotId, item.piece),
@@ -97,10 +159,13 @@ const DropSlot = ({ slotId, piece, onDrop, isComplete }) => {
       className="relative w-full h-full"
       style={{ 
         border: borderStyle,
-        backgroundColor: isOver && canDrop ? 'rgba(255, 255, 255, 0.3)' : 'transparent' 
+        backgroundColor: isOver && canDrop ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
+        overflow: 'visible', 
+        zIndex: piece ? 2 : 1 
       }}
     >
-      {piece && <DraggablePiece piece={piece} isBankPiece={false} />}
+      {/* Pass gridSize to DraggablePiece */}
+      {piece && <DraggablePiece piece={piece} isBankPiece={false} gridSize={gridSize} />}
     </div>
   );
 };
@@ -110,8 +175,9 @@ const PuzzleBoard = ({ puzzle, boardState, onDrop, isComplete }) => {
   const { rows, cols } = puzzle.grid;
   return (
     <div
-      className="grid w-full h-full"
+      className="grid w-full"
       style={{
+        aspectRatio: `${cols} / ${rows}`,
         gridTemplateRows: `repeat(${rows}, 1fr)`,
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
       }}
@@ -120,9 +186,10 @@ const PuzzleBoard = ({ puzzle, boardState, onDrop, isComplete }) => {
         <DropSlot
           key={`slot-${index}`}
           slotId={index}
-          piece={piece} // Pass the piece to the slot
+          piece={piece}
           onDrop={onDrop}
           isComplete={isComplete}
+          gridSize={puzzle.grid} // <--- PASS GRID SIZE HERE
         />
       ))}
     </div>
@@ -203,6 +270,29 @@ function HarapPuzzleQuest() {
       });
     }
   }, [currentPuzzle, imagesLoaded]);
+
+  // // PANG AUTOCOMPLETE TO PAG NAGDEDEBUG
+  // useEffect(() => {
+  //   if (imagesLoaded) {
+  //     setIsPuzzleComplete(false); 
+      
+  //     // --- DEBUG MODE: AUTO-COMPLETE ---
+  //     // 1. Don't shuffle.
+  //     // 2. Put everything directly on the board in the correct order.
+  //     setPieces({
+  //       bank: [], // Bank is empty
+  //       board: currentPuzzle.pieces, // Board has all pieces in correct slots (Index 0 = Piece 0)
+  //     });
+      
+  //     /* // --- ORIGINAL GAME MODE (Uncomment this to revert later) ---
+  //     const shuffled = [...currentPuzzle.pieces].sort(() => Math.random() - 0.5);
+  //     setPieces({
+  //       bank: shuffled,
+  //       board: Array(currentPuzzle.grid.rows * currentPuzzle.grid.cols).fill(null),
+  //     });
+  //     */
+  //   }
+  // }, [currentPuzzle, imagesLoaded]);
 
   // --- Completion Check Effect ---
   useEffect(() => {
