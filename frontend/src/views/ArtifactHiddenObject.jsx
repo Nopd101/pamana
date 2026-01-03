@@ -7,31 +7,31 @@ const artifacts = [
   {
     name: 'TUTANKHAMEN MASK',
     hint: 'Gintong maskara ng batang pharaoh.',
-    coords: { x: 8, y: 20, width: 22, height: 38 }, // in %
+    coords: { x: 5, y: 15, width: 25, height: 45 }, // #1
     found: false,
   },
   {
     name: 'SARCOPHAGUS',
     hint: 'Malaking kahon para sa libingan ng pharaoh.',
-    coords: { x: 25, y: 48, width: 45, height: 22 }, // in %
+    coords: { x: 25, y: 45, width: 50, height: 25 }, // #2
     found: false,
   },
   {
     name: 'SCARAB',
     hint: 'Kadalasang gawa sa bato o precious stones.',
-    coords: { x: 80, y: 85, width: 10, height: 10 }, // in %
+    coords: { x: 50, y: 81, width: 10, height: 12 }, // #3
     found: false,
   },
   {
     name: 'NILE RIVER MAP',
     hint: 'Ipinapakita ang ilog na pangunahing pinagkukunan ng tubig sa Egypt.',
-    coords: { x: 45, y: 72, width: 18, height: 12 }, // in %
+    coords: { x: 38, y: 75, width: 15, height: 12 }, // #4
     found: false,
   },
   {
     name: 'CHARIOT',
     hint: 'Sinaunang karwaheng pandigma.',
-    coords: { x: 70, y: 25, width: 20, height: 20 }, // in %
+    coords: { x: 52, y: 28, width: 22, height: 20 }, // #5
     found: false,
   },
 ];
