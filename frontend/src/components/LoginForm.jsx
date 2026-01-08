@@ -26,7 +26,7 @@ const LoginForm = () => {
       // 3. Redirect to Student Menu
       // TODO: You might want to decode the token later to check if it's a teacher or student
       alert("Login Successful!");
-      navigate('/student-menu'); 
+      navigate('/homepage'); 
 
     } catch (err) {
       console.error("Login Error:", err);

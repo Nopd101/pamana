@@ -52,3 +52,11 @@ class TeacherDashboardView(APIView):
             })
             
         return Response(data)
+    
+# 4. User Profile View (To get current user details)
+class UserProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)

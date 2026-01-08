@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import heroBanner from "../assets/hero-banner.png";
 import bgHome from "../assets/bg-home.png";
 import { useNavigate } from "react-router-dom";
+import API from "../api/axios"; // Import your API helper
 
 function HomePage() {
   const navigate = useNavigate();
+  const [firstName, setFirstName] = useState("Student"); // Default state
+
+  // Fetch user data on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await API.get("me/");
+        // If first_name is empty, fallback to username or 'Student'
+        setFirstName(response.data.first_name || response.data.username || "Student");
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+        // Optional: Redirect to login if token is invalid
+        // navigate('/login');
+      }
+    };
+    fetchUser();
+  }, [navigate]);
+
   const kabihasnanList = [
     { id: "mesopotamia", name: "Kabihasnang Mesopotamia" },
     { id: "indus", name: "Kabihasnang Indus" },
@@ -12,6 +31,7 @@ function HomePage() {
     { id: "egypt", name: "Kabihasnang Egypt" },
     { id: "mesoamerica", name: "Kabihasnang Mesoamerica" },
   ];
+
   return (
     <div className="w-full">
 
@@ -29,14 +49,19 @@ function HomePage() {
         <div className="relative z-10 w-full px-8 md:px-20 -mt-20">
           <div className="max-w-xl text-white">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight font-[var(--font-heading)]">
-              Welcome, Juan!
+              {/* Dynamic Name Here */}
+              Welcome, {firstName}!
             </h1>
 
             <p className="mt-4 text-lg font-[var(--font-body)]">
               Choose a civilization to study
             </p>
 
-            <button className="mt-6 bg-amber-700 hover:bg-amber-800 transition px-6 py-3 rounded-md font-semibold cursor-pointer font-[var(--font-body)]">
+            {/* Scroll or Navigate button */}
+            <button 
+                onClick={() => document.getElementById('civilizations').scrollIntoView({ behavior: 'smooth' })}
+                className="mt-6 bg-amber-700 hover:bg-amber-800 transition px-6 py-3 rounded-md font-semibold cursor-pointer font-[var(--font-body)]"
+            >
               Start Learning
             </button>
           </div>
@@ -45,6 +70,7 @@ function HomePage() {
 
       {/* ================= BG / CONTENT SECTION ================= */}
       <section
+        id="civilizations" 
         className="bg-cover bg-top px-6 md:px-20 py-16 -mt-32 relative z-0"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
