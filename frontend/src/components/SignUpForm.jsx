@@ -1,7 +1,49 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../api/axios";
 
 const SignUpForm = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [section, setSection] = useState("");
+  const [studentId, setStudentId] = useState(""); // Maps to 'username'
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    // Simple validation
+    if (!section) {
+      setError("Please select a section.");
+      return;
+    }
+
+    try {
+      await API.post("register/", {
+        username: studentId,
+        password: password,
+        first_name: firstName,
+        last_name: lastName,
+        section: section, // Sends the ID (e.g., "1")
+        role: "student"
+      });
+
+      alert("Account created successfully! Please log in.");
+      navigate("/login");
+    } catch (err) {
+      console.error("Registration Error:", err.response?.data);
+      // Django usually sends detailed errors (e.g., "Username already exists")
+      // We try to display specific messages if available
+      const errMsg = err.response?.data?.username 
+        ? "Student ID already registered." 
+        : "Registration failed. Check details.";
+      setError(errMsg);
+    }
+  };
+
   return (
     <div className="max-w-sm mx-auto w-full text-white">
       <h2
@@ -11,7 +53,13 @@ const SignUpForm = () => {
         SIGN UP
       </h2>
 
-      <form className="space-y-3">
+      <form className="space-y-3" onSubmit={handleRegister}>
+        {error && (
+          <div className="text-red-500 text-xs text-center bg-red-100/10 p-2 rounded">
+            {error}
+          </div>
+        )}
+
         <div>
           <label className="block text-xs text-[#B89336] mb-1 font-[var(--font-body)] ml-1">
             First Name
@@ -19,7 +67,10 @@ const SignUpForm = () => {
           <input
             type="text"
             placeholder="ex. Juan"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
             className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+            required
           />
         </div>
 
@@ -30,7 +81,10 @@ const SignUpForm = () => {
           <input
             type="text"
             placeholder="ex. Dela Cruz"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+            required
           />
         </div>
 
@@ -39,16 +93,22 @@ const SignUpForm = () => {
             Section
           </label>
           <div className="relative">
+            {/* NOTE: The 'value' here corresponds to the Database ID of the section.
+               Ensure you have created these sections in Django Admin first.
+            */}
             <select
               className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] cursor-pointer"
-              defaultValue=""
+              value={section}
+              onChange={(e) => setSection(e.target.value)}
+              required
             >
               <option value="" disabled>
                 Select Section
               </option>
-              <option value="A">Section A</option>
-              <option value="B">Section B</option>
-              <option value="C">Section C</option>
+              {/* You can later fetch these dynamically from the API */}
+              <option value="1">Section A (ID: 1)</option>
+              <option value="2">Section B (ID: 2)</option>
+              <option value="3">Section C (ID: 3)</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
               <svg
@@ -69,7 +129,10 @@ const SignUpForm = () => {
           <input
             type="text"
             placeholder="20221515"
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
             className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+            required
           />
         </div>
 
@@ -80,12 +143,15 @@ const SignUpForm = () => {
           <input
             type="password"
             placeholder="••••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+            required
           />
         </div>
 
         <button
-          type="button"
+          type="submit"
           className="w-full mt-2 bg-[#B89336] hover:bg-[#a68b4f] text-[#3E2b26] font-bold py-2.5 rounded-lg transition-colors duration-200 font-[var(--font-body)] cursor-pointer"
         >
           Sign Up
