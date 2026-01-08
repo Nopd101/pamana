@@ -1,7 +1,39 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../api/axios";
 
 const LoginForm = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(''); // Clear previous errors
+
+    try {
+      // 1. Send credentials to Django (username maps to Student ID in your UI)
+      const response = await API.post('token/', {
+        username: username,
+        password: password
+      });
+
+      // 2. Save the tokens securely
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
+
+      // 3. Redirect to Student Menu
+      // TODO: You might want to decode the token later to check if it's a teacher or student
+      alert("Login Successful!");
+      navigate('/student-menu'); 
+
+    } catch (err) {
+      console.error("Login Error:", err);
+      setError("Invalid Student ID or Password.");
+    }
+  };
+
   return (
     <div className="max-w-xs mx-auto w-full text-white">
       <h2 className="text-3xl md:text-4xl tracking-widest text-center mb-10 font-[var(--font-heading)] font-light"
@@ -9,7 +41,14 @@ const LoginForm = () => {
         LOGIN
       </h2>
 
-      <form className="space-y-5">
+      <form className="space-y-5" onSubmit={handleLogin}>
+        {/* Error Message Display */}
+        {error && (
+          <div className="text-red-500 text-sm text-center bg-red-100/10 p-2 rounded">
+            {error}
+          </div>
+        )}
+
         <div>
           <label className="block text-xs text-[#B89336] mb-1 font-[var(--font-body)] ml-1">
             Student ID
@@ -17,6 +56,8 @@ const LoginForm = () => {
           <input
             type="text"
             placeholder="20221515"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
           />
         </div>
@@ -28,14 +69,15 @@ const LoginForm = () => {
           <input
             type="password"
             placeholder="••••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
           />
         </div>
 
         <button
-          type="button"
+          type="submit"
           className="w-full mt-4 bg-[#B89336] hover:bg-[#a68b4f] text-[#3E2b26] font-bold py-2.5 rounded-lg transition-colors duration-200 font-[var(--font-body)] cursor-pointer"
-          
         >
           Login
         </button>
@@ -49,7 +91,7 @@ const LoginForm = () => {
         <div className="flex-1 h-px bg-gray-400"></div>
       </div>
 
-     <Link to="/signup" className="block w-full">
+      <Link to="/signup" className="block w-full">
         <button
           type="button"
           className="w-full bg-white hover:bg-gray-100 text-[#3E2b26] font-bold py-2.5 rounded-lg transition-colors duration-200 font-[var(--font-body)] cursor-pointer"

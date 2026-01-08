@@ -1,5 +1,5 @@
 import React from "react";
-import SignUpForm from "../components/SignInForm.jsx";
+import SignUpForm from "../components/SignUpForm.jsx";
 import leftSideImage from "../assets/login-form-left.png";
 import leftSide2Image from "../assets/login-form-right.png";
 import bgImage from "../assets/login-form-bg.png";
