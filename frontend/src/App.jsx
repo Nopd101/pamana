@@ -25,6 +25,7 @@ import TeacherLayout from "./views/teacher/TeacherLayout.jsx";
 import TeacherDashboard from "./views/teacher/TeacherDashboard.jsx";
 import ClassProgress from "./views/teacher/ClassProgress.jsx";
 import AdminNav from "./components/AdminNav.jsx";
+import StudentReport from "./views/teacher/StudentReport.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -34,7 +35,7 @@ const AppContent = () => {
     <>
       {/* Only show Navbar if we are NOT on a dashboard route */}
       {!isDashboardRoute && <Navbar />}
-      
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -66,6 +67,7 @@ const AppContent = () => {
         <Route path="/teacher" element={<TeacherLayout />}>
              <Route path="dashboard" element={<TeacherDashboard />} />
              <Route path="progress" element={<ClassProgress />} />
+             <Route path="report/:studentId" element={<StudentReport />} />
         </Route>
       </Routes>
     </>

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 
 const ClassProgress = () => {
   const [students, setStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSection, setSelectedSection] = useState("All");
+  const navigate = useNavigate();
   
   useEffect(() => {
     API.get('teacher-dashboard/')
@@ -12,21 +14,27 @@ const ClassProgress = () => {
       .catch(err => console.error(err));
   }, []);
 
-  // Extract unique sections for filter dropdown
   const sections = ["All", ...new Set(students.map(s => s.section))];
 
-  // Filtering Logic
   const filteredList = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSection = selectedSection === "All" || student.section === selectedSection;
     return matchesSearch && matchesSection;
   });
 
+  // Helper to calculate student average
+  const calculateAverage = (activities) => {
+    if (activities.length === 0) return 0;
+    let totalPercent = 0;
+    activities.forEach(act => {
+        if(act.max_score > 0) totalPercent += (act.score / act.max_score);
+    });
+    return Math.round((totalPercent / activities.length) * 100);
+  };
+
   return (
     <div className="min-h-screen font-[var(--font-body)]">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-[#52392F] font-[var(--font-heading)]">Class Progress Report</h1>
-      </div>
+      <h1 className="text-2xl font-bold text-[#52392F] font-[var(--font-heading)] mb-6">Class Progress Report</h1>
 
       {/* FILTERS */}
       <div className="bg-white/50 p-4 rounded-xl mb-6 flex flex-col md:flex-row gap-4 border border-[#52392F]/10">
@@ -56,34 +64,36 @@ const ClassProgress = () => {
           <thead className="bg-[#52392F] text-white uppercase text-xs font-bold tracking-wider">
             <tr>
               <th className="p-4">Student Name</th>
-              <th className="p-4">Section</th>
-              <th className="p-4">Latest Activity</th>
-              <th className="p-4 text-right">Score</th>
+              <th className="p-4 hidden md:table-cell">Section</th>
+              <th className="p-4 text-center">Activities Done</th>
+              <th className="p-4 text-center">Avg. Performance</th>
+              <th className="p-4 text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 text-sm">
             {filteredList.map((student) => {
-              // Get the most recent activity if available
-              const latest = student.activities.length > 0 
-                ? student.activities[student.activities.length - 1] 
-                : null;
-
+              const avg = calculateAverage(student.activities);
               return (
                 <tr key={student.id} className="hover:bg-[#FFF3D1]/50 transition duration-150">
                   <td className="p-4 font-bold text-black">{student.name}</td>
-                  <td className="p-4 text-black">{student.section}</td>
-                  <td className="p-4 text-gray-600">
-                    {latest ? `${latest.activity_name} (${latest.civilization})` : "No activity yet"}
+                  <td className="p-4 text-black hidden md:table-cell">{student.section}</td>
+                  <td className="p-4 text-center text-gray-600">{student.activities.length}</td>
+                  <td className="p-4 text-center">
+                    <span className={`px-2 py-1 rounded font-bold text-xs ${avg >= 75 ? 'bg-green-100 text-green-800' : avg >= 50 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-600'}`}>
+                        {student.activities.length > 0 ? `${avg}%` : "N/A"}
+                    </span>
                   </td>
-                  <td className="p-4 text-right font-bold text-[#772402]">
-                    {latest ? `${latest.score} / ${latest.max_score}` : "-"}
+                  <td className="p-4 text-right">
+                    <button 
+                        onClick={() => navigate(`/teacher/report/${student.id}`, { state: { student } })}
+                        className="text-[#772402] hover:bg-[#772402] hover:text-white border border-[#772402] px-3 py-1 rounded-md transition text-xs font-bold uppercase"
+                    >
+                        View Report
+                    </button>
                   </td>
                 </tr>
               );
             })}
-            {filteredList.length === 0 && (
-                <tr><td colSpan="4" className="p-8 text-center text-gray-500">No students found.</td></tr>
-            )}
           </tbody>
         </table>
       </div>
