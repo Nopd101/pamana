@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
+import API from "../api/axios";
 
 // --- COMPONENT: LetterInputGroup (For Mesoamerica) ---
 const LetterInputGroup = ({ answer, onAnswerChange }) => {
@@ -80,7 +81,7 @@ function KabihasnanDetails() {
     setResetKey((prev) => prev + 1);
   };
 
-  const handleSubmitQuiz = () => {
+  const handleSubmitQuiz = async () => { // 👈 Make this ASYNC
     let currentScore = 0;
     let maxScore = 0;
 
@@ -129,6 +130,20 @@ function KabihasnanDetails() {
              // Currently strict exact match.
             if (userAnswers[qid] === answers[qid]) currentScore++;
         });
+    }
+
+    try {
+        await API.post('submit-score/', {
+            civilization: currentData.title, // e.g., "Mesopotamia"
+            activity_type: "Quiz",
+            activity_name: currentData.quizTitle, // e.g., "QuizStory"
+            score: currentScore,
+            max_score: maxScore
+        });
+        console.log("Score saved successfully!");
+    } catch (error) {
+        console.error("Failed to save score:", error);
+        // Optional: Alert the user if save fails
     }
 
     setScore(currentScore);
