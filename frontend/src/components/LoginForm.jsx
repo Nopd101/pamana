@@ -10,23 +10,34 @@ const LoginForm = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
 
     try {
-      // 1. Send credentials to Django (username maps to Student ID in your UI)
+      // 1. Get Tokens
       const response = await API.post('token/', {
         username: username,
         password: password
       });
 
-      // 2. Save the tokens securely
+      // 2. Save Tokens
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
 
-      // 3. Redirect to Student Menu
-      // TODO: You might want to decode the token later to check if it's a teacher or student
-      alert("Login Successful!");
-      navigate('/homepage'); 
+      // 3. NEW: Fetch User Details to check Role
+      const userResponse = await API.get('me/');
+      const role = userResponse.data.role;
+
+      // 4. Dynamic Redirect based on Role
+      alert(`Login Successful! Welcome, ${role}.`);
+      
+      if (role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (role === 'teacher') {
+        navigate('/teacher/dashboard');
+      } else {
+        // Default to student homepage
+        navigate('/homepage');
+      }
 
     } catch (err) {
       console.error("Login Error:", err);
@@ -42,7 +53,6 @@ const LoginForm = () => {
       </h2>
 
       <form className="space-y-5" onSubmit={handleLogin}>
-        {/* Error Message Display */}
         {error && (
           <div className="text-red-500 text-sm text-center bg-red-100/10 p-2 rounded">
             {error}
@@ -51,7 +61,7 @@ const LoginForm = () => {
 
         <div>
           <label className="block text-xs text-[#B89336] mb-1 font-[var(--font-body)] ml-1">
-            Student ID
+            Student ID / Username
           </label>
           <input
             type="text"
