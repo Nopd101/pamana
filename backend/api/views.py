@@ -66,8 +66,16 @@ class UserProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        user = request.user
+        serializer = UserSerializer(user)
+        data = serializer.data
+        
+        # 🛡️ FAILSAFE: If the user is a Django Superuser, override role to 'admin'
+        # This fixes accounts created via 'createsuperuser' command
+        if user.is_superuser:
+            data['role'] = 'admin'
+            
+        return Response(data)
     
 # 5. List Sections View
 class SectionListView(generics.ListAPIView):
@@ -98,3 +106,20 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         # For teachers, we might need a Many-to-Many field for sections in the future
         # For now, let's assume the basic UserSerializer handles the single 'section' field
         pass
+    
+# 7. Admin Dashboard Stats View
+class AdminStatsView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        total_users = User.objects.count()
+        active_users = User.objects.filter(is_active=True).count()
+        inactive_users = User.objects.filter(is_active=False).count()
+        total_sections = Section.objects.count()
+
+        return Response({
+            "totalUsers": total_users,
+            "activeUsers": active_users,
+            "inactiveUsers": inactive_users,
+            "totalSections": total_sections
+        })

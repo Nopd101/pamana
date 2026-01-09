@@ -2,7 +2,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     RegisterView, SubmitScoreView, TeacherDashboardView, 
-    UserProfileView, SectionListView, AdminUserViewSet # Import the new ViewSet
+    UserProfileView, SectionListView, AdminUserViewSet, # Import the new ViewSet
+    AdminStatsView
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -22,6 +23,7 @@ urlpatterns = [
     path('sections/', SectionListView.as_view(), name='section_list'),
 
     # Admin Routes (Includes /users/, /users/<id>/)
+    path('admin/stats/', AdminStatsView.as_view(), name='admin_stats'),
     path('admin/', include(router.urls)),
 
     # App Routes
