@@ -21,14 +21,20 @@ import HarapPuzzleQuest from "./views/HarapPuzzleQuest.jsx";
 import AdminDashboard from "./views/admin/AdminDashboard.jsx";
 import UserManagement from "./views/admin/UserManagement.jsx";
 import ItamaMoAko from "./views/ItamaMoAko.jsx";
+import TeacherLayout from "./views/teacher/TeacherLayout.jsx";
+import TeacherDashboard from "./views/teacher/TeacherDashboard.jsx";
+import ClassProgress from "./views/teacher/ClassProgress.jsx";
+import AdminNav from "./components/AdminNav.jsx";
 
 const AppContent = () => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isDashboardRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/teacher');
 
   return (
     <>
-      {!isAdminRoute && <Navbar />}
+      {/* Only show Navbar if we are NOT on a dashboard route */}
+      {!isDashboardRoute && <Navbar />}
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -51,8 +57,16 @@ const AppContent = () => {
         <Route path="/harappuzzle-quest" element={<HarapPuzzleQuest />} />
 
         {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<UserManagement />} />
+        <Route path="/admin" element={<AdminNav />}> {/* Using your existing AdminNav as layout */}
+             <Route path="dashboard" element={<AdminDashboard />} />
+             <Route path="users" element={<UserManagement />} />
+        </Route>
+
+        {/* --- NEW: TEACHER ROUTES --- */}
+        <Route path="/teacher" element={<TeacherLayout />}>
+             <Route path="dashboard" element={<TeacherDashboard />} />
+             <Route path="progress" element={<ClassProgress />} />
+        </Route>
       </Routes>
     </>
   );
