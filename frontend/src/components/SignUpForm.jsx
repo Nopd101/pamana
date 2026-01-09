@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 
@@ -6,16 +6,32 @@ const SignUpForm = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [section, setSection] = useState("");
-  const [studentId, setStudentId] = useState(""); // Maps to 'username'
+  const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  
+  // NEW: State to store the list of sections from the DB
+  const [sectionsList, setSectionsList] = useState([]); 
+
   const navigate = useNavigate();
+
+  // NEW: Fetch sections when the component mounts
+  useEffect(() => {
+    const fetchSections = async () => {
+      try {
+        const response = await API.get("sections/");
+        setSectionsList(response.data);
+      } catch (err) {
+        console.error("Failed to load sections:", err);
+      }
+    };
+    fetchSections();
+  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Simple validation
     if (!section) {
       setError("Please select a section.");
       return;
@@ -27,7 +43,7 @@ const SignUpForm = () => {
         password: password,
         first_name: firstName,
         last_name: lastName,
-        section: section, // Sends the ID (e.g., "1")
+        section: section, 
         role: "student"
       });
 
@@ -35,8 +51,6 @@ const SignUpForm = () => {
       navigate("/login");
     } catch (err) {
       console.error("Registration Error:", err.response?.data);
-      // Django usually sends detailed errors (e.g., "Username already exists")
-      // We try to display specific messages if available
       const errMsg = err.response?.data?.username 
         ? "Student ID already registered." 
         : "Registration failed. Check details.";
@@ -93,9 +107,6 @@ const SignUpForm = () => {
             Section
           </label>
           <div className="relative">
-            {/* NOTE: The 'value' here corresponds to the Database ID of the section.
-               Ensure you have created these sections in Django Admin first.
-            */}
             <select
               className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] cursor-pointer"
               value={section}
@@ -105,10 +116,13 @@ const SignUpForm = () => {
               <option value="" disabled>
                 Select Section
               </option>
-              {/* You can later fetch these dynamically from the API */}
-              <option value="1">Section A (ID: 1)</option>
-              <option value="2">Section B (ID: 2)</option>
-              <option value="3">Section C (ID: 3)</option>
+              
+              {/* NEW: Map through the fetched sectionsList */}
+              {sectionsList.map((sec) => (
+                <option key={sec.id} value={sec.id}>
+                  {sec.name}
+                </option>
+              ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
               <svg

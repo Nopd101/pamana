@@ -2,12 +2,13 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import User, ActivityLog, Section
-from .serializers import UserSerializer, ActivityLogSerializer
+from .serializers import UserSerializer, ActivityLogSerializer, SectionSerializer
 
 # [cite_start]1. Registration View [cite: 77]
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    authentication_classes = []
     permission_classes = [permissions.AllowAny] # Allow anyone to sign up
 
 # [cite_start]2. Submit Score View [cite: 51]
@@ -60,3 +61,11 @@ class UserProfileView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+    
+# 5. List Sections View
+class SectionListView(generics.ListAPIView):
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
+    # Add this line to ignore invalid tokens
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny] # Allow unauthenticated users to see sections
