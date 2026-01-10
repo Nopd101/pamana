@@ -12,25 +12,26 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'role', 'section', 'section_name', 'password', 'is_active'] # Added is_active to allow deactivation via API
-        extra_kwargs = {'password': {'write_only': True, 'required': False}} # Password not required on update
+        # Ensure 'is_active' is included so you can soft-delete/reactivate
+        fields = ['id', 'username', 'first_name', 'last_name', 'role', 'section', 'section_name', 'password', 'is_active']
+        extra_kwargs = {'password': {'write_only': True, 'required': False}}
 
     def create(self, validated_data):
-        # Securely hash the password upon creation
+        # 1. Securely hash the password upon creation
+        # We use create_user instead of create to handle hashing automatically
         user = User.objects.create_user(**validated_data)
         return user
 
-    # 👇 ADD THIS METHOD to fix the bug
     def update(self, instance, validated_data):
-        # Extract password from data if it exists
+        # 2. Extract password from data if it exists
         password = validated_data.pop('password', None)
         
-        # Update all other fields (first_name, role, etc.)
+        # 3. Update all other fields (first_name, role, etc.)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        # If a password was provided, hash it using set_password()
-        if password:
+        # 4. CRITICAL: If a password was provided, HASH IT before saving
+        if password and len(password.strip()) > 0:
             instance.set_password(password)
             
         instance.save()

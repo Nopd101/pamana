@@ -75,13 +75,28 @@ const UserManagement = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+  const handleDeactivate = async (id) => {
+    if (window.confirm("Are you sure you want to DEACTIVATE this user? They will no longer be able to log in.")) {
       try {
+        // We still call delete(), but the backend now handles it as a soft delete
         await API.delete(`admin/users/${id}/`);
-        fetchUsers(); // Refresh list
+        fetchUsers(); // Refresh list to see status change
       } catch (error) {
-        alert("Failed to delete user.");
+        alert("Failed to deactivate user.");
+      }
+    }
+  };
+
+  const handleReactivate = async (id) => {
+    if (window.confirm("Are you sure you want to REACTIVATE this user?")) {
+      try {
+        // Send a PATCH request to specifically set is_active to true
+        await API.patch(`admin/users/${id}/`, { is_active: true });
+        fetchUsers(); // Refresh the list
+        alert("User reactivated successfully.");
+      } catch (error) {
+        console.error("Reactivation failed:", error);
+        alert("Failed to reactivate user.");
       }
     }
   };
@@ -142,6 +157,7 @@ const UserManagement = () => {
               <th className="p-4">Username (ID)</th>
               <th className="p-4">Role</th>
               <th className="p-4">Section</th>
+              <th className="p-4">Status</th>
               <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>
@@ -162,9 +178,30 @@ const UserManagement = () => {
                     {/* Since basic User serializer sends ID, we might see ID here. Ideally update serializer to send name or map it here */}
                     {sectionsList.find(s => s.id === user.section)?.name || "-"}
                   </td>
+                  <td className="p-4">
+                    <span className={`font-bold ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
+                      {user.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
                   <td className="p-4 text-right">
                     <button onClick={() => handleEdit(user)} className="mr-2 text-blue-600 hover:underline">Edit</button>
-                    <button onClick={() => handleDelete(user.id)} className="text-red-600 hover:underline">Delete</button>
+                    {user.is_active ? (
+                      <button 
+                        onClick={() => handleDeactivate(user.id)} 
+                        className="text-red-600 hover:bg-red-50 px-2 py-1 rounded transition"
+                        title="Deactivate Account"
+                      >
+                        Deactivate
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleReactivate(user.id)} 
+                        className="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition font-bold"
+                        title="Reactivate Account"
+                      >
+                        Reactivate
+                      </button>
+                    )}
                   </td>
                 </tr>
             ))}

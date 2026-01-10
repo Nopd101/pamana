@@ -33,32 +33,34 @@ class TeacherDashboardView(APIView):
 
     def get(self, request):
         user = request.user
-
-        # Ensure user is a teacher
+        
         if user.role != 'teacher':
             return Response({"error": "Unauthorized"}, status=403)
 
-        # FIX: Get sections where this user is the assigned teacher 
-        # OR the section assigned to their user profile
+        # Get relevant sections
         my_sections = Section.objects.filter(
             Q(teacher=user) | Q(id=user.section_id)
         ).distinct()
-
-        # Get students belonging to these sections
-        students = User.objects.filter(section__in=my_sections, role='student')
-
+        
+        # 👇 UPDATE: Add .filter(is_active=True) to exclude deactivated students
+        students = User.objects.filter(
+            section__in=my_sections, 
+            role='student',
+            is_active=True  # <--- CRITICAL CHANGE
+        )
+        
         data = []
         for student in students:
             # Get latest activities
             activities = ActivityLog.objects.filter(student=student).values()
-
+            
             data.append({
                 "id": student.id,
                 "name": f"{student.first_name} {student.last_name}",
                 "section": student.section.name if student.section else "N/A",
                 "activities": list(activities)
             })
-
+            
         return Response(data)
     
 # 4. User Profile View (To get current user details)
@@ -92,20 +94,30 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser] # Strictly for Admins
+    permission_classes = [permissions.IsAdminUser]
 
     def create(self, request, *args, **kwargs):
-        # Custom create logic to handle password hashing automatically via serializer
         return super().create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
-        # Save user logic
-        user = serializer.save()
+    # 👇 OVERRIDE DELETE TO PERFORM SOFT DELETE (DEACTIVATE)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
         
-        # If section IDs are passed (e.g. for students), handle linking
-        # For teachers, we might need a Many-to-Many field for sections in the future
-        # For now, let's assume the basic UserSerializer handles the single 'section' field
-        pass
+        # Check if already inactive
+        if not instance.is_active:
+            return Response(
+                {"message": "User is already inactive."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Soft Delete Logic
+        instance.is_active = False
+        instance.save()
+        
+        return Response(
+            {"message": "User deactivated successfully."}, 
+            status=status.HTTP_200_OK
+        )
     
 # 7. Admin Dashboard Stats View
 class AdminStatsView(APIView):
