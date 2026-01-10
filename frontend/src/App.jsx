@@ -26,6 +26,7 @@ import TeacherDashboard from "./views/teacher/TeacherDashboard.jsx";
 import ClassProgress from "./views/teacher/ClassProgress.jsx";
 import AdminNav from "./components/AdminNav.jsx";
 import StudentReport from "./views/teacher/StudentReport.jsx";
+import ScrollToTop from "./components/ScrollToTop";
 
 const AppContent = () => {
   const location = useLocation();
@@ -78,6 +79,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <ScrollToTop />
         <AppContent />
       </div>
     </Router>

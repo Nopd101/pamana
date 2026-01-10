@@ -24,7 +24,13 @@ const Navbar = () => {
       <div className="w-full flex items-center justify-between px-6 py-4 md:px-10 md:py-6 lg:px-24">
         <Link
           to="/"
-          className="text-white text-2xl md:text-3xl lg:text-[2.34rem] font-extrabold tracking-widest no-underline shrink-0"
+          className="text-2xl md:text-3xl lg:text-[2.34rem] no-underline shrink-0"
+          style={{ 
+            fontFamily: "'Tourney', sans-serif", 
+            fontWeight: 900,
+            color: '#F1F1F1',
+            letterSpacing: '0.05em' 
+          }}
         >
           PAMANA
         </Link>
@@ -49,8 +55,8 @@ const Navbar = () => {
           </ul>
 
           <Link to="/login">
-            <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-6 py-3 lg:px-[3.12rem] lg:py-[0.78rem] rounded-[18.72px] font-semibold lowercase transition-transform hover:scale-105 cursor-pointer whitespace-nowrap">
-              login
+            <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-6 py-3 lg:px-[3.12rem] lg:py-[0.78rem] rounded-[18.72px] font-semibold transition-transform hover:scale-105 cursor-pointer whitespace-nowrap">
+              LOG IN
             </button>
           </Link>
         </div>
@@ -116,8 +122,8 @@ const Navbar = () => {
           </ul>
 
           <Link to="/login" onClick={toggleMenu}>
-            <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-10 py-3 rounded-[18.72px] font-semibold lowercase w-full">
-              login
+            <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-10 py-3 rounded-[18.72px] font-semibold w-full">
+              LOG IN
             </button>
           </Link>
         </div>
