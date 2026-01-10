@@ -135,3 +135,52 @@ class AdminStatsView(APIView):
             "inactiveUsers": inactive_users,
             "totalSections": total_sections
         })
+        
+# 8. Teacher Class Progress View
+class TeacherProgressView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        
+        if user.role != 'teacher':
+            return Response({"error": "Unauthorized"}, status=403)
+
+        # 👇 FIX: STRICT FILTERING
+        # Remove the "| Q(id=user.section_id)" part. 
+        # Teachers should only see sections where they are explicitly assigned as the teacher.
+        my_sections = Section.objects.filter(teacher=user)
+        
+        # 2. Get students belonging to these sections
+        students = User.objects.filter(
+            section__in=my_sections, 
+            role='student',
+            is_active=True
+        ).select_related('section')
+        
+        # 3. Format Section List for Dropdown
+        sections_data = [{"id": s.id, "name": s.name} for s in my_sections]
+        
+        # 4. Format Student List with Activity Data
+        students_data = []
+        for student in students:
+            # Get score summary
+            activities_done = ActivityLog.objects.filter(student=student).count()
+            
+            # Simple average calculation (can be improved later)
+            scores = ActivityLog.objects.filter(student=student).values_list('score', flat=True)
+            avg_score = sum(scores) / len(scores) if scores else 0
+            
+            students_data.append({
+                "id": student.id,
+                "name": f"{student.first_name} {student.last_name}",
+                "section": student.section.name if student.section else "N/A",
+                "section_id": student.section.id if student.section else None,
+                "activities_done": activities_done,
+                "average": round(avg_score, 1) if activities_done > 0 else "N/A"
+            })
+            
+        return Response({
+            "sections": sections_data,
+            "students": students_data
+        })

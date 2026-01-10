@@ -15,7 +15,8 @@ const UserManagement = () => {
     username: "",
     password: "",
     role: "student",
-    section: "",
+    section: "",       // For Students (Single ID)
+    section_ids: [],   // For Teachers (Array of IDs)
     is_active: true
   });
 
@@ -62,6 +63,7 @@ const UserManagement = () => {
       password: "",
       role: "teacher", 
       section: "",
+      section_ids: [],
       is_active: true
     });
     setCurrentUser(null);
@@ -76,13 +78,13 @@ const UserManagement = () => {
         password: "", 
         role: user.role,
         section: user.section || "",
+        section_ids: user.assigned_sections || [], // Load existing sections for teachers
         is_active: user.is_active
     });
     setCurrentUser(user);
     setIsModalOpen(true);
   };
 
-  // 1. Trigger Confirmation for Deactivate
   const requestDeactivate = (id) => {
     setConfirmConfig({
       title: "Confirm Deactivation",
@@ -102,7 +104,6 @@ const UserManagement = () => {
     }
   };
 
-  // 2. Trigger Confirmation for Reactivate
   const requestReactivate = (id) => {
     setConfirmConfig({
       title: "Confirm Reactivation",
@@ -122,7 +123,6 @@ const UserManagement = () => {
     }
   };
 
-  // 3. Trigger Confirmation for Save (Create/Update)
   const handleSaveAttempt = (e) => {
     e.preventDefault();
     setConfirmConfig({
@@ -137,6 +137,14 @@ const UserManagement = () => {
 
   const performSave = async () => {
     const payload = { ...formData };
+    
+    // Cleanup payload based on role
+    if (payload.role === 'teacher') {
+        delete payload.section; // Teachers don't use the single section field
+    } else {
+        delete payload.section_ids; // Students don't use the array
+    }
+
     if (currentUser && !payload.password) {
         delete payload.password;
     }
@@ -164,6 +172,20 @@ const UserManagement = () => {
     }));
   };
 
+  // 👇 NEW: Handle Teacher Checkbox Selection
+  const handleSectionCheckbox = (sectionId) => {
+    setFormData(prev => {
+        const currentIds = prev.section_ids || [];
+        if (currentIds.includes(sectionId)) {
+            // Remove if already selected
+            return { ...prev, section_ids: currentIds.filter(id => id !== sectionId) };
+        } else {
+            // Add if not selected
+            return { ...prev, section_ids: [...currentIds, sectionId] };
+        }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[#FFF3D1] p-6 font-[var(--font-body)]">
       {/* HEADER */}
@@ -184,7 +206,7 @@ const UserManagement = () => {
               <th className="p-4">Name</th>
               <th className="p-4">Username (ID)</th>
               <th className="p-4">Role</th>
-              <th className="p-4">Section</th>
+              <th className="p-4">Section(s)</th>
               <th className="p-4">Status</th>
               <th className="p-4 text-right">Actions</th>
             </tr>
@@ -201,40 +223,37 @@ const UserManagement = () => {
                         {user.role}
                     </span>
                   </td>
+                  
+                  {/* DISPLAY SECTIONS LOGIC */}
                   <td className="p-4 text-black font-medium">
-                    {sectionsList.find(s => s.id === user.section)?.name || "-"}
+                    {user.role === 'student' ? (
+                        sectionsList.find(s => s.id === user.section)?.name || "-"
+                    ) : (
+                        // For Teachers: Display count or list
+                        user.assigned_sections && user.assigned_sections.length > 0 
+                        ? `${user.assigned_sections.length} Section(s)` 
+                        : "-"
+                    )}
                   </td>
+
                   <td className="p-4">
                     <span className={`font-bold ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
                       {user.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    
-                    {/* 1. EDIT BUTTON: Visible for EVERYONE (including Admins) */}
                     <button onClick={() => handleEdit(user)} className="mr-3 text-blue-600 hover:underline cursor-pointer">Edit</button>
-                    
-                    {/* 2. STATUS BUTTONS: Hidden for Admins (Prevents locking yourself out) */}
                     {user.role !== 'admin' && (
                       user.is_active ? (
-                        <button 
-                          onClick={() => requestDeactivate(user.id)} 
-                          className="text-red-600 hover:bg-red-50 px-2 py-1 rounded transition cursor-pointer"
-                          title="Deactivate Account"
-                        >
+                        <button onClick={() => requestDeactivate(user.id)} className="text-red-600 hover:bg-red-50 px-2 py-1 rounded transition cursor-pointer" title="Deactivate Account">
                           Deactivate
                         </button>
                       ) : (
-                        <button 
-                          onClick={() => requestReactivate(user.id)} 
-                          className="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition font-bold cursor-pointer"
-                          title="Reactivate Account"
-                        >
+                        <button onClick={() => requestReactivate(user.id)} className="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition font-bold cursor-pointer" title="Reactivate Account">
                           Reactivate
                         </button>
                       )
                     )}
-
                   </td>
                 </tr>
             ))}
@@ -242,7 +261,7 @@ const UserManagement = () => {
         </table>
       </div>
 
-      {/* CREATE / EDIT MODAL */}
+      {/* MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-40 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
@@ -289,23 +308,46 @@ const UserManagement = () => {
                     <select name="role" value={formData.role} onChange={handleInputChange} className="w-full border rounded p-2">
                         <option value="student">Student</option>
                         <option value="teacher">Teacher</option>
-                        
-                        {/* SAFEGUARD: Only show "Admin" option if we are editing an EXISTING admin.
-                           This ensures the role persists on edit, but prevents creating NEW admins.
-                        */}
                         {currentUser?.role === 'admin' && (
                             <option value="admin">Admin</option>
                         )}
                     </select>
                 </div>
+
+                {/* DYNAMIC SECTION ASSIGNMENT */}
                 <div>
-                    <label className="block text-sm font-semibold mb-1">Section</label>
-                    <select name="section" value={formData.section} onChange={handleInputChange} className="w-full border rounded p-2">
-                        <option value="">-- None --</option>
-                        {sectionsList.map(sec => (
-                            <option key={sec.id} value={sec.id}>{sec.name}</option>
-                        ))}
-                    </select>
+                    <label className="block text-sm font-semibold mb-1">
+                        {formData.role === 'teacher' ? "Assign Sections" : "Section"}
+                    </label>
+                    
+                    {formData.role === 'teacher' ? (
+                        // MULTI-SELECT CHECKBOXES FOR TEACHERS
+                        <div className="border rounded p-2 max-h-32 overflow-y-auto bg-gray-50">
+                            {sectionsList.length === 0 && <p className="text-xs text-gray-500">No sections available.</p>}
+                            {sectionsList.map(sec => (
+                                <div key={sec.id} className="flex items-center gap-2 mb-1">
+                                    <input 
+                                        type="checkbox" 
+                                        id={`sec-${sec.id}`}
+                                        checked={formData.section_ids.includes(sec.id)}
+                                        onChange={() => handleSectionCheckbox(sec.id)}
+                                        className="cursor-pointer accent-[#52392F]"
+                                    />
+                                    <label htmlFor={`sec-${sec.id}`} className="text-sm cursor-pointer select-none">
+                                        {sec.name}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        // SINGLE DROPDOWN FOR STUDENTS
+                        <select name="section" value={formData.section} onChange={handleInputChange} className="w-full border rounded p-2" disabled={formData.role === 'admin'}>
+                            <option value="">-- None --</option>
+                            {sectionsList.map(sec => (
+                                <option key={sec.id} value={sec.id}>{sec.name}</option>
+                            ))}
+                        </select>
+                    )}
                 </div>
               </div>
 
@@ -318,7 +360,7 @@ const UserManagement = () => {
         </div>
       )}
 
-      {/* --- CONFIRMATION MODAL --- */}
+      {/* CONFIRMATION MODAL */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 max-w-md w-full">

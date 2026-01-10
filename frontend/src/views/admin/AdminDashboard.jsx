@@ -26,6 +26,7 @@ const AdminDashboard = () => {
     password: "",
     role: "student",
     section: "",
+    section_ids: [],
     is_active: true
   });
 
@@ -85,6 +86,7 @@ const AdminDashboard = () => {
       password: "",
       role: "teacher", 
       section: "",
+      section_ids: [],
       is_active: true
     });
     setCurrentUser(null);
@@ -99,6 +101,7 @@ const AdminDashboard = () => {
         password: "", 
         role: user.role,
         section: user.section || "",
+        section_ids: user.assigned_sections || [],
         is_active: user.is_active
     });
     setCurrentUser(user);
@@ -159,6 +162,13 @@ const AdminDashboard = () => {
 
   const performSave = async () => {
     const payload = { ...formData };
+
+    if (payload.role === 'teacher') {
+        delete payload.section; 
+    } else {
+        delete payload.section_ids; 
+    }
+
     if (currentUser && !payload.password) {
         delete payload.password;
     }
@@ -185,6 +195,17 @@ const AdminDashboard = () => {
         ...prev,
         [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  const handleSectionCheckbox = (sectionId) => {
+    setFormData(prev => {
+        const currentIds = prev.section_ids || [];
+        if (currentIds.includes(sectionId)) {
+            return { ...prev, section_ids: currentIds.filter(id => id !== sectionId) };
+        } else {
+            return { ...prev, section_ids: [...currentIds, sectionId] };
+        }
+    });
   };
 
   return (
@@ -251,7 +272,13 @@ const AdminDashboard = () => {
                       </span>
                     </td>
                     <td className="p-4 text-black font-medium">
-                      {sectionsList.find(s => s.id === user.section)?.name || "-"}
+                      {user.role === 'student' ? (
+                          sectionsList.find(s => s.id === user.section)?.name || "-"
+                      ) : (
+                          user.assigned_sections && user.assigned_sections.length > 0 
+                          ? `${user.assigned_sections.length} Section(s)` 
+                          : "-"
+                      )}
                     </td>
                     <td className="p-4">
                       <span className={`font-bold ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
@@ -329,13 +356,42 @@ const AdminDashboard = () => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold mb-1">Section</label>
-                    <select name="section" value={formData.section} onChange={handleInputChange} className="w-full border rounded p-2">
-                        <option value="">-- None --</option>
-                        {sectionsList.map(sec => (
-                            <option key={sec.id} value={sec.id}>{sec.name}</option>
-                        ))}
-                    </select>
+                  <label className="block text-sm font-semibold mb-1">
+                      {formData.role === 'teacher' ? "Assign Sections" : "Section"}
+                  </label>
+                  
+                  {formData.role === 'teacher' ? (
+                      <div className="border rounded p-2 max-h-32 overflow-y-auto bg-gray-50">
+                          {sectionsList.length === 0 && <p className="text-xs text-gray-500">No sections available.</p>}
+                          {sectionsList.map(sec => (
+                              <div key={sec.id} className="flex items-center gap-2 mb-1">
+                                  <input 
+                                      type="checkbox" 
+                                      id={`sec-${sec.id}`}
+                                      checked={formData.section_ids.includes(sec.id)}
+                                      onChange={() => handleSectionCheckbox(sec.id)}
+                                      className="cursor-pointer accent-[#52392F]"
+                                  />
+                                  <label htmlFor={`sec-${sec.id}`} className="text-sm cursor-pointer select-none">
+                                      {sec.name}
+                                  </label>
+                              </div>
+                          ))}
+                      </div>
+                  ) : (
+                      <select 
+                          name="section" 
+                          value={formData.section} 
+                          onChange={handleInputChange} 
+                          className="w-full border rounded p-2" 
+                          disabled={formData.role === 'admin'}
+                      >
+                          <option value="">-- None --</option>
+                          {sectionsList.map(sec => (
+                              <option key={sec.id} value={sec.id}>{sec.name}</option>
+                          ))}
+                      </select>
+                  )}
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-4">
