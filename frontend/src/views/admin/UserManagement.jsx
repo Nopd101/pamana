@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import API from '../../api/axios'; // Import your axios instance
+import API from '../../api/axios';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [sectionsList, setSectionsList] = useState([]); // To populate section dropdown
+  const [sectionsList, setSectionsList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // null = mode create
+  const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
-    username: "", // Employee/Student ID
+    username: "",
     password: "",
     role: "student",
-    section: "", // ID of the section
+    section: "",
     is_active: true
   });
 
-  // Fetch Initial Data
+  // CONFIRMATION MODAL STATE
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({
+    title: "",
+    message: "",
+    action: null
+  });
+
   useEffect(() => {
     fetchUsers();
     fetchSections();
@@ -53,7 +60,7 @@ const UserManagement = () => {
       last_name: "",
       username: "",
       password: "",
-      role: "teacher", // Default to teacher as requested
+      role: "teacher", 
       section: "",
       is_active: true
     });
@@ -66,7 +73,7 @@ const UserManagement = () => {
         first_name: user.first_name,
         last_name: user.last_name,
         username: user.username,
-        password: "", // Leave blank to keep unchanged
+        password: "", 
         role: user.role,
         section: user.section || "",
         is_active: user.is_active
@@ -75,36 +82,60 @@ const UserManagement = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeactivate = async (id) => {
-    if (window.confirm("Are you sure you want to DEACTIVATE this user? They will no longer be able to log in.")) {
-      try {
-        // We still call delete(), but the backend now handles it as a soft delete
-        await API.delete(`admin/users/${id}/`);
-        fetchUsers(); // Refresh list to see status change
-      } catch (error) {
-        alert("Failed to deactivate user.");
-      }
+  // 1. Trigger Confirmation for Deactivate
+  const requestDeactivate = (id) => {
+    setConfirmConfig({
+      title: "Confirm Deactivation",
+      message: "Are you sure you want to DEACTIVATE this user? They will no longer be able to log in.",
+      action: () => performDeactivate(id)
+    });
+    setShowConfirmModal(true);
+  };
+
+  const performDeactivate = async (id) => {
+    try {
+      await API.delete(`admin/users/${id}/`);
+      fetchUsers();
+      setShowConfirmModal(false);
+    } catch (error) {
+      alert("Failed to deactivate user.");
     }
   };
 
-  const handleReactivate = async (id) => {
-    if (window.confirm("Are you sure you want to REACTIVATE this user?")) {
-      try {
-        // Send a PATCH request to specifically set is_active to true
-        await API.patch(`admin/users/${id}/`, { is_active: true });
-        fetchUsers(); // Refresh the list
-        alert("User reactivated successfully.");
-      } catch (error) {
-        console.error("Reactivation failed:", error);
-        alert("Failed to reactivate user.");
-      }
+  // 2. Trigger Confirmation for Reactivate
+  const requestReactivate = (id) => {
+    setConfirmConfig({
+      title: "Confirm Reactivation",
+      message: "Are you sure you want to REACTIVATE this user account?",
+      action: () => performReactivate(id)
+    });
+    setShowConfirmModal(true);
+  };
+
+  const performReactivate = async (id) => {
+    try {
+      await API.patch(`admin/users/${id}/`, { is_active: true });
+      fetchUsers();
+      setShowConfirmModal(false);
+    } catch (error) {
+      alert("Failed to reactivate user.");
     }
   };
 
-  const handleSave = async (e) => {
+  // 3. Trigger Confirmation for Save (Create/Update)
+  const handleSaveAttempt = (e) => {
     e.preventDefault();
-    
-    // Prepare payload (remove empty password if editing)
+    setConfirmConfig({
+      title: currentUser ? "Confirm Update" : "Confirm Creation",
+      message: currentUser 
+        ? "Are you sure you want to update this user's details?" 
+        : "Are you sure you want to create this new user?",
+      action: performSave
+    });
+    setShowConfirmModal(true);
+  };
+
+  const performSave = async () => {
     const payload = { ...formData };
     if (currentUser && !payload.password) {
         delete payload.password;
@@ -112,15 +143,12 @@ const UserManagement = () => {
 
     try {
         if (currentUser) {
-            // Update
             await API.patch(`admin/users/${currentUser.id}/`, payload);
-            alert("User updated successfully!");
         } else {
-            // Create
             await API.post('admin/users/', payload);
-            alert("User created successfully!");
         }
         setIsModalOpen(false);
+        setShowConfirmModal(false);
         fetchUsers();
     } catch (error) {
         console.error("Save error:", error.response?.data);
@@ -143,7 +171,7 @@ const UserManagement = () => {
         <div>
           <h1 className="text-2xl font-bold text-[#52392F]">User Management</h1>
         </div>
-        <button onClick={handleAddNew} className="bg-[#52392F] text-white px-6 py-2.5 rounded-lg hover:bg-[#772402] transition shadow-md font-medium flex items-center gap-2">
+        <button onClick={handleAddNew} className="bg-[#52392F] text-white px-6 py-2.5 rounded-lg hover:bg-[#772402] transition shadow-md font-medium flex items-center gap-2 cursor-pointer">
           <span>+</span> Add Teacher / Student
         </button>
       </div>
@@ -163,7 +191,7 @@ const UserManagement = () => {
           </thead>
           <tbody className="divide-y divide-gray-100 text-sm">
             {loading ? (
-                <tr><td colSpan="5" className="p-4 text-center">Loading...</td></tr>
+                <tr><td colSpan="6" className="p-4 text-center">Loading...</td></tr>
             ) : users.map((user) => (
                 <tr key={user.id} className="hover:bg-[#FFF3D1]/50 transition duration-150">
                   <td className="p-4 font-bold text-black">{user.first_name} {user.last_name}</td>
@@ -174,8 +202,6 @@ const UserManagement = () => {
                     </span>
                   </td>
                   <td className="p-4 text-black font-medium">
-                    {/* Display Section Name (Assuming backend sends section_name or ID mapping needed) */}
-                    {/* Since basic User serializer sends ID, we might see ID here. Ideally update serializer to send name or map it here */}
                     {sectionsList.find(s => s.id === user.section)?.name || "-"}
                   </td>
                   <td className="p-4">
@@ -184,24 +210,31 @@ const UserManagement = () => {
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    <button onClick={() => handleEdit(user)} className="mr-2 text-blue-600 hover:underline">Edit</button>
-                    {user.is_active ? (
-                      <button 
-                        onClick={() => handleDeactivate(user.id)} 
-                        className="text-red-600 hover:bg-red-50 px-2 py-1 rounded transition"
-                        title="Deactivate Account"
-                      >
-                        Deactivate
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={() => handleReactivate(user.id)} 
-                        className="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition font-bold"
-                        title="Reactivate Account"
-                      >
-                        Reactivate
-                      </button>
+                    
+                    {/* 1. EDIT BUTTON: Visible for EVERYONE (including Admins) */}
+                    <button onClick={() => handleEdit(user)} className="mr-3 text-blue-600 hover:underline cursor-pointer">Edit</button>
+                    
+                    {/* 2. STATUS BUTTONS: Hidden for Admins (Prevents locking yourself out) */}
+                    {user.role !== 'admin' && (
+                      user.is_active ? (
+                        <button 
+                          onClick={() => requestDeactivate(user.id)} 
+                          className="text-red-600 hover:bg-red-50 px-2 py-1 rounded transition cursor-pointer"
+                          title="Deactivate Account"
+                        >
+                          Deactivate
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => requestReactivate(user.id)} 
+                          className="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition font-bold cursor-pointer"
+                          title="Reactivate Account"
+                        >
+                          Reactivate
+                        </button>
+                      )
                     )}
+
                   </td>
                 </tr>
             ))}
@@ -209,18 +242,18 @@ const UserManagement = () => {
         </table>
       </div>
 
-      {/* MODAL */}
+      {/* CREATE / EDIT MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-40 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
             <div className="bg-[#52392F] px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">
                 {currentUser ? 'Edit User' : 'Create New User'}
               </h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-white/80 hover:text-white text-2xl">×</button>
+              <button onClick={() => setIsModalOpen(false)} className="text-white/80 hover:text-white text-2xl cursor-pointer">×</button>
             </div>
             
-            <form onSubmit={handleSave} className="p-6 space-y-4">
+            <form onSubmit={handleSaveAttempt} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-semibold mb-1">First Name</label>
@@ -256,7 +289,13 @@ const UserManagement = () => {
                     <select name="role" value={formData.role} onChange={handleInputChange} className="w-full border rounded p-2">
                         <option value="student">Student</option>
                         <option value="teacher">Teacher</option>
-                        <option value="admin">Admin</option>
+                        
+                        {/* SAFEGUARD: Only show "Admin" option if we are editing an EXISTING admin.
+                           This ensures the role persists on edit, but prevents creating NEW admins.
+                        */}
+                        {currentUser?.role === 'admin' && (
+                            <option value="admin">Admin</option>
+                        )}
                     </select>
                 </div>
                 <div>
@@ -271,13 +310,42 @@ const UserManagement = () => {
               </div>
 
               <div className="flex justify-end gap-3 mt-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
-                <button type="submit" className="px-6 py-2 bg-[#52392F] text-white rounded hover:bg-[#772402]">Save</button>
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">Cancel</button>
+                <button type="submit" className="px-6 py-2 bg-[#52392F] text-white rounded hover:bg-[#772402] cursor-pointer">Save</button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* --- CONFIRMATION MODAL --- */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 max-w-md w-full">
+            <h2 className="text-3xl font-bold mb-4 text-[#5a2d0c] font-[var(--font-heading)]">
+              {confirmConfig.title}
+            </h2>
+            <p className="text-lg mb-8 text-[#5a2d0c]">
+              {confirmConfig.message}
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={confirmConfig.action}
+                className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg cursor-pointer"
+              >
+                Yes, Proceed
+              </button>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="border-2 border-[#772402] text-[#772402] py-3 px-8 rounded-lg font-bold text-lg hover:bg-amber-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
