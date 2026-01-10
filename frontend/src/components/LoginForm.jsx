@@ -41,7 +41,7 @@ const LoginForm = () => {
 
     } catch (err) {
       console.error("Login Error:", err);
-      setError("Invalid Student ID or Password.");
+      setError("Invalid ID or Password.");
     }
   };
 
@@ -61,7 +61,7 @@ const LoginForm = () => {
 
         <div>
           <label className="block text-xs text-[#B89336] mb-1 font-[var(--font-body)] ml-1">
-            Student ID / Username
+            ID / Username
           </label>
           <input
             type="text"
