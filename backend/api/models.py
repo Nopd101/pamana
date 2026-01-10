@@ -17,9 +17,16 @@ class User(AbstractUser):
         return f"{self.username} ({self.role})"
 
 class Section(models.Model):
-    name = models.CharField(max_length=50)  # e.g., "Grade 8 - Rizal"
-    # [cite_start]Teachers monitor specific sections [cite: 21]
-    teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="teaching_sections")
+    name = models.CharField(max_length=50)
+    # 👇 ADD THIS FIELD
+    teacher = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='teacher_sections',
+        limit_choices_to={'role': 'teacher'}
+    )
 
     def __str__(self):
         return self.name

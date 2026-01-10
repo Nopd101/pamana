@@ -33,32 +33,34 @@ class TeacherDashboardView(APIView):
 
     def get(self, request):
         user = request.user
-
-        # Ensure user is a teacher
+        
         if user.role != 'teacher':
             return Response({"error": "Unauthorized"}, status=403)
 
-        # FIX: Get sections where this user is the assigned teacher 
-        # OR the section assigned to their user profile
+        # Get relevant sections
         my_sections = Section.objects.filter(
             Q(teacher=user) | Q(id=user.section_id)
         ).distinct()
-
-        # Get students belonging to these sections
-        students = User.objects.filter(section__in=my_sections, role='student')
-
+        
+        # 👇 UPDATE: Add .filter(is_active=True) to exclude deactivated students
+        students = User.objects.filter(
+            section__in=my_sections, 
+            role='student',
+            is_active=True  # <--- CRITICAL CHANGE
+        )
+        
         data = []
         for student in students:
             # Get latest activities
             activities = ActivityLog.objects.filter(student=student).values()
-
+            
             data.append({
                 "id": student.id,
                 "name": f"{student.first_name} {student.last_name}",
                 "section": student.section.name if student.section else "N/A",
                 "activities": list(activities)
             })
-
+            
         return Response(data)
     
 # 4. User Profile View (To get current user details)
@@ -92,20 +94,30 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser] # Strictly for Admins
+    permission_classes = [permissions.IsAdminUser]
 
     def create(self, request, *args, **kwargs):
-        # Custom create logic to handle password hashing automatically via serializer
         return super().create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
-        # Save user logic
-        user = serializer.save()
+    # 👇 OVERRIDE DELETE TO PERFORM SOFT DELETE (DEACTIVATE)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
         
-        # If section IDs are passed (e.g. for students), handle linking
-        # For teachers, we might need a Many-to-Many field for sections in the future
-        # For now, let's assume the basic UserSerializer handles the single 'section' field
-        pass
+        # Check if already inactive
+        if not instance.is_active:
+            return Response(
+                {"message": "User is already inactive."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Soft Delete Logic
+        instance.is_active = False
+        instance.save()
+        
+        return Response(
+            {"message": "User deactivated successfully."}, 
+            status=status.HTTP_200_OK
+        )
     
 # 7. Admin Dashboard Stats View
 class AdminStatsView(APIView):
@@ -122,4 +134,74 @@ class AdminStatsView(APIView):
             "activeUsers": active_users,
             "inactiveUsers": inactive_users,
             "totalSections": total_sections
+        })
+        
+# 8. Teacher Class Progress View
+class TeacherProgressView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        
+        if user.role != 'teacher':
+            return Response({"error": "Unauthorized"}, status=403)
+
+        my_sections = Section.objects.filter(teacher=user)
+        
+        students = User.objects.filter(
+            section__in=my_sections, 
+            role='student',
+            is_active=True
+        ).select_related('section')
+        
+        sections_data = [{"id": s.id, "name": s.name} for s in my_sections]
+        
+        students_data = []
+        for student in students:
+            # 1. FETCH ALL RAW ACTIVITIES
+            all_activities = ActivityLog.objects.filter(student=student).values()
+            
+            # 👇 2. FILTER: KEEP ONLY LATEST ATTEMPT PER ACTIVITY
+            # This aligns the backend calculation with the frontend report card
+            latest_activities_map = {}
+            for act in all_activities:
+                name = act['activity_name']
+                # If we haven't seen this activity yet, OR this attempt is newer than the stored one
+                if name not in latest_activities_map:
+                    latest_activities_map[name] = act
+                else:
+                    # Compare timestamps (handle potential string vs datetime object issues)
+                    current_ts = act['timestamp']
+                    stored_ts = latest_activities_map[name]['timestamp']
+                    if current_ts > stored_ts:
+                        latest_activities_map[name] = act
+
+            # Convert map back to list
+            final_activities = list(latest_activities_map.values())
+
+            # 3. CALCULATE STATS ON FINAL ACTIVITIES ONLY
+            activities_done = len(final_activities)
+            
+            scores = [act['score'] for act in final_activities if act['max_score'] > 0]
+            max_scores = [act['max_score'] for act in final_activities if act['max_score'] > 0]
+            
+            if max_scores:
+                percentages = [(s/m)*100 for s, m in zip(scores, max_scores)]
+                avg_score = sum(percentages) / len(percentages)
+            else:
+                avg_score = 0
+            
+            students_data.append({
+                "id": student.id,
+                "name": f"{student.first_name} {student.last_name}",
+                "section": student.section.name if student.section else "N/A",
+                "section_id": student.section.id if student.section else None,
+                "activities_done": activities_done,
+                "average": round(avg_score, 1) if activities_done > 0 else "N/A",
+                "activities": list(all_activities) # We still send full history if you ever need it
+            })
+            
+        return Response({
+            "sections": sections_data,
+            "students": students_data
         })

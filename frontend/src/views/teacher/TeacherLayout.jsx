@@ -1,7 +1,22 @@
-import React from 'react';
-import { Outlet, NavLink, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 
 const TeacherLayout = () => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogoutClick = (e) => {
+    e.preventDefault();
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    setShowLogoutModal(false);
+    navigate('/login');
+  };
+
   const linkClasses = ({ isActive }) =>
     `block py-3 px-4 rounded-lg transition-colors duration-200 ${
       isActive
@@ -30,9 +45,12 @@ const TeacherLayout = () => {
         </nav>
 
         <div className="mt-auto pt-6 border-t border-[#ffffff20]">
-          <Link to="/login" className="block text-white hover:text-[#FFDC88] transition-colors text-center py-2">
+          <button 
+            onClick={handleLogoutClick}
+            className="w-full text-white hover:text-[#FFDC88] transition-colors text-center py-2 font-bold uppercase tracking-widest"
+          >
             Logout
-          </Link>
+          </button>
         </div>
       </aside>
 
@@ -40,6 +58,32 @@ const TeacherLayout = () => {
       <div className="ml-64 flex-1 overflow-y-auto p-8">
         <Outlet />
       </div>
+
+      {/* --- TEACHER LOGOUT CONFIRMATION MODAL --- */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 max-w-md w-full">
+            <h2 className="text-3xl font-bold mb-4 text-[#5a2d0c]">Confirm Logout</h2>
+            <p className="text-lg mb-8 text-[#5a2d0c]">
+              Are you sure you want to log out from Teacher Portal?
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={confirmLogout}
+                className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg"
+              >
+                Yes, Logout
+              </button>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="border-2 border-[#772402] text-[#772402] py-3 px-8 rounded-lg font-bold text-lg hover:bg-amber-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

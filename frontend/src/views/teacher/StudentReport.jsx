@@ -2,71 +2,129 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const StudentReport = () => {
-  const { state } = useLocation(); // Retrieve student data passed from the previous page
+  const { state } = useLocation();
   const navigate = useNavigate();
   const student = state?.student;
 
   if (!student) {
-    return <div className="p-8">No student data found. Please go back.</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-[#FFF3D1]">
+        <p className="text-xl text-[#52392F] font-bold mb-4">No student data found.</p>
+        <button 
+          onClick={() => navigate('/teacher/progress')} 
+          className="bg-[#52392F] text-white px-6 py-2 rounded-lg hover:bg-[#772402] transition"
+        >
+          Back to Class List
+        </button>
+      </div>
+    );
   }
 
-  // Helper to group activities by Civilization
-  const historyByCiv = student.activities.reduce((acc, log) => {
+  // 1. GET FINAL SCORES (Logic: If duplicates exist, take the one with the latest ID/Timestamp)
+  // This transforms the raw log into a list of unique, final results.
+  const finalGrades = (student.activities || []).reduce((acc, current) => {
+    const existing = acc.find(item => item.activity_name === current.activity_name);
+    
+    if (!existing) {
+      acc.push(current);
+    } else {
+      // If a newer version exists, replace the old one (representing the final score)
+      if (new Date(current.timestamp) > new Date(existing.timestamp)) {
+        const index = acc.indexOf(existing);
+        acc[index] = current;
+      }
+    }
+    return acc;
+  }, []);
+
+  // 2. GROUP BY CIVILIZATION
+  const gradesByCiv = finalGrades.reduce((acc, log) => {
     const civ = log.civilization || "General";
     if (!acc[civ]) acc[civ] = [];
     acc[civ].push(log);
     return acc;
   }, {});
 
+  const civKeys = Object.keys(gradesByCiv).sort();
+  const totalCompleted = finalGrades.length;
+
   return (
-    <div className="min-h-screen font-[var(--font-body)] p-6">
+    <div className="min-h-screen font-[var(--font-body)] p-6 bg-[#FFF3D1]">
       <button 
         onClick={() => navigate(-1)} 
-        className="mb-6 text-[#52392F] font-bold flex items-center hover:underline"
+        className="mb-6 text-[#52392F] font-bold flex items-center hover:underline cursor-pointer"
       >
-        ← Back to Class List
+        <span className="mr-2">◀</span> Back to Class List
       </button>
 
-      {/* Header Profile */}
-      <div className="bg-white p-6 rounded-2xl shadow-md border-l-8 border-[#52392F] mb-8 flex justify-between items-center">
+      {/* Student Profile Card */}
+      <div className="bg-white p-6 rounded-2xl shadow-md border-l-8 border-[#52392F] mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 className="text-3xl font-bold text-[#52392F] font-[var(--font-heading)]">{student.name}</h1>
-            <p className="text-gray-600 font-medium">Section: {student.section}</p>
+            <h1 className="text-3xl font-bold text-[#52392F] font-[var(--font-heading)] uppercase">{student.name}</h1>
+            <p className="text-gray-600 font-medium mt-1">Section: <span className="text-black">{student.section}</span></p>
         </div>
-        <div className="text-right">
-            <p className="text-sm text-gray-500 uppercase tracking-wide">Total Activities</p>
-            <p className="text-3xl font-bold text-[#772402]">{student.activities.length}</p>
+        <div className="flex gap-6 text-left md:text-right">
+            <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Activities Completed</p>
+                <p className="text-3xl font-bold text-[#772402]">{totalCompleted}</p>
+            </div>
+            <div className="border-l border-gray-300 pl-6">
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Class Standing</p>
+                <p className={`text-3xl font-bold ${student.average >= 75 ? 'text-green-700' : 'text-[#772402]'}`}>
+                    {student.average === "N/A" ? "N/A" : `${student.average}%`}
+                </p>
+            </div>
         </div>
       </div>
 
-      <h2 className="text-xl font-bold text-[#52392F] mb-4 border-b border-[#52392F]/20 pb-2">Civilization Progress</h2>
+      <h2 className="text-xl font-bold text-[#52392F] mb-4 border-b-2 border-[#52392F]/20 pb-2 flex items-center gap-2">
+        <span className="bg-[#52392F] w-2 h-6 rounded-full inline-block"></span>
+        Final Grades by Civilization
+      </h2>
 
-      {/* Civilization Grids */}
+      {/* Gradebook Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {Object.keys(historyByCiv).length === 0 && (
-            <p className="text-gray-500 italic">No activity recorded yet.</p>
+        {civKeys.length === 0 && (
+            <div className="col-span-full text-center py-12 bg-white/50 rounded-xl border-2 border-dashed border-[#52392F]/20">
+                <p className="text-[#52392F]/60 font-bold text-lg">No graded activities found.</p>
+            </div>
         )}
 
-        {Object.entries(historyByCiv).map(([civName, logs]) => (
-          <div key={civName} className="bg-white/80 rounded-xl shadow-sm border border-[#52392F]/10 overflow-hidden">
-            <div className="bg-[#772402] px-4 py-2">
-                <h3 className="text-white font-bold uppercase tracking-wider">{civName}</h3>
+        {civKeys.map((civName) => (
+          <div key={civName} className="bg-white rounded-xl shadow-sm border border-[#52392F]/10 overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="bg-[#772402] px-5 py-3 flex justify-between items-center">
+                <h3 className="text-white font-bold uppercase tracking-wider text-sm md:text-base">{civName}</h3>
             </div>
-            <div className="p-4 space-y-3">
-                {logs.map((log, idx) => (
-                    <div key={idx} className="flex justify-between items-center border-b border-gray-100 last:border-0 pb-2 last:pb-0">
-                        <div>
-                            <p className="font-bold text-[#5a2d0c] text-sm">{log.activity_name}</p>
-                            <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">{log.activity_type}</span>
-                        </div>
-                        <div className="text-right">
-                            <span className={`font-bold ${log.score >= log.max_score / 2 ? 'text-green-600' : 'text-red-500'}`}>
-                                {log.score} / {log.max_score}
-                            </span>
-                            <p className="text-[10px] text-gray-400">{new Date(log.timestamp).toLocaleDateString()}</p>
-                        </div>
-                    </div>
-                ))}
+
+            {/* Scores List */}
+            <div className="flex-1">
+                <table className="w-full text-left">
+                    <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
+                        <tr>
+                            <th className="px-5 py-3">Activity Name</th>
+                            <th className="px-5 py-3 text-right">Final Score</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                        {gradesByCiv[civName].map((log, idx) => (
+                            <tr key={idx} className="hover:bg-[#FFF3D1]/20 transition-colors">
+                                <td className="px-5 py-4">
+                                    <p className="font-bold text-[#5a2d0c] text-sm">{log.activity_name}</p>
+                                    <span className="text-[10px] uppercase font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200 inline-block mt-1">
+                                        {log.activity_type}
+                                    </span>
+                                </td>
+                                <td className="px-5 py-4 text-right">
+                                    <span className={`text-base font-bold ${log.score >= log.max_score / 2 ? 'text-green-700' : 'text-red-600'}`}>
+                                        {log.score}
+                                    </span>
+                                    <span className="text-gray-400 text-sm font-medium"> / {log.max_score}</span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
           </div>
         ))}

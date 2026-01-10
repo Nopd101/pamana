@@ -8,26 +8,32 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await API.get('teacher-dashboard/');
-        const students = response.data;
-        const uniqueSections = [...new Set(students.map(s => s.section))];
+        // 👇 SWITCH TO THE NEW ENDPOINT
+        // This returns { sections: [...], students: [...] }
+        const response = await API.get('teacher/progress/');
+        const { sections, students } = response.data;
         
-        // Calculate Overall Class Average
-        let totalScoreSum = 0;
-        let totalMaxSum = 0;
-        
-        students.forEach(student => {
-            student.activities.forEach(act => {
-                totalScoreSum += act.score;
-                totalMaxSum += act.max_score;
-            });
-        });
+        // 1. Total Students
+        const totalStudentsCount = students.length;
 
-        const overallAvg = totalMaxSum > 0 ? Math.round((totalScoreSum / totalMaxSum) * 100) : 0;
+        // 2. Active Sections (Count the sections array directly)
+        const activeSectionsCount = sections.length;
+
+        // 3. Calculate Class Average
+        // Filter out students with "N/A" average
+        const validStudents = students.filter(s => s.average !== "N/A");
+        
+        // Sum up the averages
+        const totalAverageSum = validStudents.reduce((sum, s) => sum + parseFloat(s.average), 0);
+        
+        // Calculate mean
+        const overallAvg = validStudents.length > 0 
+            ? Math.round(totalAverageSum / validStudents.length) 
+            : 0;
 
         setStats({
-            totalStudents: students.length,
-            activeSections: uniqueSections.length,
+            totalStudents: totalStudentsCount,
+            activeSections: activeSectionsCount,
             classAverage: overallAvg
         });
         setLoading(false);
@@ -40,7 +46,7 @@ const TeacherDashboard = () => {
   }, []);
 
   return (
-    <div>
+    <div className="min-h-screen p-6 font-[var(--font-body)]">
       <h1 className="text-3xl font-bold text-[#52392F] mb-8 font-[var(--font-heading)]">Dashboard Overview</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -58,11 +64,15 @@ const TeacherDashboard = () => {
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-2xl shadow-sm">
+      <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#52392F]/10">
         <h2 className="text-xl font-bold text-[#52392F] mb-4">Class Performance</h2>
-        <p className="text-gray-600">
-            Welcome, Teacher! Use the <strong>Class Progress</strong> tab to view detailed scores for your students across all civilizations.
-        </p>
+        <div className="flex items-center gap-3">
+            <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+            <p className="text-gray-600">
+                Welcome, Teacher! You are currently managing <strong>{loading ? "..." : stats.activeSections}</strong> section(s).
+                Check the Class Progress tab for detailed reports.
+            </p>
+        </div>
       </div>
     </div>
   );
