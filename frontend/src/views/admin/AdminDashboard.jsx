@@ -16,6 +16,12 @@ const AdminDashboard = () => {
   const [sectionsList, setSectionsList] = useState([]);
   const [usersLoading, setUsersLoading] = useState(true);
 
+  // --- SEARCH & FILTER STATE ---
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState("all");
+  const [filterSection, setFilterSection] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+
   // Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -75,6 +81,39 @@ const AdminDashboard = () => {
       console.error("Failed to fetch sections", error);
     }
   };
+
+  // --- FILTERING LOGIC ---
+  const filteredUsers = users.filter(user => {
+    // 1. Search Term (Name or Username/ID)
+    const searchLower = searchTerm.toLowerCase();
+    const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+    const matchesSearch = fullName.includes(searchLower) || user.username.toLowerCase().includes(searchLower);
+
+    // 2. Role Filter
+    const matchesRole = filterRole === "all" || user.role === filterRole;
+
+    // 3. Status Filter
+    const matchesStatus = filterStatus === "all" || 
+      (filterStatus === "active" && user.is_active) || 
+      (filterStatus === "inactive" && !user.is_active);
+
+    // 4. Section Filter
+    // For Students: Check user.section
+    // For Teachers: Check if filterSection ID exists in user.assigned_sections array
+    let matchesSection = true;
+    if (filterSection !== "all") {
+        const secId = parseInt(filterSection);
+        if (user.role === 'student') {
+            matchesSection = user.section === secId;
+        } else if (user.role === 'teacher') {
+            matchesSection = user.assigned_sections && user.assigned_sections.includes(secId);
+        } else {
+            matchesSection = false; // Admins don't have sections
+        }
+    }
+
+    return matchesSearch && matchesRole && matchesStatus && matchesSection;
+  });
 
   // --- HANDLERS ---
 
@@ -208,6 +247,15 @@ const AdminDashboard = () => {
     });
   };
 
+  // Helper to get section names for teachers
+  const getTeacherSectionNames = (sectionIds) => {
+    if (!sectionIds || sectionIds.length === 0) return "-";
+    return sectionIds.map(id => {
+        const sec = sectionsList.find(s => s.id === id);
+        return sec ? sec.name : "Unknown";
+    }).join(", ");
+  };
+
   return (
     <div className="min-h-screen p-6 font-[var(--font-body)]">
       <h1 className="text-3xl font-bold text-[#52392F] mb-8 font-[var(--font-heading)]">Dashboard Overview</h1>
@@ -232,8 +280,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* REMOVED SYSTEM STATUS SECTION */}
-
       {/* --- USER MANAGEMENT SECTION --- */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <div>
@@ -244,17 +290,66 @@ const AdminDashboard = () => {
         </button>
       </div>
 
+      {/* --- SEARCH & FILTERS BAR --- */}
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-[#52392F]/10 mb-6 flex flex-col md:flex-row gap-4">
+        {/* Search */}
+        <div className="flex-1 relative">
+            <input 
+                type="text" 
+                placeholder="Search by name or ID..." 
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#52392F]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-4">
+            <select 
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#52392F] bg-white cursor-pointer"
+                value={filterRole}
+                onChange={(e) => setFilterRole(e.target.value)}
+            >
+                <option value="all">All Roles</option>
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <select 
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#52392F] bg-white cursor-pointer"
+                value={filterSection}
+                onChange={(e) => setFilterSection(e.target.value)}
+            >
+                <option value="all">All Sections</option>
+                {sectionsList.map(sec => (
+                    <option key={sec.id} value={sec.id}>{sec.name}</option>
+                ))}
+            </select>
+
+            <select 
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#52392F] bg-white cursor-pointer"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+            >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+      </div>
+
       {/* --- SCROLLABLE TABLE CONTAINER --- */}
       <div className="bg-white rounded-xl shadow-md border border-[#52392F]/10 flex flex-col">
-        {/* max-h-[600px] ensures it scrolls if content is too long */}
-        <div className="overflow-auto max-h-[600px] rounded-xl"> 
+        <div className="overflow-auto max-h-[500px] rounded-xl"> 
           <table className="w-full text-left border-collapse">
             <thead className="bg-[#52392F] text-white uppercase text-xs font-bold tracking-wider sticky top-0 z-10 shadow-sm">
               <tr>
                 <th className="p-4 bg-[#52392F]">Name</th>
                 <th className="p-4 bg-[#52392F]">Username (ID)</th>
                 <th className="p-4 bg-[#52392F]">Role</th>
-                <th className="p-4 bg-[#52392F]">Section</th>
+                <th className="p-4 bg-[#52392F]">Section(s)</th>
                 <th className="p-4 bg-[#52392F]">Status</th>
                 <th className="p-4 text-right bg-[#52392F]">Actions</th>
               </tr>
@@ -262,7 +357,9 @@ const AdminDashboard = () => {
             <tbody className="divide-y divide-gray-100 text-sm">
               {usersLoading ? (
                   <tr><td colSpan="6" className="p-4 text-center">Loading...</td></tr>
-              ) : users.map((user) => (
+              ) : filteredUsers.length === 0 ? (
+                  <tr><td colSpan="6" className="p-8 text-center text-gray-500 italic">No users found matching your filters.</td></tr>
+              ) : filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-[#FFF3D1]/50 transition duration-150">
                     <td className="p-4 font-bold text-black">{user.first_name} {user.last_name}</td>
                     <td className="p-4 text-gray-600">{user.username}</td>
@@ -275,9 +372,8 @@ const AdminDashboard = () => {
                       {user.role === 'student' ? (
                           sectionsList.find(s => s.id === user.section)?.name || "-"
                       ) : (
-                          user.assigned_sections && user.assigned_sections.length > 0 
-                          ? `${user.assigned_sections.length} Section(s)` 
-                          : "-"
+                          // 👇 UPDATED: Show explicit section names for Teachers
+                          getTeacherSectionNames(user.assigned_sections)
                       )}
                     </td>
                     <td className="p-4">
@@ -364,18 +460,18 @@ const AdminDashboard = () => {
                       <div className="border rounded p-2 max-h-32 overflow-y-auto bg-gray-50">
                           {sectionsList.length === 0 && <p className="text-xs text-gray-500">No sections available.</p>}
                           {sectionsList.map(sec => (
-                              <div key={sec.id} className="flex items-center gap-2 mb-1">
-                                  <input 
-                                      type="checkbox" 
-                                      id={`sec-${sec.id}`}
-                                      checked={formData.section_ids.includes(sec.id)}
-                                      onChange={() => handleSectionCheckbox(sec.id)}
-                                      className="cursor-pointer accent-[#52392F]"
-                                  />
-                                  <label htmlFor={`sec-${sec.id}`} className="text-sm cursor-pointer select-none">
-                                      {sec.name}
-                                  </label>
-                              </div>
+                            <div key={sec.id} className="flex items-center gap-2 mb-1">
+                                <input 
+                                    type="checkbox" 
+                                    id={`sec-${sec.id}`}
+                                    checked={formData.section_ids.includes(sec.id)}
+                                    onChange={() => handleSectionCheckbox(sec.id)}
+                                    className="cursor-pointer accent-[#52392F]"
+                                />
+                                <label htmlFor={`sec-${sec.id}`} className="text-sm cursor-pointer select-none">
+                                    {sec.name}
+                                </label>
+                            </div>
                           ))}
                       </div>
                   ) : (
