@@ -1,0 +1,5 @@
+# Inside backend/.gitignore
+venv/
+*.sqlite3
+__pycache__/
+*.pyc

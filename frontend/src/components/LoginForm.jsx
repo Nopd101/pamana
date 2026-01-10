@@ -19,17 +19,15 @@ const LoginForm = () => {
         password: password
       });
 
-      // 2. Save Tokens
+      // 2. Save Tokens locally
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
 
-      // 3. NEW: Fetch User Details to check Role
+      // 3. Fetch User Details to check Role
       const userResponse = await API.get('me/');
       const role = userResponse.data.role;
 
-      // 4. Dynamic Redirect based on Role
-      alert(`Login Successful! Welcome, ${role}.`);
-      
+      // 4. Direct Navigation (No Alert Popup)
       if (role === 'admin') {
         navigate('/admin/dashboard');
       } else if (role === 'teacher') {

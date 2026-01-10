@@ -2,15 +2,14 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     RegisterView, SubmitScoreView, TeacherDashboardView, 
-    UserProfileView, SectionListView, AdminUserViewSet, # Import the new ViewSet
-    AdminStatsView
+    UserProfileView, SectionListView, AdminUserViewSet, 
+    AdminStatsView, TeacherProgressView  # 👈 Make sure this is imported
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
-# Create a router for the viewsets
 router = DefaultRouter()
 router.register(r'users', AdminUserViewSet, basename='admin-users')
 
@@ -22,11 +21,16 @@ urlpatterns = [
     path('me/', UserProfileView.as_view(), name='user_profile'),
     path('sections/', SectionListView.as_view(), name='section_list'),
 
-    # Admin Routes (Includes /users/, /users/<id>/)
+    # Admin Routes
     path('admin/stats/', AdminStatsView.as_view(), name='admin_stats'),
     path('admin/', include(router.urls)),
 
     # App Routes
     path('submit-score/', SubmitScoreView.as_view(), name='submit_score'),
+    
+    # 👇 KEEPING THIS FOR BACKWARD COMPATIBILITY IF NEEDED
     path('teacher-dashboard/', TeacherDashboardView.as_view(), name='teacher_dashboard'),
+    
+    # 👇 ADD THIS NEW ROUTE (Used by ClassProgress & Updated Dashboard)
+    path('teacher/progress/', TeacherProgressView.as_view(), name='teacher_progress'),
 ]
