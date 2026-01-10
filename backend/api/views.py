@@ -146,30 +146,50 @@ class TeacherProgressView(APIView):
         if user.role != 'teacher':
             return Response({"error": "Unauthorized"}, status=403)
 
-        # 👇 FIX: STRICT FILTERING
-        # Remove the "| Q(id=user.section_id)" part. 
-        # Teachers should only see sections where they are explicitly assigned as the teacher.
         my_sections = Section.objects.filter(teacher=user)
         
-        # 2. Get students belonging to these sections
         students = User.objects.filter(
             section__in=my_sections, 
             role='student',
             is_active=True
         ).select_related('section')
         
-        # 3. Format Section List for Dropdown
         sections_data = [{"id": s.id, "name": s.name} for s in my_sections]
         
-        # 4. Format Student List with Activity Data
         students_data = []
         for student in students:
-            # Get score summary
-            activities_done = ActivityLog.objects.filter(student=student).count()
+            # 1. FETCH ALL RAW ACTIVITIES
+            all_activities = ActivityLog.objects.filter(student=student).values()
             
-            # Simple average calculation (can be improved later)
-            scores = ActivityLog.objects.filter(student=student).values_list('score', flat=True)
-            avg_score = sum(scores) / len(scores) if scores else 0
+            # 👇 2. FILTER: KEEP ONLY LATEST ATTEMPT PER ACTIVITY
+            # This aligns the backend calculation with the frontend report card
+            latest_activities_map = {}
+            for act in all_activities:
+                name = act['activity_name']
+                # If we haven't seen this activity yet, OR this attempt is newer than the stored one
+                if name not in latest_activities_map:
+                    latest_activities_map[name] = act
+                else:
+                    # Compare timestamps (handle potential string vs datetime object issues)
+                    current_ts = act['timestamp']
+                    stored_ts = latest_activities_map[name]['timestamp']
+                    if current_ts > stored_ts:
+                        latest_activities_map[name] = act
+
+            # Convert map back to list
+            final_activities = list(latest_activities_map.values())
+
+            # 3. CALCULATE STATS ON FINAL ACTIVITIES ONLY
+            activities_done = len(final_activities)
+            
+            scores = [act['score'] for act in final_activities if act['max_score'] > 0]
+            max_scores = [act['max_score'] for act in final_activities if act['max_score'] > 0]
+            
+            if max_scores:
+                percentages = [(s/m)*100 for s, m in zip(scores, max_scores)]
+                avg_score = sum(percentages) / len(percentages)
+            else:
+                avg_score = 0
             
             students_data.append({
                 "id": student.id,
@@ -177,7 +197,8 @@ class TeacherProgressView(APIView):
                 "section": student.section.name if student.section else "N/A",
                 "section_id": student.section.id if student.section else None,
                 "activities_done": activities_done,
-                "average": round(avg_score, 1) if activities_done > 0 else "N/A"
+                "average": round(avg_score, 1) if activities_done > 0 else "N/A",
+                "activities": list(all_activities) # We still send full history if you ever need it
             })
             
         return Response({
