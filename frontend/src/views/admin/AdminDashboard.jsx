@@ -118,7 +118,7 @@ const AdminDashboard = () => {
     try {
       await API.delete(`admin/users/${id}/`);
       fetchUsers();
-      fetchStats(); // Refresh stats too
+      fetchStats(); 
       setShowConfirmModal(false);
     } catch (error) {
       alert("Failed to deactivate user.");
@@ -138,7 +138,7 @@ const AdminDashboard = () => {
     try {
       await API.patch(`admin/users/${id}/`, { is_active: true });
       fetchUsers();
-      fetchStats(); // Refresh stats too
+      fetchStats(); 
       setShowConfirmModal(false);
     } catch (error) {
       alert("Failed to reactivate user.");
@@ -172,7 +172,7 @@ const AdminDashboard = () => {
         setIsModalOpen(false);
         setShowConfirmModal(false);
         fetchUsers();
-        fetchStats(); // Refresh stats
+        fetchStats(); 
     } catch (error) {
         console.error("Save error:", error.response?.data);
         alert("Failed to save. Check console for details.");
@@ -211,13 +211,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#52392F]/10 mb-10">
-        <h2 className="text-xl font-bold text-[#52392F] mb-4">System Status</h2>
-        <div className="flex items-center gap-3">
-            <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-            <p className="text-gray-600">All systems are running smoothly. Database connection is stable.</p>
-        </div>
-      </div>
+      {/* REMOVED SYSTEM STATUS SECTION */}
 
       {/* --- USER MANAGEMENT SECTION --- */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -229,56 +223,60 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-[#52392F]/10">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-[#52392F] text-white uppercase text-xs font-bold tracking-wider">
-            <tr>
-              <th className="p-4">Name</th>
-              <th className="p-4">Username (ID)</th>
-              <th className="p-4">Role</th>
-              <th className="p-4">Section</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 text-sm">
-            {usersLoading ? (
-                <tr><td colSpan="6" className="p-4 text-center">Loading...</td></tr>
-            ) : users.map((user) => (
-                <tr key={user.id} className="hover:bg-[#FFF3D1]/50 transition duration-150">
-                  <td className="p-4 font-bold text-black">{user.first_name} {user.last_name}</td>
-                  <td className="p-4 text-gray-600">{user.username}</td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${user.role === 'teacher' ? 'bg-blue-100 text-blue-800' : user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {user.role}
-                    </span>
-                  </td>
-                  <td className="p-4 text-black font-medium">
-                    {sectionsList.find(s => s.id === user.section)?.name || "-"}
-                  </td>
-                  <td className="p-4">
-                    <span className={`font-bold ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
-                      {user.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button onClick={() => handleEdit(user)} className="mr-3 text-blue-600 hover:underline cursor-pointer">Edit</button>
-                    {user.role !== 'admin' && (
-                      user.is_active ? (
-                        <button onClick={() => requestDeactivate(user.id)} className="text-red-600 hover:bg-red-50 px-2 py-1 rounded transition cursor-pointer" title="Deactivate Account">
-                          Deactivate
-                        </button>
-                      ) : (
-                        <button onClick={() => requestReactivate(user.id)} className="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition font-bold cursor-pointer" title="Reactivate Account">
-                          Reactivate
-                        </button>
-                      )
-                    )}
-                  </td>
-                </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* --- SCROLLABLE TABLE CONTAINER --- */}
+      <div className="bg-white rounded-xl shadow-md border border-[#52392F]/10 flex flex-col">
+        {/* max-h-[600px] ensures it scrolls if content is too long */}
+        <div className="overflow-auto max-h-[600px] rounded-xl"> 
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-[#52392F] text-white uppercase text-xs font-bold tracking-wider sticky top-0 z-10 shadow-sm">
+              <tr>
+                <th className="p-4 bg-[#52392F]">Name</th>
+                <th className="p-4 bg-[#52392F]">Username (ID)</th>
+                <th className="p-4 bg-[#52392F]">Role</th>
+                <th className="p-4 bg-[#52392F]">Section</th>
+                <th className="p-4 bg-[#52392F]">Status</th>
+                <th className="p-4 text-right bg-[#52392F]">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-sm">
+              {usersLoading ? (
+                  <tr><td colSpan="6" className="p-4 text-center">Loading...</td></tr>
+              ) : users.map((user) => (
+                  <tr key={user.id} className="hover:bg-[#FFF3D1]/50 transition duration-150">
+                    <td className="p-4 font-bold text-black">{user.first_name} {user.last_name}</td>
+                    <td className="p-4 text-gray-600">{user.username}</td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${user.role === 'teacher' ? 'bg-blue-100 text-blue-800' : user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}`}>
+                          {user.role}
+                      </span>
+                    </td>
+                    <td className="p-4 text-black font-medium">
+                      {sectionsList.find(s => s.id === user.section)?.name || "-"}
+                    </td>
+                    <td className="p-4">
+                      <span className={`font-bold ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
+                        {user.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button onClick={() => handleEdit(user)} className="mr-3 text-blue-600 hover:underline cursor-pointer">Edit</button>
+                      {user.role !== 'admin' && (
+                        user.is_active ? (
+                          <button onClick={() => requestDeactivate(user.id)} className="text-red-600 hover:bg-red-50 px-2 py-1 rounded transition cursor-pointer" title="Deactivate Account">
+                            Deactivate
+                          </button>
+                        ) : (
+                          <button onClick={() => requestReactivate(user.id)} className="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition font-bold cursor-pointer" title="Reactivate Account">
+                            Reactivate
+                          </button>
+                        )
+                      )}
+                    </td>
+                  </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* --- MODALS (Create/Edit & Confirm) --- */}
