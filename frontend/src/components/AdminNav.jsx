@@ -6,7 +6,7 @@ const AdminNav = () => {
   const navigate = useNavigate();
 
   const handleLogoutClick = (e) => {
-    e.preventDefault(); // Prevent immediate navigation
+    e.preventDefault();
     setShowLogoutModal(true);
   };
 
@@ -38,17 +38,14 @@ const AdminNav = () => {
 
         <nav className="flex-1 space-y-2 font-[var(--font-body)]">
           <NavLink to="/admin/dashboard" className={linkClasses}>
-            Dashboard
-          </NavLink>
-          <NavLink to="/admin/users" className={linkClasses}>
-            User Management
+            Dashboard & Users
           </NavLink>
         </nav>
 
         <div className="mt-auto pt-6 border-t border-[#ffffff20]">
           <button 
             onClick={handleLogoutClick}
-            className="w-full text-white hover:text-[#FFDC88] transition-colors text-center py-2 font-bold uppercase tracking-widest"
+            className="w-full text-white hover:text-[#FFDC88] transition-colors text-center py-2 font-bold uppercase tracking-widest cursor-pointer"
           >
             Logout
           </button>
@@ -71,13 +68,13 @@ const AdminNav = () => {
             <div className="flex flex-col gap-3">
               <button
                 onClick={confirmLogout}
-                className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg"
+                className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg cursor-pointer"
               >
                 Yes, Logout
               </button>
               <button
                 onClick={() => setShowLogoutModal(false)}
-                className="border-2 border-[#772402] text-[#772402] py-3 px-8 rounded-lg font-bold text-lg hover:bg-amber-50 transition-colors"
+                className="border-2 border-[#772402] text-[#772402] py-3 px-8 rounded-lg font-bold text-lg hover:bg-amber-50 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
