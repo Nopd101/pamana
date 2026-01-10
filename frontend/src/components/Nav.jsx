@@ -1,11 +1,35 @@
-import React, { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 1. New State for Auth status
+  
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 2. Check login status whenever the route changes
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    setIsLoggedIn(!!token); // !! converts string/null to boolean true/false
+  }, [location]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  // 3. Logout Handler
+  const handleLogout = () => {
+    // Clear credentials
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    
+    // Update UI immediately
+    setIsLoggedIn(false);
+    setIsOpen(false); // Close mobile menu if open
+    
+    // Redirect to login page
+    navigate('/login');
   };
 
   const linkClasses = ({ isActive }) =>
@@ -48,11 +72,21 @@ const Navbar = () => {
             </li>
           </ul>
 
-          <Link to="/login">
-            <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-6 py-3 lg:px-[3.12rem] lg:py-[0.78rem] rounded-[18.72px] font-semibold lowercase transition-transform hover:scale-105 cursor-pointer whitespace-nowrap">
-              login
+          {/* 4. Conditional Rendering for Desktop */}
+          {isLoggedIn ? (
+            <button 
+              onClick={handleLogout}
+              className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-6 py-3 lg:px-[3.12rem] lg:py-[0.78rem] rounded-[18.72px] font-semibold lowercase transition-transform hover:scale-105 cursor-pointer whitespace-nowrap"
+            >
+              logout
             </button>
-          </Link>
+          ) : (
+            <Link to="/login">
+              <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-6 py-3 lg:px-[3.12rem] lg:py-[0.78rem] rounded-[18.72px] font-semibold lowercase transition-transform hover:scale-105 cursor-pointer whitespace-nowrap">
+                login
+              </button>
+            </Link>
+          )}
         </div>
 
         <button
@@ -115,11 +149,21 @@ const Navbar = () => {
             </li>
           </ul>
 
-          <Link to="/login" onClick={toggleMenu}>
-            <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-10 py-3 rounded-[18.72px] font-semibold lowercase w-full">
-              login
+          {/* 5. Conditional Rendering for Mobile */}
+          {isLoggedIn ? (
+            <button 
+              onClick={handleLogout}
+              className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-10 py-3 rounded-[18.72px] font-semibold lowercase w-full cursor-pointer"
+            >
+              logout
             </button>
-          </Link>
+          ) : (
+            <Link to="/login" onClick={toggleMenu} className="w-full">
+              <button className="bg-linear-to-b from-[#772402] to-[#551900] text-white px-10 py-3 rounded-[18.72px] font-semibold lowercase w-full cursor-pointer">
+                login
+              </button>
+            </Link>
+          )}
         </div>
       )}
     </nav>
