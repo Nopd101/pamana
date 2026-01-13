@@ -277,7 +277,7 @@ function KabihasnanDetails() {
   
   const mesoQuestions = [
     { id: 1, text1: "Ang salitang ", text2: " ay nangangahulugang “isang nagmula sa Aztlan” isang mitikong lugar sa Hilagang Mexico.", ans: "AZTEC" },
-    { id: 2, text1: "Si ", text2: " ay nagpatayo ng mga mosque o pook dasalan ng mga Muslim sa mga lungsod ng imperyo.", ans: "MANSA MUSA" },
+    { id: 2, text1: "Ang salitang ", text2: " ay literal na nangangahulugang “imperyo”.", ans: "INCA" },
     { id: 3, text1: "Ang kabihasnang ", text2: " ay namayani sa Yucatan Peninsula, ito ay lupain sa Timog ng Mexico hanggang Guatemala", ans: "MAYA" },
     { id: 4, text1: "Ang pinuno ng mga Mayan ay tinatawag na ", text2: ".", ans: "HALACK UINIC" },
     { id: 5, text1: "Ang pinakamahalagang Diyos ng mga Aztec ay si ", text2: ", ang Diyos ng araw.", ans: "HUITZILOPOCHTLI" },
