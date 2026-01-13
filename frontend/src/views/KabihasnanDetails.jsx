@@ -341,7 +341,7 @@ function KabihasnanDetails() {
             <h1 className="text-3xl font-extrabold text-[#7B3306] font-[var(--font-heading)] uppercase">
               Kabihasnang {currentData.title}
             </h1>
-            <p className="text-[#B06A3A] text-lg font-body font-bold">{currentData.subtitle}</p>
+            <p className="text-[#A5521E] text-lg font-body font-bold">{currentData.subtitle}</p>
           </div>
         </div>
 

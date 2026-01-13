@@ -27,6 +27,7 @@ import ClassProgress from "./views/teacher/ClassProgress.jsx";
 import AdminNav from "./components/AdminNav.jsx";
 import StudentReport from "./views/teacher/StudentReport.jsx";
 import ScrollToTop from "./components/ScrollToTop";
+import StudentProfile from "./views/StudentProfile.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -57,6 +58,7 @@ const AppContent = () => {
         <Route path="/game-of-elimination" element={<GameOfElimination />} />
         <Route path="/artifact-hidden-object" element={<ArtifactHiddenObject />} />
         <Route path="/harappuzzle-quest" element={<HarapPuzzleQuest />} />
+        <Route path="/student-profile" element={<StudentProfile />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminNav />}> {/* Using your existing AdminNav as layout */}
