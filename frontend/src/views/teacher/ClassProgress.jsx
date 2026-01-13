@@ -113,7 +113,7 @@ const ClassProgress = () => {
       {/* 1. Added max-h for scrolling */}
       {/* 2. Added flex-col to maintain structure */}
       <div className="bg-white rounded-xl shadow-md border border-[#52392F]/10 flex flex-col">
-        <div className="overflow-auto max-h-[750px] rounded-xl">
+        <div className="overflow-auto max-h-[720px] rounded-xl">
           <table className="w-full text-left border-collapse">
             
             {/* Sticky Header */}
