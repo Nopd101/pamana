@@ -10,41 +10,34 @@ const ItemTypes = {
 };
 
 const CATEGORIES = {
-  "Imperyong Ghana": {
-    id: "Imperyong Ghana",
-    label: "Imperyong Ghana",
+  "Imperyong Maya": {
+    id: "Imperyong Maya",
+    label: "Imperyong Maya",
     color: "bg-[#964B1D]", // Dalit color
   },
-  "Imperyong Mali": {
-    id: "Imperyong Mali",
-    label: "Imperyong Mali",
+  "Imperyong Aztec": {
+    id: "Imperyong Aztec",
+    label: "Imperyong Aztec",
     color: "bg-[#F4C458]", // Vaishya color
   },
-  "Imperyong Songhai": {
-    id: "Imperyong Songhai",
-    label: "Imperyong Songhai",
+  "Imperyong Inca": {
+    id: "Imperyong Inca",
+    label: "Imperyong Inca",
     color: "bg-[#D36E0D]", // Kshatriya color
   },
 };
 
 const WORDS = [
-  { id: "Sundiata Keita", label: "Sundiata Keita", correct: "Imperyong Mali" },
-  { id: "Sunni", label: "Sunni", correct: "Imperyong Songhai" },
-  { id: "Ebony", label: "Ebony", correct: "Imperyong Ghana" },
-  { id: "Mansa Musa", label: "Mansa Musa", correct: "Imperyong Mali" },
-  {
-    id: "Haring Sunni Ali",
-    label: "Haring Sunni Ali",
-    correct: "Imperyong Songhai",
-  },
-  { id: "Dia Kossoi", label: "Dia Kossoi", correct: "Imperyong Songhai" },
-  { id: "Irigasyon", label: "Irigasyon", correct: "Imperyong Ghana" },
-  { id: "Mosque", label: "Mosque", correct: "Imperyong Mali" },
-  {
-    id: "Naitatag sa kanlurang Africa",
-    label: "Naitatag sa kanlurang Africa",
-    correct: "Imperyong Ghana",
-  },
+  { id: "Yucatan Peninsula", label: "Yucatan Peninsula", correct: "Imperyong Maya" },
+  { id: "Tlaloc", label: "Tlaloc", correct: "Imperyong Aztec" },
+  { id: "Serpent", label: "Serpent", correct: "Imperyong Maya" },
+  { id: "Pachakuti", label: "Pachakuti", correct: "Imperyong Inca" },
+  { id: "Texcoco", label: "Texcoco", correct: "Imperyong Aztec" },
+  { id: "Lambak ng Cuzco", label: "Lambak ng Cuzco", correct: "Imperyong Inca" },
+  { id: "Topa Yupanqui", label: "Topa Yupanqui", correct: "Imperyong Inca" },
+  { id: "God of the Feathered", label: "God of the Feathered", correct: "Imperyong Maya" },
+  { id: "Hernando Cortez", label: "Hernando Cortez", correct: "Imperyong Aztec" },
+  { id: "Tunay na lalaki", label: "Tunay na lalaki", correct: "Imperyong Maya" },
 ];
 
 const CustomDragLayer = () => {
