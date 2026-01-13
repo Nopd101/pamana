@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import API from "../api/axios";
+import kabihasnanImg from "../assets/main-home-bg-2.png";
+import { PlayCircle, Gamepad2, ClipboardList } from "lucide-react";
 
 // --- COMPONENT: LetterInputGroup (For Mesoamerica) ---
 const LetterInputGroup = ({ answer, onAnswerChange }) => {
@@ -330,12 +332,16 @@ function KabihasnanDetails() {
       <div className="max-w-5xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-          <div className="w-24 h-24 bg-gray-300 rounded-sm shadow-inner shrink-0" />
+          <img 
+            src={kabihasnanImg} 
+            alt="Kabihasnan Thumbnail" 
+            className="w-40 h-30 rounded-sm shadow-inner shrink-0 object-cover border border-amber-900/20" 
+          />
           <div className="text-center md:text-left">
             <h1 className="text-3xl font-extrabold text-[#7B3306] font-[var(--font-heading)] uppercase">
               Kabihasnang {currentData.title}
             </h1>
-            <p className="text-[#B06A3A] font-bold">{currentData.subtitle}</p>
+            <p className="text-[#B06A3A] text-lg font-body font-bold">{currentData.subtitle}</p>
           </div>
         </div>
 
@@ -345,15 +351,15 @@ function KabihasnanDetails() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 font-bold transition-colors ${
+              className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 font-body transition-colors ${
                 activeTab === tab
                   ? "bg-white text-[#5a2d0c]"
                   : "bg-[#772402] text-white/80"
               }`}
             >
-              {tab === "video" && <span>▷ Video Lecture</span>}
-              {tab === "game" && <span>∞ Mini-Game</span>}
-              {tab === "quiz" && <span>⚡ Quiz</span>}
+              {tab === "video" && <><PlayCircle className="w-5 h-5" /><span> Video Lecture</span></>}
+              {tab === "game" && <><Gamepad2 className="w-5 h-5" /><span> Mini-Game</span></>}
+              {tab === "quiz" && <><ClipboardList className="w-5 h-5" /><span> Quiz</span></>}
             </button>
           ))}
         </div>
@@ -406,7 +412,7 @@ function KabihasnanDetails() {
                     onClick={() => handleStartGame(game.title)}
                     className="w-full bg-[#772402] text-white py-3 rounded-lg flex items-center justify-center gap-3 font-bold shadow-md hover:bg-[#5a2d0c] transition-colors cursor-pointer"
                   >
-                    <span>∞</span> Start Game
+                    <Gamepad2 className="w-5 h-5" /> Start Game
                   </button>
                 </div>
               ))}
@@ -425,11 +431,16 @@ function KabihasnanDetails() {
               {id === "mesopotamia" && (
                 <div className="space-y-6">
                   {[ 
-                    { id: 1, q: "Aling kilalang gusali...", options: ["Taj Mahal", "Ziggurat", "Pyramid", "Hanging Gardens"] },
-                    { id: 2, q: "Ano ang unang imperyo...", options: ["Sumer", "Babylonia", "Akkad", "Chaldea"] },
-                    { id: 3, q: "Ano ang isa sa pinakaunang batas...", options: ["Kodigo ni Hammurabi", "Kodigo ni Sargon", "Kodigo ni Naram Sin", "Kodigo ni Cyrus the Great"] },
-                    { id: 4, q: "Anong uri ng sistema...", options: ["Hieroglyphics", "Calligraphy", "Pictograph", "Cuneiform"] },
-                    { id: 5, q: "Ano ang imperyong itinatag...", options: ["Imperyong Achaemenid", "Imperyong Akkadian", "Imperyong Chaldean", "Imperyong Assyrian"] },
+                    { id: 1, q: "Aling kilalang gusali sa Babylonia ang ipinatayo ni Haring Nebuchadnezzar para sa kanyang asawa at kabilang sa Seven Wonders of the Ancient World?",
+                      options: ["Taj Mahal", "Ziggurat", "Pyramid", "Hanging Gardens"] },
+                    { id: 2, q: "Ano ang unang imperyo sa daigdig na itinatag ni Sargon I?",
+                      options: ["Sumer", "Babylonia", "Akkad", "Chaldea"] },
+                    { id: 3, q: "Ano ang isa sa pinakaunang batas na naisulat sa kasaysayan na mula sa Babylonia na naglalaman ng 282 na batas?",
+                      options: ["Kodigo ni Hammurabi", "Kodigo ni Sargon", "Kodigo ni Naram Sin", "Kodigo ni Cyrus the Great"] },
+                    { id: 4, q: "Anong uri ng sistema ng pagsusulat ang ginawa ng mga Sumerian?",
+                      options: ["Hieroglyphics", "Calligraphy", "Pictograph", "Cuneiform"] },
+                    { id: 5, q: "Ano ang imperyong itinatag ng mga Persian?",
+                      options: ["Imperyong Achaemenid", "Imperyong Akkadian", "Imperyong Chaldean", "Imperyong Assyrian"] },
                   ].map((item) => (
                     <div key={item.id} className="border-2 border-[#5a2d0c]/30 rounded-xl p-6 bg-white shadow-sm">
                       <p className="text-[#5a2d0c] font-black mb-4">{item.id}. {item.q}</p>
@@ -456,17 +467,17 @@ function KabihasnanDetails() {
               {id === "indus" && (
                 <div className="space-y-4">
                   {[ 
-                    { id: 1, text: "Ang Harappa at Mohenjo-Daro..." },
-                    { id: 2, text: "Kilala ang Mohenjo-Daro..." },
-                    { id: 3, text: "Ang Kabihasnang Indus ay may maayos..." },
-                    { id: 4, text: "Ang mga Aryan ang unang nanirahan..." },
-                    { id: 5, text: "Ang sistema ng mga palikuran..." },
+                    { id: 1, text: "Ang Harappa at Mohenjo-Daro ay mga lungsod ng Kabihasnang Indus." },
+                    { id: 2, text: "Kilala ang Mohenjo-Daro bilang lungsod na nasa hilagang bahagi ng Indus River." },
+                    { id: 3, text: "Ang Kabihasnang Indus ay may maayos at planadong lungsod na may malalapad na kalsada." },
+                    { id: 4, text: "Ang mga Aryan ang unang nanirahan sa Harappa at Mohenjo-Daro." },
+                    { id: 5, text: " Ang sistema ng mga palikuran at alkantarilya sa Indus ay isa sa mga pinakamaunlad noong sinaunang panahon." },
                   ].map((q) => (
                     <div key={q.id} className="border-2 border-[#5a2d0c]/30 rounded-xl p-5 bg-white flex items-center gap-4 shadow-sm">
                       <input
                         key={resetKey}
                         type="text"
-                        placeholder="TAMA / MALI"
+                        placeholder=""
                         className="w-32 border-b-2 border-[#5a2d0c] bg-transparent text-center font-bold text-[#772402] outline-none focus:border-amber-600 uppercase transition-colors"
                         onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                       />

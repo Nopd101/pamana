@@ -50,12 +50,12 @@ function HomePage() {
         {/* Hero content */}
         <div className="relative z-10 w-full px-8 md:px-20 -mt-20">
           <div className="max-w-xl text-white">
-            <h1 className="text-5xl md:text-6xl font-extrabold leading-tight font-[var(--font-heading)]">
+            <h1 className="text-5xl md:text-7xl font-extrabold leading-tight font-[var(--font-heading)]">
               {/* Dynamic Name Here */}
               Welcome, {firstName}!
             </h1>
 
-            <p className="mt-4 text-lg font-[var(--font-heading)]">
+            <p className="mt-4 text-xl font-[var(--font-heading)]">
               Choose a civilization to study
             </p>
 
@@ -80,7 +80,7 @@ function HomePage() {
         className="bg-cover bg-top px-6 md:px-20 py-16 -mt-32 relative z-0"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
-        <div className="pt-32">
+        <div className="pt-32 pl-40 pr-40">
           <h2 className="text-3xl font-extrabold text-[#7B3306] mb-8 font-[var(--font-heading)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">
             THE CIVILIZATIONS
           </h2>
