@@ -86,14 +86,31 @@ function KabihasnanDetails() {
     setResetKey((prev) => prev + 1);
   };
 
+  // 👇 UPDATED: Handle Video Completion
+  const handleVideoComplete = async () => {
+    try {
+      await API.post("submit-score/", {
+        civilization: currentData.title,
+        activity_type: "Video", // 👈 Distinct type for filtering
+        activity_name: "Video Lecture",
+        score: 1, // Mark as 1 (Complete)
+        max_score: 1
+      });
+      console.log("Video progress recorded");
+    } catch (error) {
+      console.error("Error recording video progress:", error);
+    }
+
+    // Move to the next tab (Game)
+    setActiveTab("game");
+  };
+
   const handleSubmitQuiz = async () => {
-    // 👈 Make this ASYNC
     let currentScore = 0;
     let maxScore = 0;
 
     if (id === "mesopotamia") {
       // Multiple Choice Logic
-      // Define correct answers mapping based on Question ID
       const answers = {
         1: "Hanging Gardens",
         2: "Akkad",
@@ -106,8 +123,7 @@ function KabihasnanDetails() {
         if (userAnswers[qid] === answers[qid]) currentScore++;
       });
     } else if (id === "indus") {
-      // True/False Logic (Note: Your provided code used text input for True/False, assuming "TAMA"/"MALI")
-      // Update this based on expected correct answers
+      // True/False Logic
       const answers = { 1: "TAMA", 2: "MALI", 3: "TAMA", 4: "MALI", 5: "TAMA" };
       maxScore = 5;
       Object.keys(answers).forEach((qid) => {
@@ -128,12 +144,6 @@ function KabihasnanDetails() {
       });
     } else if (id === "egypt") {
       // Matching Logic
-      // Map Hanay A IDs to correct Hanay B text indices or values
-      // a1 (Hieroglyphics) -> b2
-      // a2 (Chariot) -> b3
-      // a3 (Monoteismo) -> b5
-      // a4 (Nomarch) -> b0
-      // a5 (Nome) -> b1
       const correctPairs = { a1: "b2", a2: "b3", a3: "b5", a4: "b0", a5: "b1" };
       maxScore = 5;
       connections.forEach((conn) => {
@@ -150,8 +160,6 @@ function KabihasnanDetails() {
       };
       maxScore = 5;
       Object.keys(answers).forEach((qid) => {
-        // Remove spaces for comparison to be lenient? Or strict?
-        // Currently strict exact match.
         if (userAnswers[qid] === answers[qid]) currentScore++;
       });
     }
@@ -167,7 +175,6 @@ function KabihasnanDetails() {
       console.log("Score saved successfully!");
     } catch (error) {
       console.error("Failed to save score:", error);
-      // Optional: Alert the user if save fails
     }
 
     setScore(currentScore);
@@ -175,7 +182,6 @@ function KabihasnanDetails() {
     setIsQuizFinished(true);
   };
 
-  // ... (Keep existing Game Navigation and Matching Line logic) ...
   const handleStartGame = (gameTitle) => {
     if (gameTitle === "HARAPPUZZLE QUEST") navigate("/harappuzzle-quest");
     else if (gameTitle === "CASTE YOUR ANSWER") navigate("/caste-game");
@@ -356,7 +362,6 @@ function KabihasnanDetails() {
 
   const currentData = civilizationData[id] || civilizationData.mesopotamia;
 
-  // --- MODAL RENDER ---
   if (isQuizFinished) {
     return (
       <div
@@ -468,7 +473,7 @@ function KabihasnanDetails() {
               </h2>
               <div
                 className="relative w-full"
-                style={{ paddingTop: "56.25%" /* 16:9 Aspect Ratio */ }}
+                style={{ paddingTop: "56.25%" }}
               >
                 <iframe
                   className="absolute top-0 left-0 w-full h-full rounded-lg shadow-inner"
@@ -479,13 +484,17 @@ function KabihasnanDetails() {
                   allowFullScreen
                 ></iframe>
               </div>
-              <button className="mt-8 self-center md:self-end border-2 border-emerald-600 text-emerald-700 px-6 py-1 rounded-lg font-bold">
+              {/* 👇 UPDATED BUTTON: Calls handleVideoComplete */}
+              <button 
+                onClick={handleVideoComplete}
+                className="mt-8 self-center md:self-end border-2 border-emerald-600 text-emerald-700 px-6 py-1 rounded-lg font-bold hover:bg-emerald-50 transition-colors"
+              >
                 Next →
               </button>
             </div>
           )}
 
-          {/* MINI-GAME TAB (Indus Specific Labels) */}
+          {/* MINI-GAME TAB */}
           {activeTab === "game" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {currentData.games.map((game, index) => (

@@ -23,26 +23,89 @@ const CIVILIZATIONS = [
 const StudentProfile = () => {
   const navigate = useNavigate();
 
-  // Consolidated state to ensure 'stats' is reachable
   const [studentData, setStudentData] = useState({
-    name: "Juan Dela Cruz",
-    section: "A",
-    overallProgress: 7,
+    name: "Student",
+    section: "...",
+    overallProgress: 0,
     stats: {
       videos: 0,
       games: 0,
       quizzes: 0,
     },
-    progressDetails: {
-      tsino: { video: true, quiz: false, games: false },
-    },
+    progressDetails: {}, // To store specific completion data
   });
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // const response = await API.get('/student-profile/');
-        // setStudentData(response.data);
+        const response = await API.get('student/stats/');
+        const { name, section, stats, history } = response.data;
+
+        // Initialize details for all civilizations to ensure they exist
+        const details = {};
+        CIVILIZATIONS.forEach(civ => {
+            details[civ.id] = { 
+                video: false, 
+                quiz: false, 
+                games: false, 
+                _gamesFound: new Set() // Temporary set to track unique games
+            };
+        });
+        
+        // Helper to normalize civ names from DB (e.g., "Mesopotamia" -> "mesopotamia")
+        const normalize = (str) => str?.toLowerCase().replace(" ", "");
+
+        // Process history
+        history.forEach(log => {
+           const civKey = normalize(log.civilization);
+           
+           if (details[civKey]) {
+               if (log.activity_type === 'Quiz') {
+                   details[civKey].quiz = true;
+               }
+               if (log.activity_type === 'Video') {
+                   details[civKey].video = true;
+               }
+               if (log.activity_type === 'Game') {
+                   details[civKey]._gamesFound.add(log.activity_name);
+               }
+           }
+        });
+
+        // Finalize Game Status (Must have 2 unique games to be "True")
+        Object.values(details).forEach(d => {
+            if (d._gamesFound.size >= 2) {
+                d.games = true;
+            }
+        });
+
+        // Calculate Stats for the top cards (Total counts)
+        const calculatedStats = {
+            videos: history.filter(h => h.activity_type === 'Video').length,
+            games: new Set(history.filter(h => h.activity_type === 'Game').map(h => h.activity_name)).size,
+            quizzes: new Set(history.filter(h => h.activity_type === 'Quiz').map(h => h.activity_name)).size,
+        };
+
+        // Calculate Overall Progress
+        // Now tracking 3 items per civilization: Video + Quiz + Games(Both)
+        let tasksCompleted = 0;
+        Object.values(details).forEach(d => {
+            if(d.quiz) tasksCompleted++;
+            if(d.video) tasksCompleted++; // Now tracking video
+            if(d.games) tasksCompleted++; // Only counts if >=2 games
+        });
+
+        const totalTasks = 5 * 3; // 5 civs * 3 categories
+        const progressPercent = totalTasks > 0 ? Math.round((tasksCompleted / totalTasks) * 100) : 0;
+
+        setStudentData({
+          name,
+          section,
+          overallProgress: progressPercent,
+          stats: calculatedStats,
+          progressDetails: details
+        });
+
       } catch (error) {
         console.error("Error fetching profile", error);
       }
@@ -140,6 +203,7 @@ const StudentProfile = () => {
                 quiz: false,
                 games: false,
               };
+              
               const isStarted =
                 progress.video || progress.quiz || progress.games;
 
@@ -164,6 +228,7 @@ const StudentProfile = () => {
                       </div>
                     ) : (
                       <div className="flex flex-col gap-0.5">
+                        {/* Video Indicator */}
                         <div
                           className={`flex items-center gap-2 text-sm font-bold ${
                             progress.video
@@ -178,6 +243,8 @@ const StudentProfile = () => {
                           )}
                           <span>Video Lesson</span>
                         </div>
+
+                        {/* Quiz Indicator */}
                         <div
                           className={`flex items-center gap-2 text-sm font-bold ${
                             progress.quiz ? "text-emerald-600" : "text-gray-400"
@@ -190,6 +257,8 @@ const StudentProfile = () => {
                           )}
                           <span>Quiz</span>
                         </div>
+
+                        {/* Games Indicator (Requires both games) */}
                         <div
                           className={`flex items-center gap-2 text-sm font-bold ${
                             progress.games
@@ -202,7 +271,7 @@ const StudentProfile = () => {
                           ) : (
                             <Circle className="w-3.5 h-3.5" />
                           )}
-                          <span>Games</span>
+                          <span>Games (Complete all)</span>
                         </div>
                       </div>
                     )}

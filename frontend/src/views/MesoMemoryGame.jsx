@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios';
 
 import img1 from "../assets/mindflip/1.png";
 import img2 from "../assets/mindflip/2.png";
@@ -75,6 +76,7 @@ const MesoMemoryGame = () => {
   const isPeekPhase = peekTimer > 0;
   const [choiceOne, setChoiceOne] = useState(null);
   const [choiceTwo, setChoiceTwo] = useState(null);
+  
 
   const disabled = isPeekPhase || (choiceOne && choiceTwo);
 
@@ -126,7 +128,24 @@ const MesoMemoryGame = () => {
     }, 1000);
     return () => clearTimeout(timer);
   }, [peekTimer]);
-
+  useEffect(() => {
+    if (matches === 6 && !isPeekPhase) { // 6 matches = 12 cards (Game Over)
+       const submitGameScore = async () => {
+          try {
+             await API.post('submit-score/', {
+                civilization: "Mesopotamia",
+                activity_type: "Game",
+                activity_name: "MindFlip",
+                score: 6, // Perfect score for completing it
+                max_score: 6
+             });
+          } catch (err) {
+             console.error(err);
+          }
+       };
+       submitGameScore();
+    }
+  }, [matches]);
   return (
     <div
       className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden relative"

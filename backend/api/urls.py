@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     RegisterView, SubmitScoreView, TeacherDashboardView, 
     UserProfileView, SectionListView, AdminUserViewSet, 
-    AdminStatsView, TeacherProgressView  # 👈 Make sure this is imported
+    AdminStatsView, TeacherProgressView, StudentStatsView  # 👈 Make sure this is imported
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -33,4 +33,6 @@ urlpatterns = [
     
     # 👇 ADD THIS NEW ROUTE (Used by ClassProgress & Updated Dashboard)
     path('teacher/progress/', TeacherProgressView.as_view(), name='teacher_progress'),
+
+    path('student/stats/', StudentStatsView.as_view(), name='student_stats'),
 ]

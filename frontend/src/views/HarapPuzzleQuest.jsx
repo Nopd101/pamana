@@ -4,6 +4,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
+import API from '../api/axios'; // 👈 Import API
 
 // --- Backend Detection for react-dnd ---
 const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -20,14 +21,11 @@ const getPuzzleImages = (puzzleName) => {
   const images = {};
   const puzzleNameKey = puzzleName.replace(/\s/g, ""); // "Caste System" -> "CasteSystem"
 
-  // This loop populates the 'images' object from the Vite glob import.
   for (const path in allPieceModules) {
     const fileName = path.split("/").pop(); // e.g., "CasteSystem_1.png"
     images[fileName] = allPieceModules[path];
   }
 
-  // This generates the array of 12 pieces for the given puzzle.
-  // It now looks for files named like "CasteSystem_1.png", "CasteSystem_2.png", etc.
   return Array.from(
     { length: 12 },
     (_, i) => images[`${puzzleNameKey}_${i + 1}.png`]
@@ -58,13 +56,8 @@ const ItemTypes = {
 };
 
 // --- MANUAL PIECE CONFIGURATION ---
-// "default" applies to any piece you haven't listed specifically.
-// Add specific IDs (0, 1, 2...) to override them.
 const PIECE_CONFIG = {
   default: { scaleX: "135%", scaleY: "135%", nudgeX: "0%", nudgeY: "0%" },
-
-  // EXAMPLE: Manually adjusting specific pieces
-  // Top Row (0-3)
   0: { scaleX: "150%", scaleY: "140%", nudgeX: "4%", nudgeY: "7%" },
   1: { scaleX: "145%", scaleY: "120%", nudgeX: "-3%", nudgeY: "0%" },
   2: { scaleX: "145%", scaleY: "145%", nudgeX: "2%", nudgeY: "8%" },
@@ -89,9 +82,7 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
     }),
   }));
 
-  // === INDIVIDUAL PIECE CONFIGURATION ===
   const getPieceStyle = () => {
-    // 1. If it's in the bank, keep it standard
     if (isBankPiece) {
       return {
         width: "100%",
@@ -101,10 +92,7 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
       };
     }
 
-    // 2. Load settings for THIS specific piece (or use default)
     const config = PIECE_CONFIG[piece.id] || PIECE_CONFIG.default;
-
-    // 3. Fallback values if you forgot to define one property
     const width = config.scaleX || PIECE_CONFIG.default.scaleX;
     const height = config.scaleY || PIECE_CONFIG.default.scaleY;
     const nudgeX = config.nudgeX || "0%";
@@ -116,7 +104,6 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
       position: "absolute",
       top: "50%",
       left: "50%",
-      // Combine centering with your manual nudge
       transform: `translate(calc(-50% + ${nudgeX}), calc(-50% + ${nudgeY}))`,
       zIndex: 10,
     };
@@ -127,8 +114,8 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
   const style = {
     opacity: isDragging ? 0.5 : 1,
     transition: "transform 0.2s ease",
-    maxWidth: "none", // Allow overflow
-    maxHeight: "none", // Allow overflow
+    maxWidth: "none", 
+    maxHeight: "none", 
     pointerEvents: isDragging ? "none" : "auto",
     ...customStyle,
   };
@@ -139,15 +126,13 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
       src={piece.img}
       alt={`Puzzle piece ${piece.id}`}
       className="cursor-grab active:cursor-grabbing"
-      // Force 'fill' so your scaleX/scaleY settings actually stretch the image
       style={{ ...style, objectFit: "fill" }}
     />
   );
 };
 
-// --- Drop Slot Component (on the board) ---
+// --- Drop Slot Component ---
 const DropSlot = ({ slotId, piece, onDrop, isComplete, gridSize }) => {
-  // Accept gridSize
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.PIECE,
     drop: (item) => onDrop(slotId, item.piece),
@@ -171,7 +156,6 @@ const DropSlot = ({ slotId, piece, onDrop, isComplete, gridSize }) => {
         zIndex: piece ? 2 : 1,
       }}
     >
-      {/* Pass gridSize to DraggablePiece */}
       {piece && (
         <DraggablePiece piece={piece} isBankPiece={false} gridSize={gridSize} />
       )}
@@ -198,7 +182,7 @@ const PuzzleBoard = ({ puzzle, boardState, onDrop, isComplete }) => {
           piece={piece}
           onDrop={onDrop}
           isComplete={isComplete}
-          gridSize={puzzle.grid} // <--- PASS GRID SIZE HERE
+          gridSize={puzzle.grid}
         />
       ))}
     </div>
@@ -258,7 +242,7 @@ function HarapPuzzleQuest() {
     [currentPuzzleIndex]
   );
 
-  // Effect to preload images and set loading state
+  // Effect to preload images
   useEffect(() => {
     setImagesLoaded(false);
     const allImages = currentPuzzle.pieces.map((p) => p.img).filter(Boolean);
@@ -280,10 +264,10 @@ function HarapPuzzleQuest() {
     });
   }, [currentPuzzle]);
 
-  // Effect to initialize puzzle state once images are loaded
+  // Effect to initialize puzzle state
   useEffect(() => {
     if (imagesLoaded) {
-      setIsPuzzleComplete(false); // Reset completion state for the new puzzle
+      setIsPuzzleComplete(false);
       const shuffled = [...currentPuzzle.pieces].sort(
         () => Math.random() - 0.5
       );
@@ -296,52 +280,22 @@ function HarapPuzzleQuest() {
     }
   }, [currentPuzzle, imagesLoaded]);
 
-  // // PANG AUTOCOMPLETE TO PAG NAGDEDEBUG
-  // useEffect(() => {
-  //   if (imagesLoaded) {
-  //     setIsPuzzleComplete(false);
-
-  //     // --- DEBUG MODE: AUTO-COMPLETE ---
-  //     // 1. Don't shuffle.
-  //     // 2. Put everything directly on the board in the correct order.
-  //     setPieces({
-  //       bank: [], // Bank is empty
-  //       board: currentPuzzle.pieces, // Board has all pieces in correct slots (Index 0 = Piece 0)
-  //     });
-
-  //     /* // --- ORIGINAL GAME MODE (Uncomment this to revert later) ---
-  //     const shuffled = [...currentPuzzle.pieces].sort(() => Math.random() - 0.5);
-  //     setPieces({
-  //       bank: shuffled,
-  //       board: Array(currentPuzzle.grid.rows * currentPuzzle.grid.cols).fill(null),
-  //     });
-  //     */
-  //   }
-  // }, [currentPuzzle, imagesLoaded]);
-
   // --- Completion Check Effect ---
   useEffect(() => {
-    // Do not run the check if the board is empty or the game is already finished.
     if (isGameFinished || !pieces.board.length || !imagesLoaded) {
       return;
     }
 
     const boardPieces = pieces.board.filter(Boolean);
-    // Check if all slots on the board are filled.
     if (boardPieces.length === pieces.board.length) {
-      // Verify that every piece is in its correct slot (piece.id must match slot index).
       const isComplete = pieces.board.every((p, index) => p && p.id === index);
 
       if (isComplete) {
-        console.log(`Puzzle ${currentPuzzle.name} completed!`);
-        setIsPuzzleComplete(true); // Set puzzle as complete
-        // Wait a moment before advancing to show the completed puzzle.
+        setIsPuzzleComplete(true);
         setTimeout(() => {
           if (currentPuzzleIndex < puzzles.length - 1) {
-            console.log("Advancing to the next puzzle...");
             setCurrentPuzzleIndex((prevIndex) => prevIndex + 1);
           } else {
-            console.log("All puzzles finished!");
             setIsGameFinished(true);
           }
         }, 1500);
@@ -355,6 +309,26 @@ function HarapPuzzleQuest() {
     imagesLoaded,
   ]);
 
+  // 👇 Submit Score when Game Finished
+  useEffect(() => {
+    if (isGameFinished) {
+        const submitScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Indus",
+                    activity_type: "Game",
+                    activity_name: "HARAPPUZZLE QUEST",
+                    score: puzzles.length, 
+                    max_score: puzzles.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitScore();
+    }
+  }, [isGameFinished]);
+
   const handleDropOnBoard = (targetSlotId, droppedPiece) => {
     setPieces((prev) => {
       const { bank, board } = prev;
@@ -366,14 +340,12 @@ function HarapPuzzleQuest() {
       );
       const pieceAtTarget = newBoard[targetSlotId];
 
-      // Case 1: Drag from Bank to Board
       if (sourceSlotId === -1) {
         newBank = newBank.filter((p) => p.id !== droppedPiece.id);
         if (pieceAtTarget) {
           newBank.push(pieceAtTarget);
         }
       }
-      // Case 2: Drag from Board to Board (Swap)
       else {
         newBoard[sourceSlotId] = pieceAtTarget;
       }
@@ -387,11 +359,10 @@ function HarapPuzzleQuest() {
   const handleDropOnBank = (droppedPiece) => {
     setPieces((prev) => {
       const { bank, board } = prev;
-      // Only handle drops from the board
       const sourceSlotId = board.findIndex(
         (p) => p && p.id === droppedPiece.id
       );
-      if (sourceSlotId === -1) return prev; // Already in bank, do nothing
+      if (sourceSlotId === -1) return prev; 
 
       const newBoard = [...board];
       const newBank = [...bank, droppedPiece];

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Nav';
 import bgHome from '../assets/bg-home.png';
+import API from '../api/axios';
 
 const questions = [
     {
@@ -144,6 +145,25 @@ const PostTest = () => {
 
         return () => clearInterval(timerRef.current);
     }, [currentIndex, isGameFinished]);
+    useEffect(() => {
+        if (isGameFinished) {
+            const submitPostTestScore = async () => {
+                try {
+                    await API.post('submit-score/', {
+                        civilization: "General",
+                        activity_type: "Quiz",
+                        activity_name: "Post-Test",
+                        score: score,
+                        max_score: questions.length
+                    });
+                    console.log("Post-Test score submitted.");
+                } catch (error) {
+                    console.error("Error submitting score:", error);
+                }
+            };
+            submitPostTestScore();
+        }
+    }, [isGameFinished, score]);
 
     if (isGameFinished) {
         return (

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton"; 
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios'; // 👈 Import API
 
 import p1_1 from "../assets/4Pics1Word/1.png";
 import p1_2 from "../assets/4Pics1Word/2.png";
@@ -79,6 +80,26 @@ const FourPicsOneWord = () => {
       alert("Wrong answer, try again!");
     }
   };
+
+  // 👇 Submit Score when Game Finished
+  useEffect(() => {
+    if (isGameFinished) {
+        const submitScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Egypt",
+                    activity_type: "Game",
+                    activity_name: "4 Pics 1 Word",
+                    score: score,
+                    max_score: puzzles.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitScore();
+    }
+  }, [isGameFinished, score]);
 
   const handleReset = () => {
     setCurrentPuzzleIndex(0);

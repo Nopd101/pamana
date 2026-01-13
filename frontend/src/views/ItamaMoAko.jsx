@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import Navbar from "../components/Nav";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios'; // 👈 Import API
 
 const questionsData = [
   {
@@ -99,6 +100,26 @@ const ItamaMoAko = () => {
       }
     }, 1500);
   };
+
+  // 👇 Submit Score when Game Finished
+  useEffect(() => {
+    if (isGameFinished) {
+        const submitScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Mesoamerica",
+                    activity_type: "Game",
+                    activity_name: "Itama Mo Ako",
+                    score: score,
+                    max_score: questionsData.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitScore();
+    }
+  }, [isGameFinished, score]);
 
   const handleReset = () => {
     setCurrentIndex(0);

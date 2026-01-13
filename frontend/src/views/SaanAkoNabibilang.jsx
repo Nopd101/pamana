@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DndProvider, useDrag, useDrop, useDragLayer } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios'; // 👈 Import API
 
 const ItemTypes = {
   WORD: "word",
@@ -155,6 +156,26 @@ const SaanAkoNabibilang = () => {
     setScore(currentScore);
     setIsGameFinished(true);
   };
+
+  // 👇 Submit Score when Game Finished
+  useEffect(() => {
+    if (isGameFinished) {
+        const submitScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Mesoamerica",
+                    activity_type: "Game",
+                    activity_name: "Saan Ako Nabibilang",
+                    score: score,
+                    max_score: WORDS.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitScore();
+    }
+  }, [isGameFinished, score]);
 
   const handleReset = () => {
     setWordPlacements(() => {

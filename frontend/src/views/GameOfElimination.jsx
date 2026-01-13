@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton"; 
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios'; // 👈 Import API
 
 const questions = [
   {
@@ -67,6 +68,26 @@ const GameOfElimination = () => {
       setIsGameFinished(true);
     }
   };
+
+  // 👇 Submit Score when Game Finished
+  useEffect(() => {
+    if (isGameFinished) {
+        const submitScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Tsino",
+                    activity_type: "Game",
+                    activity_name: "Game of Elimination",
+                    score: score,
+                    max_score: questions.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitScore();
+    }
+  }, [isGameFinished, score]);
 
   const handleReset = () => {
     setCurrentQuestionIndex(0);

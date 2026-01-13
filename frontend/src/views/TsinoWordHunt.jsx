@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios'; // 👈 Import API
 
 const WORDS_TO_FIND = [
   { word: "ZHONGGUO", hint: "Tawag sa Tsina: 'Gitnang Kaharian'" },
@@ -41,6 +42,26 @@ const TsinoWordHunt = () => {
       setTimeout(() => setIsGameWon(true), 1000);
     }
   }, [foundWords]);
+
+  // 👇 Submit Score when Game Won
+  useEffect(() => {
+    if (isGameWon) {
+        const submitScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Tsino",
+                    activity_type: "Game",
+                    activity_name: "DynasSeek",
+                    score: WORDS_TO_FIND.length,
+                    max_score: WORDS_TO_FIND.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitScore();
+    }
+  }, [isGameWon]);
 
   const getCellsBetween = (start, end) => {
     const path = [];

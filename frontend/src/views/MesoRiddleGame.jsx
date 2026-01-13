@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // 👈 Added useEffect here
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios';
 
 const RIDDLES = [
   {
@@ -40,6 +41,7 @@ const MesoRiddleGame = () => {
   const [showHint, setShowHint] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [isGameFinished, setIsGameFinished] = useState(false);
+  
 
   const currentRiddle = RIDDLES[currentIndex];
 
@@ -96,6 +98,26 @@ const MesoRiddleGame = () => {
       .join(" ");
     return `${firstChar} ${hidden}`;
   };
+
+  // 👇 This was causing the crash because useEffect wasn't imported
+  useEffect(() => {
+    if (isGameFinished) {
+        const submitRiddleScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Mesopotamia",
+                    activity_type: "Game",
+                    activity_name: "BrainTease",
+                    score: score,
+                    max_score: RIDDLES.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitRiddleScore();
+    }
+  }, [isGameFinished, score]);
 
   return (
     <div

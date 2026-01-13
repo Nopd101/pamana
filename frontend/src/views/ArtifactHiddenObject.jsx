@@ -1,9 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import mainImage from "../assets/ArtifactHiddenObject/1.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios'; // 👈 Import API
 
 const artifacts = [
   {
@@ -64,6 +65,26 @@ const ArtifactHiddenObject = () => {
       }
     });
   };
+
+  // 👇 Submit Score when Game Finished
+  useEffect(() => {
+    if (isGameFinished) {
+        const submitScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Egypt",
+                    activity_type: "Game",
+                    activity_name: "Artifact Hidden Object",
+                    score: artifacts.length,
+                    max_score: artifacts.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitScore();
+    }
+  }, [isGameFinished]);
 
   const handleReset = () => {
     setFoundItems([]);

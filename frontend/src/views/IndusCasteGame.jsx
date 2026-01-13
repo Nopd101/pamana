@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
+import API from '../api/axios'; // 👈 Import API
 
 // --- data ---
 const ItemTypes = {
@@ -234,6 +235,26 @@ const IndusCasteGame = () => {
       alert("Incorrect arrangement. Please try again!");
     }
   };
+
+  // 👇 Submit Score when Game Won
+  useEffect(() => {
+    if (isGameWon) {
+        const submitScore = async () => {
+            try {
+                await API.post('submit-score/', {
+                    civilization: "Indus",
+                    activity_type: "Game",
+                    activity_name: "CASTE YOUR ANSWER",
+                    score: LEVELS.length, // Perfect score
+                    max_score: LEVELS.length
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        submitScore();
+    }
+  }, [isGameWon]);
 
   const placedItemIds = Object.values(placements).map((p) => p?.id);
 

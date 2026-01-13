@@ -205,3 +205,30 @@ class TeacherProgressView(APIView):
             "sections": sections_data,
             "students": students_data
         })
+class StudentStatsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        # Fetch all activity logs for this student
+        logs = ActivityLog.objects.filter(student=user)
+        
+        # Calculate Stats
+        # We use 'distinct()' on activity_name to count unique modules completed
+        unique_quizzes = logs.filter(activity_type='Quiz').values('activity_name').distinct().count()
+        unique_games = logs.filter(activity_type='Game').values('activity_name').distinct().count()
+        
+        # Serialize logs to send full history to frontend
+        logs_data = ActivityLogSerializer(logs, many=True).data
+
+        return Response({
+            "name": f"{user.first_name} {user.last_name}",
+            "section": user.section.name if user.section else "N/A",
+            "overallProgress": 0, # Frontend can calculate this based on total expected modules
+            "stats": {
+                "videos": 0, # Placeholder (Video tracking not yet implemented in models)
+                "games": unique_games,
+                "quizzes": unique_quizzes,
+            },
+            "history": logs_data # Send raw logs for the progress map
+        })
