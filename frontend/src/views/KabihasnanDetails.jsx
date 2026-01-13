@@ -276,9 +276,9 @@ function KabihasnanDetails() {
   };
   
   const mesoQuestions = [
-    { id: 1, text1: "Ang salitang ", text2: " ay nangangahulugang “isang nagmula sa Aztlan”...", ans: "AZTEC" },
-    { id: 2, text1: "Si ", text2: " ay nagpatayo ng mga mosque...", ans: "MANSA MUSA" },
-    { id: 3, text1: "Ang kabihasnang ", text2: " ay namayani sa Yucatan Peninsula...", ans: "MAYA" },
+    { id: 1, text1: "Ang salitang ", text2: " ay nangangahulugang “isang nagmula sa Aztlan” isang mitikong lugar sa Hilagang Mexico.", ans: "AZTEC" },
+    { id: 2, text1: "Si ", text2: " ay nagpatayo ng mga mosque o pook dasalan ng mga Muslim sa mga lungsod ng imperyo.", ans: "MANSA MUSA" },
+    { id: 3, text1: "Ang kabihasnang ", text2: " ay namayani sa Yucatan Peninsula, ito ay lupain sa Timog ng Mexico hanggang Guatemala", ans: "MAYA" },
     { id: 4, text1: "Ang pinuno ng mga Mayan ay tinatawag na ", text2: ".", ans: "HALACK UINIC" },
     { id: 5, text1: "Ang pinakamahalagang Diyos ng mga Aztec ay si ", text2: ", ang Diyos ng araw.", ans: "HUITZILOPOCHTLI" },
   ];
@@ -491,11 +491,11 @@ function KabihasnanDetails() {
               {id === "tsino" && (
                 <div className="space-y-4">
                   {[
-                    { id: 1, scrambled: "G N H A U O H", clue: "Ilog kung saan sumibol..." },
-                    { id: 2, scrambled: "O L C A R E B O N S E", clue: "Tortoise shell at cattle bone..." },
-                    { id: 3, scrambled: "H O Z U", clue: "Pinaka mahaba at pinaka dakilang dinastiya..." },
-                    { id: 4, scrambled: "A L L C I G A R P H Y", clue: "Sistema ng pagsulat ng mga Tsino..." },
-                    { id: 5, scrambled: "A D N M T E A F O E H E A V E N", clue: "Paniniwalang Tsino na ang emperador..." },
+                    { id: 1, scrambled: "G N H A U O H", clue: "log kung saan sumibol ang sinaunang kabihasnang Tsino, tinatawag din itong “River of Sorrow.”" },
+                    { id: 2, scrambled: "O L C A R E \u00A0\u00A0B O N S E", clue: "ortoise shell at cattle bone na ginamit upang mabatid ang mensahe ng mga diyos." },
+                    { id: 3, scrambled: "H O Z U", clue: "Pinaka mahaba at pinaka dakilang dinastiya sa Tsina na nagtaguyod ng Confucianism, Taoism, at Legalism" },
+                    { id: 4, scrambled: "A L L C I G A R P H Y", clue: "Sistema ng pagsulat ng mga Tsino na gumagamit ng mga simbolong kahawig ng larawan." },
+                    { id: 5, scrambled: "A D N M T E A \u00A0\u00A0F O\u00A0\u00A0 E H E A V E N", clue: "Paniniwalang Tsino na ang emperador ay may basbas ng kalangitan upang mamuno." },
                   ].map((q) => (
                     <div key={q.id} className="border-2 border-[#5a2d0c]/30 rounded-xl p-5 bg-white flex items-center gap-4 shadow-sm">
                       <input
