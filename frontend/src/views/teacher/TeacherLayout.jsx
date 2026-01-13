@@ -25,17 +25,19 @@ const TeacherLayout = () => {
     }`;
 
   return (
-    <div className="flex min-h-screen bg-[#FFF3D1] font-[var(--font-body)]">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#52392F] min-h-screen p-6 flex flex-col fixed left-0 top-0 z-50 shadow-xl">
-        <div className="mb-10 text-center">
+    // 👇 FIX 1: 'h-screen' locks height, 'overflow-hidden' stops window scroll
+    <div className="flex h-screen w-screen bg-[#FFF3D1] font-[var(--font-body)] overflow-hidden">
+      
+      {/* Sidebar - Switched from 'fixed' to standard flex item */}
+      <aside className="w-64 bg-[#52392F] h-full flex flex-col shadow-xl z-50 flex-none">
+        <div className="p-6 mb-4 text-center">
           <Link to="/teacher/dashboard" className="text-white text-3xl font-extrabold tracking-widest font-[var(--font-heading)]">
             PAMANA
           </Link>
           <p className="text-[#FFDC88] text-sm tracking-widest uppercase mt-2 opacity-80">Teacher Portal</p>
         </div>
 
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-2 px-6">
           <NavLink to="/teacher/dashboard" className={linkClasses}>
             Dashboard Overview
           </NavLink>
@@ -44,7 +46,7 @@ const TeacherLayout = () => {
           </NavLink>
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-[#ffffff20]">
+        <div className="mt-auto p-6 border-t border-[#ffffff20]">
           <button 
             onClick={handleLogoutClick}
             className="w-full text-white hover:text-[#FFDC88] transition-colors text-center py-2 font-bold uppercase tracking-widest"
@@ -55,7 +57,9 @@ const TeacherLayout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="ml-64 flex-1 overflow-y-auto p-8">
+      {/* 👇 FIX 2: 'flex-1' takes remaining width, 'h-full' matches screen height */}
+      {/* Removed 'p-8' so child components control their own spacing */}
+      <div className="flex-1 h-full relative overflow-hidden">
         <Outlet />
       </div>
 

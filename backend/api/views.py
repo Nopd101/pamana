@@ -198,7 +198,7 @@ class TeacherProgressView(APIView):
                 "section_id": student.section.id if student.section else None,
                 "activities_done": activities_done,
                 "average": round(avg_score, 1) if activities_done > 0 else "N/A",
-                "activities": list(all_activities) # We still send full history if you ever need it
+                "activities": final_activities # We still send full history if you ever need it
             })
             
         return Response({
