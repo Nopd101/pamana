@@ -65,11 +65,11 @@ const StudentReport = () => {
         </div>
         <div className="flex gap-6 text-left md:text-right">
             <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Activities Completed</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Quiz(s) Completed</p>
                 <p className="text-3xl font-bold text-[#772402]">{totalCompleted}</p>
             </div>
             <div className="border-l border-gray-300 pl-6">
-                <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Class Standing</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Average Performance</p>
                 <p className={`text-3xl font-bold ${student.average >= 75 ? 'text-green-700' : 'text-[#772402]'}`}>
                     {student.average === "N/A" ? "N/A" : `${student.average}%`}
                 </p>
@@ -102,7 +102,7 @@ const StudentReport = () => {
                 <table className="w-full text-left">
                     <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
                         <tr>
-                            <th className="px-5 py-3">Activity Name</th>
+                            <th className="px-5 py-3">Quiz Name</th>
                             <th className="px-5 py-3 text-right">Final Score</th>
                         </tr>
                     </thead>

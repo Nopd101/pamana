@@ -77,7 +77,7 @@ const ClassProgress = () => {
               <tr>
                 <th className="p-4">Student Name</th>
                 <th className="p-4 hidden md:table-cell">Section</th>
-                <th className="p-4 text-center">Activities Done</th>
+                <th className="p-4 text-center">Quiz(s) Completed</th>
                 <th className="p-4 text-center">Avg. Performance</th>
                 <th className="p-4 text-right">Action</th>
               </tr>
