@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
+import charImg from "../assets/main-home-character-left.png";
 
 import img1 from "../assets/mindflip/1.png";
 import img2 from "../assets/mindflip/2.png";
@@ -18,7 +20,6 @@ const UNIQUE_CARDS = [
   { id: 6, src: img6 },
 ];
 
-//card component
 const Card = ({ card, handleChoice, flipped, disabled }) => {
   const handleClick = () => {
     if (!disabled) {
@@ -60,8 +61,8 @@ const Card = ({ card, handleChoice, flipped, disabled }) => {
   );
 };
 
-//main component
 const MesoMemoryGame = () => {
+  const navigate = useNavigate();
   const [cards, setCards] = useState(() => {
     return [...UNIQUE_CARDS, ...UNIQUE_CARDS]
       .sort(() => Math.random() - 0.5)
@@ -70,10 +71,8 @@ const MesoMemoryGame = () => {
 
   const [turns, setTurns] = useState(0);
   const [matches, setMatches] = useState(0);
-
   const [peekTimer, setPeekTimer] = useState(10);
   const isPeekPhase = peekTimer > 0;
-
   const [choiceOne, setChoiceOne] = useState(null);
   const [choiceTwo, setChoiceTwo] = useState(null);
 
@@ -98,7 +97,6 @@ const MesoMemoryGame = () => {
     setPeekTimer(10);
   };
 
-  //compare logic
   const handleChoice = (card) => {
     if (disabled) return;
     if (choiceOne && card.uniqueId === choiceOne.uniqueId) return;
@@ -121,22 +119,51 @@ const MesoMemoryGame = () => {
     }
   };
 
-  //timer
   useEffect(() => {
     if (peekTimer <= 0) return;
-
     const timer = setTimeout(() => {
       setPeekTimer((t) => t - 1);
     }, 1000);
-
     return () => clearTimeout(timer);
   }, [peekTimer]);
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden"
+      className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden relative"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
+      {!isPeekPhase && matches === 6 && (
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+              <img
+                src={charImg}
+                alt="Game Cleared Character"
+                className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+              />
+              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                GAME <br /> CLEARED
+              </h1>
+            </div>
+
+            <div className="flex gap-4 mt-8 z-30">
+              <button
+                onClick={shuffleCards}
+                className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
+              >
+                PLAY AGAIN
+              </button>
+              <button
+                onClick={() => navigate(-1)}
+                className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
+              >
+                FINISH
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-5xl mx-auto px-4 pb-10 mt-25">
         <BackButton className="mb-6 md:ml-20" />
 
@@ -148,8 +175,7 @@ const MesoMemoryGame = () => {
             Obserbahan ang anim (6) na pares ng larawan sa loob ng sampung (10)
             segundo. Pagkatapos ng oras, babaliktarin ang lahat ng cards. Pumili
             ng dalawang cards sa bawat turn upang tukuyin kung alin ang
-            magkapareha. Ipagpatuloy ang pagpili hanggang matagpuan ang lahat ng
-            tamang pares.
+            magkapareha.
           </p>
         </div>
 
@@ -189,17 +215,6 @@ const MesoMemoryGame = () => {
               />
             ))}
           </div>
-
-          {(!isPeekPhase || matches === 6) && (
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={shuffleCards}
-                className="bg-gradient-to-r from-[#8B5E3C] to-[#6F482D] text-white font-bold py-3 px-12 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-[#5a2d0c] text-sm md:text-lg uppercase"
-              >
-                {matches === 6 ? "Play Again" : "Reset Game"}
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
+import charImg from "../assets/main-home-character-left.png";
 
 const RIDDLES = [
   {
@@ -31,6 +33,7 @@ const RIDDLES = [
 ];
 
 const MesoRiddleGame = () => {
+  const navigate = useNavigate(); // Initialize hook
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [score, setScore] = useState(0);
@@ -96,9 +99,41 @@ const MesoRiddleGame = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden"
+      className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden relative"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
+      {isGameFinished && (
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+              <img
+                src={charImg}
+                alt="Game Cleared Character"
+                className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+              />
+              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                GAME <br /> CLEARED
+              </h1>
+            </div>
+
+            <div className="flex gap-4 mt-8 z-30">
+              <button
+                onClick={handleReset}
+                className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
+              >
+                PLAY AGAIN
+              </button>
+              <button
+                onClick={() => navigate(-1)}
+                className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
+              >
+                FINISH
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto px-4 pb-10 mt-25">
         <BackButton className="mb-6 md:ml-20" />
 
@@ -113,84 +148,69 @@ const MesoRiddleGame = () => {
         </div>
 
         <div className="bg-[#FDFBF7] rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 relative flex flex-col items-center">
-          {!isGameFinished ? (
-            <div className="w-full max-w-2xl">
-              <div className="flex flex-col items-center mb-6 text-[#772402] font-bold">
-                <span className="text-lg md:text-xl uppercase">
-                  Question {currentIndex + 1} of {RIDDLES.length}
-                </span>
-                <span className="text-sm opacity-80">
-                  Score: {score}/{RIDDLES.length}
-                </span>
-              </div>
-
-              <div className="bg-gradient-to-b from-[#8B5E3C] to-[#5a2d0c] rounded-xl p-6 md:p-10 shadow-inner mb-6 text-center flex flex-col justify-center min-h-[200px]">
-                <p className="text-white font-bold text-lg md:text-2xl italic leading-relaxed whitespace-pre-line drop-shadow-md">
-                  "{currentRiddle.text}"
-                </p>
-              </div>
-
-              <div className="w-full space-y-4">
-                <input
-                  type="text"
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  placeholder="Isulat ang sagot dito..."
-                  className="w-full p-4 rounded-lg border-2 border-[#8B5E3C] text-center font-bold text-[#5a2d0c] text-lg outline-none focus:ring-4 ring-[#C8AA86]/50 placeholder:text-[#8B5E3C]/50 transition-all"
-                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                />
-
-                {feedback && (
-                  <div
-                    className={`text-center font-black text-lg animate-bounce ${
-                      feedback.includes("TAMA")
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {feedback}
-                  </div>
-                )}
-
-                {showHint && (
-                  <div className="text-center text-[#772402] font-bold animate-pulse">
-                    HINT: {getHintText()}
-                  </div>
-                )}
-
-                <div className="flex flex-col md:flex-row gap-3 pt-2">
-                  <button
-                    onClick={handleSubmit}
-                    className="flex-1 bg-[#5a2d0c] text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-[#3E2b26] active:scale-95 transition-all uppercase tracking-wider"
-                  >
-                    Submit Answer
-                  </button>
-                  <button
-                    onClick={() => setShowHint(true)}
-                    className="flex-1 bg-white text-[#5a2d0c] border-2 border-[#5a2d0c] font-bold py-3 px-6 rounded-lg shadow-sm hover:bg-amber-50 active:scale-95 transition-all uppercase tracking-wider"
-                  >
-                    Show Hint
-                  </button>
-                </div>
-              </div>
+          <div className="w-full max-w-2xl">
+            <div className="flex flex-col items-center mb-6 text-[#772402] font-bold">
+              <span className="text-lg md:text-xl uppercase">
+                Question {currentIndex + 1} of {RIDDLES.length}
+              </span>
+              <span className="text-sm opacity-80">
+                Score: {score}/{RIDDLES.length}
+              </span>
             </div>
-          ) : (
-            <div className="text-center py-10">
-              <h2 className="text-4xl font-black text-[#5a2d0c] mb-4">
-                BINABATI KITA!
-              </h2>
-              <p className="text-[#8B5E3C] text-xl font-bold mb-8">
-                Nasagot mo nang tama ang lahat ng bugtong!
+
+            <div className="bg-gradient-to-b from-[#8B5E3C] to-[#5a2d0c] rounded-xl p-6 md:p-10 shadow-inner mb-6 text-center flex flex-col justify-center min-h-[200px]">
+              <p className="text-white font-bold text-lg md:text-2xl italic leading-relaxed whitespace-pre-line drop-shadow-md">
+                "{currentRiddle.text}"
               </p>
-              <div className="text-6xl mb-8">NICE!</div>
-              <button
-                onClick={handleReset}
-                className="bg-gradient-to-r from-[#8B5E3C] to-[#6F482D] text-white font-bold py-3 px-12 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-[#5a2d0c] text-lg"
-              >
-                PLAY AGAIN
-              </button>
             </div>
-          )}
+
+            <div className="w-full space-y-4">
+              <input
+                type="text"
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+                placeholder="Isulat ang sagot dito..."
+                className="w-full p-4 rounded-lg border-2 border-[#8B5E3C] text-center font-bold text-[#5a2d0c] text-lg outline-none focus:ring-4 ring-[#C8AA86]/50 placeholder:text-[#8B5E3C]/50 transition-all"
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                disabled={isGameFinished}
+              />
+
+              {feedback && (
+                <div
+                  className={`text-center font-black text-lg animate-bounce ${
+                    feedback.includes("TAMA")
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {feedback}
+                </div>
+              )}
+
+              {showHint && (
+                <div className="text-center text-[#772402] font-bold animate-pulse">
+                  HINT: {getHintText()}
+                </div>
+              )}
+
+              <div className="flex flex-col md:flex-row gap-3 pt-2">
+                <button
+                  onClick={handleSubmit}
+                  disabled={isGameFinished}
+                  className="flex-1 bg-[#5a2d0c] text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-[#3E2b26] active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Submit Answer
+                </button>
+                <button
+                  onClick={() => setShowHint(true)}
+                  disabled={isGameFinished}
+                  className="flex-1 bg-white text-[#5a2d0c] border-2 border-[#5a2d0c] font-bold py-3 px-6 rounded-lg shadow-sm hover:bg-amber-50 active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Show Hint
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

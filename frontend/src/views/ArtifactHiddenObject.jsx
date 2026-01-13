@@ -2,37 +2,38 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import mainImage from "../assets/ArtifactHiddenObject/1.png";
-import BackButton from "../components/BackButton"; 
+import BackButton from "../components/BackButton";
+import charImg from "../assets/main-home-character-left.png";
 
 const artifacts = [
   {
     name: "TUTANKHAMEN MASK",
     hint: "Gintong maskara ng batang pharaoh.",
-    coords: { x: 5, y: 15, width: 25, height: 45 }, // #1
+    coords: { x: 5, y: 15, width: 25, height: 45 }, 
     found: false,
   },
   {
     name: "SARCOPHAGUS",
     hint: "Malaking kahon para sa libingan ng pharaoh.",
-    coords: { x: 25, y: 45, width: 50, height: 25 }, // #2
+    coords: { x: 25, y: 45, width: 50, height: 25 }, 
     found: false,
   },
   {
     name: "SCARAB",
     hint: "Kadalasang gawa sa bato o precious stones.",
-    coords: { x: 50, y: 81, width: 10, height: 12 }, // #3
+    coords: { x: 50, y: 81, width: 10, height: 12 }, 
     found: false,
   },
   {
     name: "NILE RIVER MAP",
     hint: "Ipinapakita ang ilog na pangunahing pinagkukunan ng tubig sa Egypt.",
-    coords: { x: 38, y: 75, width: 15, height: 12 }, // #4
+    coords: { x: 38, y: 75, width: 15, height: 12 }, 
     found: false,
   },
   {
     name: "CHARIOT",
     hint: "Sinaunang karwaheng pandigma.",
-    coords: { x: 52, y: 28, width: 22, height: 20 }, // #5
+    coords: { x: 52, y: 28, width: 22, height: 20 }, 
     found: false,
   },
 ];
@@ -59,42 +60,53 @@ const ArtifactHiddenObject = () => {
         y <= artifact.coords.y + artifact.coords.height
       ) {
         setFoundItems((prev) => [...prev, artifact.name]);
-        setActiveHint(null); // Hide hint once found
+        setActiveHint(null); 
       }
     });
   };
 
-  if (isGameFinished) {
-    return (
-      <div
-        className="min-h-screen bg-cover bg-center flex items-center justify-center p-4"
-        style={{ backgroundImage: `url(${bgHome})` }}
-      >
-        <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 max-w-md md:max-w-lg w-full">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-[#5a2d0c]">
-            Congratulations!
-          </h2>
-          <p className="text-xl md:text-3xl mb-6 md:mb-8 text-[#5a2d0c]">
-            You have found all the artifacts!
-          </p>
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-[#772402] text-white py-3 px-8 md:px-12 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg md:text-2xl"
-          >
-            Finish
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const handleReset = () => {
+    setFoundItems([]);
+    setActiveHint(null);
+  };
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center overflow-x-hidden"
+      className="min-h-screen bg-cover bg-center overflow-x-hidden relative"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
+      {isGameFinished && (
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+              <img 
+                src={charImg} 
+                alt="Game Cleared Character" 
+                className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+              />
+              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                GAME <br/> CLEARED
+              </h1>
+            </div>
+            <div className="flex gap-4 mt-8 z-30">
+              <button
+                onClick={handleReset}
+                className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
+              >
+                PLAY AGAIN
+              </button>
+              <button
+                onClick={() => navigate(-1)}
+                className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
+              >
+                FINISH
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-6xl mx-auto px-4 pb-10 pt-24 md:pt-32">
-        
         <BackButton className="mb-6 md:ml-20" />
 
         <div className="text-center mb-6">

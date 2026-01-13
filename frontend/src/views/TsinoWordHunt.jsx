@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
+import charImg from "../assets/main-home-character-left.png";
 
 const WORDS_TO_FIND = [
   { word: "ZHONGGUO", hint: "Tawag sa Tsina: 'Gitnang Kaharian'" },
@@ -23,6 +25,7 @@ const FIXED_GRID = [
 ];
 
 const TsinoWordHunt = () => {
+  const navigate = useNavigate();
   const [selectedCells, setSelectedCells] = useState([]);
   const [errorCells, setErrorCells] = useState([]);
   const [foundWords, setFoundWords] = useState([]);
@@ -154,6 +157,39 @@ const TsinoWordHunt = () => {
       className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
+      {isGameWon && (
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+            
+            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+                <img 
+                    src={charImg} 
+                    alt="Game Cleared Character" 
+                    className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+                />
+                <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                    GAME <br/> CLEARED
+                </h1>
+            </div>
+
+            <div className="flex gap-4 mt-8 z-30">
+                <button
+                    onClick={handleReset}
+                    className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
+                >
+                    PLAY AGAIN
+                </button>
+                <button
+                    onClick={() => navigate(-1)}
+                    className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
+                >
+                    FINISH
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-5xl mx-auto px-4 pb-10 mt-25">
         <BackButton className="mb-6 md:ml-20" />
 
@@ -241,14 +277,7 @@ const TsinoWordHunt = () => {
           </div>
 
           <div className="w-full max-w-2xl px-4">
-            {isGameWon ? (
-              <button
-                onClick={handleReset}
-                className="w-full bg-gradient-to-b from-[#A07048] to-[#764C29] text-white font-bold py-3 md:py-4 rounded-xl border-2 border-[#5a2d0c] shadow-lg hover:brightness-110 active:scale-95 transition-all text-lg uppercase tracking-widest animate-bounce"
-              >
-                Play Again
-              </button>
-            ) : (
+            {!isGameWon && (
               <button
                 onClick={() => {
                   setStartCell(null);

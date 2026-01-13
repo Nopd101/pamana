@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import Navbar from "../components/Nav";
 import BackButton from "../components/BackButton";
+import charImg from "../assets/main-home-character-left.png";
 
 const questionsData = [
   {
@@ -99,6 +100,15 @@ const ItamaMoAko = () => {
     }, 1500);
   };
 
+  const handleReset = () => {
+    setCurrentIndex(0);
+    setScore(0);
+    setUserAnswer("");
+    setFeedback("");
+    setIsWordClicked(false);
+    setIsGameFinished(false);
+  };
+
   const renderSentence = () => {
     const parts = currentQuestion.sentenceParts;
     const errorWord = currentQuestion.error;
@@ -120,10 +130,42 @@ const ItamaMoAko = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden"
+      className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden relative"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
       <Navbar />
+
+      {isGameFinished && (
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+              <img 
+                src={charImg} 
+                alt="Game Cleared Character" 
+                className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+              />
+              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                GAME <br/> CLEARED
+              </h1>
+            </div>
+            <div className="flex gap-4 mt-8 z-30">
+              <button
+                onClick={handleReset}
+                className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
+              >
+                PLAY AGAIN
+              </button>
+              <button
+                onClick={() => navigate(-1)}
+                className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
+              >
+                FINISH
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-4xl mx-auto px-4 pb-10 pt-24 md:pt-32">
         <BackButton className="mb-6 md:ml-20" />
 
@@ -138,70 +180,52 @@ const ItamaMoAko = () => {
         </div>
 
         <div className="bg-[#FDFBF7] rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 relative flex flex-col items-center w-full mx-auto">
-          {!isGameFinished ? (
-            <div className="w-full max-w-2xl">
-              <div className="flex flex-col items-center mb-6 text-[#772402] font-bold">
-                <span className="text-lg md:text-xl uppercase">
-                  Question {currentIndex + 1} of {questionsData.length}
-                </span>
-                <span className="text-sm opacity-80">
-                  Score: {score}/{questionsData.length}
-                </span>
-              </div>
-
-              <div className="bg-gradient-to-b from-[#8B5E3C] to-[#5a2d0c] rounded-xl p-6 md:p-10 shadow-inner mb-6 text-center flex flex-col justify-center min-h-[200px]">
-                {renderSentence()}
-              </div>
-
-              {isWordClicked && (
-                <div className="w-full">
-                  <input
-                    type="text"
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    placeholder="Isulat ang sagot dito..."
-                    className="w-full text-center p-3 border-2 border-[#C8AA86] rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B5E3C] text-[#5a2d0c]"
-                    disabled={feedback === "TAMA!"}
-                  />
-                  <button
-                    onClick={handleSubmit}
-                    className="w-full mt-4 bg-[#772402] text-white py-3 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg"
-                    disabled={feedback === "TAMA!"}
-                  >
-                    Submit Answer
-                  </button>
-                </div>
-              )}
-
-              {feedback && (
-                <div className="mt-4 text-center font-bold text-xl">
-                  <p
-                    className={
-                      feedback === "TAMA!" ? "text-green-600" : "text-red-600"
-                    }
-                  >
-                    {feedback}
-                  </p>
-                </div>
-              )}
+          <div className="w-full max-w-2xl">
+            <div className="flex flex-col items-center mb-6 text-[#772402] font-bold">
+              <span className="text-lg md:text-xl uppercase">
+                Question {currentIndex + 1} of {questionsData.length}
+              </span>
+              <span className="text-sm opacity-80">
+                Score: {score}/{questionsData.length}
+              </span>
             </div>
-          ) : (
-            <div className="text-center text-[#5a2d0c]">
-              <h2 className="text-4xl font-bold mb-4">Game Over!</h2>
-              <p className="text-2xl mb-6">
-                Your Final Score:{" "}
-                <span className="font-extrabold">
-                  {score}/{questionsData.length}
-                </span>
-              </p>
-              <button
-                onClick={() => navigate(-1)}
-                className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-xl"
-              >
-                Finish
-              </button>
+
+            <div className="bg-gradient-to-b from-[#8B5E3C] to-[#5a2d0c] rounded-xl p-6 md:p-10 shadow-inner mb-6 text-center flex flex-col justify-center min-h-[200px]">
+              {renderSentence()}
             </div>
-          )}
+
+            {isWordClicked && (
+              <div className="w-full">
+                <input
+                  type="text"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  placeholder="Isulat ang sagot dito..."
+                  className="w-full text-center p-3 border-2 border-[#C8AA86] rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B5E3C] text-[#5a2d0c]"
+                  disabled={feedback === "TAMA!"}
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="w-full mt-4 bg-[#772402] text-white py-3 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg"
+                  disabled={feedback === "TAMA!"}
+                >
+                  Submit Answer
+                </button>
+              </div>
+            )}
+
+            {feedback && (
+              <div className="mt-4 text-center font-bold text-xl">
+                <p
+                  className={
+                    feedback === "TAMA!" ? "text-green-600" : "text-red-600"
+                  }
+                >
+                  {feedback}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { DndProvider, useDrag, useDrop, useDragLayer } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
+import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
-import BackButton from "../components/BackButton"; 
+import BackButton from "../components/BackButton";
+import charImg from "../assets/main-home-character-left.png";
 
 // --- data ---
 const ItemTypes = {
@@ -186,14 +188,15 @@ const BackgroundLevel = ({ isLast, isOver }) => {
 
 // --- main component ---
 const IndusCasteGame = () => {
+  const navigate = useNavigate();
   const [placements, setPlacements] = useState({});
   const [hoveredLevel, setHoveredLevel] = useState(null);
+  const [isGameWon, setIsGameWon] = useState(false);
 
   // --- object swapping ---
   const handleDrop = (targetLevelId, item) => {
     setPlacements((prev) => {
       const newPlacements = { ...prev };
-
       const sourceLevelId = item.originLevel;
       const itemAtTarget = newPlacements[targetLevelId];
 
@@ -206,13 +209,30 @@ const IndusCasteGame = () => {
           delete newPlacements[sourceLevelId];
         }
       }
-
       return newPlacements;
     });
   };
 
   const handleReset = () => {
     setPlacements({});
+    setIsGameWon(false);
+  };
+
+  const checkAnswers = () => {
+    let correctCount = 0;
+
+    LEVELS.forEach((level) => {
+      const itemPlaced = placements[level.id];
+      if (itemPlaced && itemPlaced.id === level.correctId) {
+        correctCount++;
+      }
+    });
+
+    if (correctCount === LEVELS.length) {
+      setIsGameWon(true);
+    } else {
+      alert("Incorrect arrangement. Please try again!");
+    }
   };
 
   const placedItemIds = Object.values(placements).map((p) => p?.id);
@@ -222,9 +242,41 @@ const IndusCasteGame = () => {
       <CustomDragLayer />
 
       <div
-        className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden"
+        className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden relative"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
+        {isGameWon && (
+          <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+              <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+                <img
+                  src={charImg}
+                  alt="Game Cleared Character"
+                  className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+                />
+                <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                  GAME <br /> CLEARED
+                </h1>
+              </div>
+
+              <div className="flex gap-4 mt-8 z-30">
+                <button
+                  onClick={handleReset}
+                  className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
+                >
+                  PLAY AGAIN
+                </button>
+                <button
+                  onClick={() => navigate(-1)}
+                  className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
+                >
+                  FINISH
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="max-w-7xl mx-auto px-4 pb-10 mt-25">
           <BackButton className="mb-6 md:ml-20" />
 
@@ -234,7 +286,7 @@ const IndusCasteGame = () => {
             </h1>
             <p className="text-[#964B1D] font-bold text-xs md:text-lg max-w-2xl mx-auto leading-relaxed px-2">
               I-drag at i-drop ang tamang pangalan ng caste sa tamang pwesto sa
-              pyramid.
+              pyramid. Click Submit to check.
             </p>
           </div>
 
@@ -288,12 +340,18 @@ const IndusCasteGame = () => {
               </div>
             </div>
 
-            <div className="flex justify-center mt-12">
+            <div className="flex justify-center mt-12 gap-4">
               <button
                 onClick={handleReset}
-                className="bg-gradient-to-r from-[#8B5E3C] to-[#6F482D] text-white font-bold py-3 px-12 md:px-16 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-[#5a2d0c] text-sm md:text-lg cursor-pointer relative z-50"
+                className="bg-white text-[#772402] border-2 border-[#772402] font-bold py-3 px-8 md:px-12 rounded-full shadow-lg hover:bg-amber-50 transition-all text-sm md:text-lg cursor-pointer relative z-50"
               >
                 RESET
+              </button>
+              <button
+                onClick={checkAnswers}
+                className="bg-gradient-to-r from-[#8B5E3C] to-[#6F482D] text-white font-bold py-3 px-8 md:px-16 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-[#5a2d0c] text-sm md:text-lg cursor-pointer relative z-50"
+              >
+                SUBMIT
               </button>
             </div>
           </div>
