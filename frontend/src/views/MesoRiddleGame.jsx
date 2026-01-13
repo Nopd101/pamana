@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
+import BackButton from "../components/BackButton";
 
 const RIDDLES = [
   {
@@ -31,8 +31,6 @@ const RIDDLES = [
 ];
 
 const MesoRiddleGame = () => {
-  const navigate = useNavigate();
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [score, setScore] = useState(0);
@@ -101,24 +99,8 @@ const MesoRiddleGame = () => {
       className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
-      <div className="bg-[#462d24] text-white p-4 px-4 md:px-8 flex justify-between items-center shadow-lg rounded-b-[20px] md:rounded-b-[30px] mb-6 relative z-50">
-        <div className="font-[var(--font-heading)] font-extrabold text-lg md:text-2xl tracking-widest">
-          PAMANA
-        </div>
-        <div className="flex gap-3 md:gap-6 text-xs md:text-sm font-medium">
-          <span className="hidden md:inline">MENU</span>
-          <span className="hidden md:inline">ABOUT</span>
-          <span className="opacity-70">Juan Dela Cruz</span>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 pb-10 mt-15">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center text-[#5a2d0c] font-bold mb-4 transition-transform hover:scale-[1.01] text-sm md:text-base cursor-pointer"
-        >
-          <span className="mr-2">◀</span> Back
-        </button>
+      <div className="max-w-4xl mx-auto px-4 pb-10 mt-25">
+        <BackButton className="mb-6 md:ml-20" />
 
         <div className="text-center mb-6">
           <h1 className="text-3xl md:text-5xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">

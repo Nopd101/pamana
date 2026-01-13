@@ -2,64 +2,88 @@ import React, { useEffect, useState } from "react";
 import heroBanner from "../assets/hero-banner.png";
 import bgHome from "../assets/bg-home.png";
 import { useNavigate } from "react-router-dom";
-import API from "../api/axios"; // Import your API helper
+import API from "../api/axios";
 import kabihasnanImg from "../assets/main-home-bg-2.png";
 
 function HomePage() {
   const navigate = useNavigate();
-  const [firstName, setFirstName] = useState("Student"); // Default state
+  const [firstName, setFirstName] = useState("Student");
 
-  // Fetch user data on mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await API.get("me/");
-        // If first_name is empty, fallback to username or 'Student'
         setFirstName(
           response.data.first_name || response.data.username || "Student"
         );
       } catch (error) {
         console.error("Failed to fetch user:", error);
-        // Optional: Redirect to login if token is invalid
-        // navigate('/login');
       }
     };
     fetchUser();
   }, [navigate]);
 
   const kabihasnanList = [
-    { id: "mesopotamia", name: "Kabihasnang Mesopotamia", image: kabihasnanImg, description: "Ang Kabihasnang Mesopotamia - ang lupain sa pagitan ng dalawang ilog" },
-    { id: "indus", name: "Kabihasnang Indus", image: kabihasnanImg, description: "Ang Kabihasnang Indus - tanyag sa maunlad nitong mga lungsod at sistema ng kanal" },
-    { id: "tsino", name: "Kabihasnang Tsino", image: kabihasnanImg, description: "Ang Kabihasnang Tsina – ang duyan ng sinaunang imbensyon at pilosopiya." },
-    { id: "egypt", name: "Kabihasnang Egypt", image: kabihasnanImg, description: "Ang Kabihasnang Egypt – ang lupain ng mga piramide at mga paraon." },
-    { id: "mesoamerica", name: "Kabihasnang Mesoamerica", image: kabihasnanImg, description: "Ang Kabihasnang Mesoamerica – ang sibilisasyon ng mga Maya, Aztec, at iba pang katutubo ng Gitnang Amerika." },
+    {
+      id: "mesopotamia",
+      name: "Kabihasnang Mesopotamia",
+      image: kabihasnanImg,
+      description:
+        "Ang Kabihasnang Mesopotamia - ang lupain sa pagitan ng dalawang ilog",
+    },
+    {
+      id: "indus",
+      name: "Kabihasnang Indus",
+      image: kabihasnanImg,
+      description:
+        "Ang Kabihasnang Indus - tanyag sa maunlad nitong mga lungsod at sistema ng kanal",
+    },
+    {
+      id: "tsino",
+      name: "Kabihasnang Tsino",
+      image: kabihasnanImg,
+      description:
+        "Ang Kabihasnang Tsina – ang duyan ng sinaunang imbensyon at pilosopiya.",
+    },
+    {
+      id: "egypt",
+      name: "Kabihasnang Egypt",
+      image: kabihasnanImg,
+      description:
+        "Ang Kabihasnang Egypt – ang lupain ng mga piramide at mga paraon.",
+    },
+    {
+      id: "mesoamerica",
+      name: "Kabihasnang Mesoamerica",
+      image: kabihasnanImg,
+      description:
+        "Ang Kabihasnang Mesoamerica – ang sibilisasyon ng mga Maya, Aztec, at iba pang katutubo ng Gitnang Amerika.",
+    },
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-hidden">
+      {" "}
       {/* ================= HERO SECTION ================= */}
       <section
-        className="relative min-h-screen flex items-center bg-cover bg-bottom bg-no-repeat z-10"
+        className="relative min-h-[60vh] md:min-h-screen flex items-center bg-cover bg-bottom bg-no-repeat z-10"
         style={{
           backgroundImage: `url(${heroBanner})`,
           backgroundColor: "transparent",
         }}
       >
-        <div className="absolute top-0 left-0 w-full h-[85%] bg-gradient-to-b from-black/70 via-black/20 to-transparent z-0" />
+        <div className="absolute top-0 left-0 w-full h-full md:h-[85%] bg-gradient-to-b from-black/70 via-black/20 to-transparent z-0" />
 
-        {/* Hero content */}
-        <div className="relative z-10 w-full px-8 md:px-20 -mt-20">
+        <div className="relative z-10 w-full px-6 md:px-20 mt-10 md:-mt-20">
           <div className="max-w-xl text-white">
-            <h1 className="text-5xl md:text-7xl font-extrabold leading-tight font-[var(--font-heading)]">
-              {/* Dynamic Name Here */}
+            <h1 className="text-4xl md:text-7xl font-extrabold leading-tight font-[var(--font-heading)]">
               Welcome, {firstName}!
             </h1>
 
-            <p className="mt-4 text-xl font-[var(--font-heading)]">
+            <p className="mt-4 text-lg md:text-xl font-[var(--font-heading)]">
               Choose a civilization to study
             </p>
 
-            {/* Scroll or Navigate button */}
             <button
               onClick={() =>
                 document
@@ -73,49 +97,52 @@ function HomePage() {
           </div>
         </div>
       </section>
-
       {/* ================= BG / CONTENT SECTION ================= */}
       <section
         id="civilizations"
-        className="bg-cover bg-top px-6 md:px-20 py-16 -mt-32 relative z-0"
+        className="bg-cover bg-top px-4 md:px-20 py-10 md:py-16 -mt-10 md:-mt-32 relative z-0"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
-        <div className="pt-32 pl-40 pr-40">
-          <h2 className="text-3xl font-extrabold text-[#7B3306] mb-8 font-[var(--font-heading)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">
+        {/* CHANGED: px-4 for mobile, md:px-40 for desktop */}
+        <div className="pt-10 md:pt-32 px-2 md:px-40">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#7B3306] mb-8 font-[var(--font-heading)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">
             THE CIVILIZATIONS
           </h2>
 
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {kabihasnanList.map((item) => (
               <div
                 key={item.id}
                 onClick={() => navigate(`/kabihasnan/${item.id}`)}
-                className="bg-white/85 rounded-xl shadow-md flex items-center gap-4 transition-transform hover:scale-[1.01] cursor-pointer overflow-hidden pr-8"
+                className="bg-white/85 rounded-xl shadow-md flex flex-col md:flex-row items-center gap-4 transition-transform hover:scale-[1.01] cursor-pointer overflow-hidden p-4 md:p-0 md:pr-8"
               >
-                {/* Image Container - No padding/margin around the image */}
-                <div className="w-40 h-30 shrink-0 mr-4">
+                {/* Image Container */}
+                <div className="w-full h-40 md:w-40 md:h-30 shrink-0">
                   <img
-                    src={item.image} // Make sure your kabihasnanList has an image property
+                    src={item.image}
                     alt={item.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-md md:rounded-none"
                   />
                 </div>
 
                 {/* Text Content */}
-                <div className="flex-1 pr-4 py-2">
-                  <h3 className="text-2xl font-extrabold text-[#7B3306] font-[var(--font-heading)]">
+                <div className="flex-1 py-2 text-center md:text-left">
+                  <h3 className="text-xl md:text-2xl font-extrabold text-[#7B3306] font-[var(--font-heading)]">
                     {item.name}
                   </h3>
-                  <p className="text-sm text-gray-600 font-[var(--font-body)]">
+                  <p className="text-sm text-gray-600 font-[var(--font-body)] mt-2 md:mt-0">
                     {item.description}
                   </p>
 
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div className="mt-3 md:mt-2 w-full bg-gray-200 rounded-full h-2">
                     <div className="bg-blue-500 h-2 rounded-full w-[30%]" />
                   </div>
                 </div>
 
-                <div className="text-amber-700 font-bold text-2xl pr-2">→</div>
+                {/* Arrow Icon */}
+                <div className="hidden md:block text-amber-700 font-bold text-2xl pr-2">
+                  →
+                </div>
               </div>
             ))}
           </div>
