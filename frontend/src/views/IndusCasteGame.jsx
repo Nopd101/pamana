@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
-import API from '../api/axios'; // 👈 Import API
+import API from "../api/axios";
 
 // --- data ---
 const ItemTypes = {
@@ -18,30 +18,35 @@ const LEVELS = [
     correctId: "brahmin",
     label: "BRAHMIN",
     clue: "Ang pinakamataas na caste; mga pari, guro, at tagapangalaga ng kaalaman at ritwal.",
+    desc: "Ang pinakamataas na caste; mga pari, guro, at tagapangalaga ng kaalaman at ritwal.", 
   },
   {
     id: 2,
     correctId: "kshatriya",
     label: "KSHATRIYA",
     clue: "Mandirigma at pinuno; responsable sa pagtatanggol at pamumuno sa lipunan.",
+    desc: "Mandirigma at pinuno; responsable sa pagtatanggol at pamumuno sa lipunan.",
   },
   {
     id: 3,
     correctId: "vaishya",
     label: "VAISHYA",
     clue: "Mangangalakal, negosyante, at magsasaka; tagapangalaga ng kalakalan at kabuhayan.",
+    desc: "Mangangalakal, negosyante, at magsasaka; tagapangalaga ng kalakalan at kabuhayan.",
   },
   {
     id: 4,
     correctId: "shudra",
     label: "SHUDRA",
     clue: "Mga manggagawa, artesano, at tagapaglingkod; gumagawa ng iba’t ibang serbisyo sa lipunan.",
+    desc: "Mga manggagawa, artesano, at tagapaglingkod; gumagawa ng iba’t ibang serbisyo sa lipunan.",
   },
   {
     id: 5,
     correctId: "dalit",
     label: "DALIT",
     clue: "Itinuturing na nasa labas ng caste system; gumagawa ng mga trabahong “marumi” o mabigat sa lipunan.",
+    desc: "Itinuturing na nasa labas ng caste system; gumagawa ng mga trabahong “marumi” o mabigat sa lipunan.",
   },
 ];
 
@@ -193,6 +198,7 @@ const IndusCasteGame = () => {
   const [placements, setPlacements] = useState({});
   const [hoveredLevel, setHoveredLevel] = useState(null);
   const [isGameWon, setIsGameWon] = useState(false);
+  const [isGameLost, setIsGameLost] = useState(false);
 
   // --- object swapping ---
   const handleDrop = (targetLevelId, item) => {
@@ -217,6 +223,11 @@ const IndusCasteGame = () => {
   const handleReset = () => {
     setPlacements({});
     setIsGameWon(false);
+    setIsGameLost(false);
+  };
+
+  const handleTryAgain = () => {
+    setIsGameLost(false);
   };
 
   const checkAnswers = () => {
@@ -231,28 +242,28 @@ const IndusCasteGame = () => {
 
     if (correctCount === LEVELS.length) {
       setIsGameWon(true);
+      setIsGameLost(false);
     } else {
-      alert("Incorrect arrangement. Please try again!");
+      setIsGameLost(true);
     }
   };
 
-  // 👇 Submit Score when Game Won
   useEffect(() => {
     if (isGameWon) {
-        const submitScore = async () => {
-            try {
-                await API.post('submit-score/', {
-                    civilization: "Indus",
-                    activity_type: "Game",
-                    activity_name: "CASTE YOUR ANSWER",
-                    score: LEVELS.length, // Perfect score
-                    max_score: LEVELS.length
-                });
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        submitScore();
+      const submitScore = async () => {
+        try {
+          await API.post("submit-score/", {
+            civilization: "Indus",
+            activity_type: "Game",
+            activity_name: "CASTE YOUR ANSWER",
+            score: LEVELS.length,
+            max_score: LEVELS.length,
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      submitScore();
     }
   }, [isGameWon]);
 
@@ -292,6 +303,32 @@ const IndusCasteGame = () => {
                   className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
                 >
                   FINISH
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isGameLost && (
+          <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+              <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+                <img
+                  src={charImg}
+                  alt="Game Character"
+                  className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl z-10 grayscale-[50%]" // Added grayscale for subtle "fail" effect
+                />
+                <h1 className="text-4xl md:text-6xl font-black text-red-600 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                  INCORRECT <br /> ARRANGEMENT
+                </h1>
+              </div>
+
+              <div className="flex gap-4 mt-8 z-30">
+                <button
+                  onClick={handleTryAgain}
+                  className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
+                >
+                  TRY AGAIN
                 </button>
               </div>
             </div>
