@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { DndProvider, useDrag, useDrop, useDragLayer } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
-import API from '../api/axios'; // 👈 Import API
+import API from "../api/axios";
 
 // --- Backend Detection for react-dnd ---
 const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -19,10 +19,10 @@ const allPieceModules = import.meta.glob("../assets/HarapPuzzle/**/*.png", {
 
 const getPuzzleImages = (puzzleName) => {
   const images = {};
-  const puzzleNameKey = puzzleName.replace(/\s/g, ""); // "Caste System" -> "CasteSystem"
+  const puzzleNameKey = puzzleName.replace(/\s/g, "");
 
   for (const path in allPieceModules) {
-    const fileName = path.split("/").pop(); // e.g., "CasteSystem_1.png"
+    const fileName = path.split("/").pop();
     images[fileName] = allPieceModules[path];
   }
 
@@ -47,7 +47,7 @@ const puzzles = PUZZLE_DATA.map((p, index) => ({
   pieces: getPuzzleImages(p.name).map((img, i) => ({
     id: i,
     img,
-    rotation: Math.floor(Math.random() * 90) - 45, // Add random rotation
+    rotation: Math.floor(Math.random() * 90) - 45,
   })),
 }));
 
@@ -72,22 +72,82 @@ const PIECE_CONFIG = {
   11: { scaleX: "120%", scaleY: "125%", nudgeX: "7%", nudgeY: "0%" },
 };
 
+// --- CUSTOM DRAG LAYER ---
+const CustomDragLayer = () => {
+  const { isDragging, item, currentOffset } = useDragLayer((monitor) => ({
+    item: monitor.getItem(),
+    currentOffset: monitor.getSourceClientOffset(),
+    isDragging: monitor.isDragging(),
+  }));
+
+  if (!isDragging || !currentOffset) {
+    return null;
+  }
+
+  const getPreviewStyle = (piece, isBankPiece) => {
+    if (isBankPiece) {
+      return {
+        width: "80px",
+        height: "80px",
+        transform: "scale(1.1)",
+      };
+    }
+
+    return {
+      width: "100px",
+      height: "100px",
+      objectFit: "contain",
+    };
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        pointerEvents: "none",
+        zIndex: 100,
+        left: 0,
+        top: 0,
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <div
+        style={{
+          transform: `translate(${currentOffset.x}px, ${currentOffset.y}px)`,
+        }}
+      >
+        <img
+          src={item.piece.img}
+          alt="Drag Preview"
+          style={{
+            ...getPreviewStyle(item.piece, true),
+            opacity: 0.9,
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
 // --- Draggable Piece Component ---
 const DraggablePiece = ({ piece, isBankPiece }) => {
+  // FIX: Added [piece] dependency array at the end!
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.PIECE,
     item: { piece },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }));
+  }), [piece]); // <--- THIS FIXED THE ISSUE
 
   const getPieceStyle = () => {
     if (isBankPiece) {
       return {
-        width: "100%",
+        width: "100%", 
         height: "100%",
-        transform: "scale(0.8)",
+        objectFit: "contain", 
+        transform: "scale(0.9)", 
         position: "relative",
       };
     }
@@ -112,11 +172,11 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
   const customStyle = getPieceStyle();
 
   const style = {
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0 : 1,
     transition: "transform 0.2s ease",
-    maxWidth: "none", 
-    maxHeight: "none", 
-    pointerEvents: isDragging ? "none" : "auto",
+    maxWidth: "none",
+    maxHeight: "none",
+    cursor: "grab",
     ...customStyle,
   };
 
@@ -125,8 +185,7 @@ const DraggablePiece = ({ piece, isBankPiece }) => {
       ref={drag}
       src={piece.img}
       alt={`Puzzle piece ${piece.id}`}
-      className="cursor-grab active:cursor-grabbing"
-      style={{ ...style, objectFit: "fill" }}
+      style={{ ...style }}
     />
   );
 };
@@ -200,29 +259,36 @@ const PieceBank = ({ pieces, onDrop }) => {
     }),
   }));
 
+  // Create fixed 12 slots for the bank structure
+  const bankSlots = Array.from({ length: 12 });
+
   return (
     <div
       ref={drop}
-      className="w-full h-full bg-[#FBE7C6] p-4 rounded-2xl shadow-md border-2 border-amber-300/50"
+      className="w-full h-full bg-[#FBE7C6] p-4 rounded-2xl shadow-md border-2 border-amber-300/50 flex flex-col"
     >
-      <h3 className="text-2xl font-bold text-center text-[#772402] mb-4 font-[var(--font-heading)]">
+      <h3 className="text-2xl font-bold text-center text-[#772402] mb-2 font-[var(--font-heading)]">
         Mga Piraso
       </h3>
+
       <div
-        className="grid grid-cols-4 gap-2 w-full h-full p-2"
+        className="grid grid-cols-4 grid-rows-3 gap-2 w-full flex-1"
         style={{
           backgroundColor:
             isOver && canDrop ? "rgba(119, 36, 2, 0.2)" : "transparent",
         }}
       >
-        {pieces.map((p) => (
-          <div
-            key={p.id}
-            className="w-full h-full flex items-center justify-center"
-          >
-            <DraggablePiece piece={p} isBankPiece={true} />
-          </div>
-        ))}
+        {bankSlots.map((_, index) => {
+          const piece = pieces[index]; 
+          return (
+            <div
+              key={index}
+              className="w-full h-full flex items-center justify-center relative border border-black/5 rounded-lg bg-white/10"
+            >
+              {piece && <DraggablePiece piece={piece} isBankPiece={true} />}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -232,7 +298,13 @@ const PieceBank = ({ pieces, onDrop }) => {
 function HarapPuzzleQuest() {
   const navigate = useNavigate();
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
-  const [pieces, setPieces] = useState({ bank: [], board: [] });
+  
+  // Initialize both as fixed arrays of 12
+  const [pieces, setPieces] = useState({ 
+    bank: Array(12).fill(null), 
+    board: Array(12).fill(null) 
+  });
+  
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [isPuzzleComplete, setIsPuzzleComplete] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
@@ -242,7 +314,6 @@ function HarapPuzzleQuest() {
     [currentPuzzleIndex]
   );
 
-  // Effect to preload images
   useEffect(() => {
     setImagesLoaded(false);
     const allImages = currentPuzzle.pieces.map((p) => p.img).filter(Boolean);
@@ -264,23 +335,26 @@ function HarapPuzzleQuest() {
     });
   }, [currentPuzzle]);
 
-  // Effect to initialize puzzle state
+  // INITIALIZE GAME STATE
   useEffect(() => {
     if (imagesLoaded) {
       setIsPuzzleComplete(false);
       const shuffled = [...currentPuzzle.pieces].sort(
         () => Math.random() - 0.5
       );
+      
+      const initialBank = Array(12).fill(null);
+      shuffled.forEach((p, i) => {
+          if (i < 12) initialBank[i] = p;
+      });
+
       setPieces({
-        bank: shuffled,
-        board: Array(currentPuzzle.grid.rows * currentPuzzle.grid.cols).fill(
-          null
-        ),
+        bank: initialBank,
+        board: Array(currentPuzzle.grid.rows * currentPuzzle.grid.cols).fill(null),
       });
     }
   }, [currentPuzzle, imagesLoaded]);
 
-  // --- Completion Check Effect ---
   useEffect(() => {
     if (isGameFinished || !pieces.board.length || !imagesLoaded) {
       return;
@@ -309,64 +383,87 @@ function HarapPuzzleQuest() {
     imagesLoaded,
   ]);
 
-  // 👇 Submit Score when Game Finished
   useEffect(() => {
     if (isGameFinished) {
-        const submitScore = async () => {
-            try {
-                await API.post('submit-score/', {
-                    civilization: "Indus",
-                    activity_type: "Game",
-                    activity_name: "HARAPPUZZLE QUEST",
-                    score: puzzles.length, 
-                    max_score: puzzles.length
-                });
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        submitScore();
+      const submitScore = async () => {
+        try {
+          await API.post("submit-score/", {
+            civilization: "Indus",
+            activity_type: "Game",
+            activity_name: "HARAPPUZZLE QUEST",
+            score: puzzles.length,
+            max_score: puzzles.length,
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      submitScore();
     }
   }, [isGameFinished]);
 
+  // --- DROP LOGIC: BOARD ---
   const handleDropOnBoard = (targetSlotId, droppedPiece) => {
     setPieces((prev) => {
       const { bank, board } = prev;
       const newBoard = [...board];
-      let newBank = [...bank];
+      const newBank = [...bank];
 
-      const sourceSlotId = board.findIndex(
-        (p) => p && p.id === droppedPiece.id
-      );
+      // 1. Locate source of the piece
+      const bankIndex = bank.findIndex(p => p && p.id === droppedPiece.id);
+      const boardIndex = board.findIndex(p => p && p.id === droppedPiece.id);
+
+      // 2. Identify piece currently at target
       const pieceAtTarget = newBoard[targetSlotId];
 
-      if (sourceSlotId === -1) {
-        newBank = newBank.filter((p) => p.id !== droppedPiece.id);
-        if (pieceAtTarget) {
-          newBank.push(pieceAtTarget);
-        }
-      }
-      else {
-        newBoard[sourceSlotId] = pieceAtTarget;
+      // 3. Remove dragged piece from its source
+      if (bankIndex !== -1) {
+          newBank[bankIndex] = null; 
+      } else if (boardIndex !== -1) {
+          newBoard[boardIndex] = null; 
       }
 
+      // 4. Swap logic
+      if (pieceAtTarget) {
+          if (boardIndex !== -1) {
+              // Swap within board
+              newBoard[boardIndex] = pieceAtTarget;
+          } else {
+              // Return displaced piece to bank
+              if (bankIndex !== -1) {
+                  newBank[bankIndex] = pieceAtTarget;
+              } else {
+                  // Fallback: Find first empty
+                  const emptyBankSlot = newBank.findIndex(p => p === null);
+                  if (emptyBankSlot !== -1) newBank[emptyBankSlot] = pieceAtTarget;
+              }
+          }
+      }
+
+      // 5. Place dropped piece
       newBoard[targetSlotId] = droppedPiece;
 
       return { bank: newBank, board: newBoard };
     });
   };
 
+  // --- DROP LOGIC: BANK ---
   const handleDropOnBank = (droppedPiece) => {
     setPieces((prev) => {
       const { bank, board } = prev;
-      const sourceSlotId = board.findIndex(
-        (p) => p && p.id === droppedPiece.id
-      );
-      if (sourceSlotId === -1) return prev; 
+      
+      const boardIndex = board.findIndex(p => p && p.id === droppedPiece.id);
+      if (boardIndex === -1) return prev; 
 
       const newBoard = [...board];
-      const newBank = [...bank, droppedPiece];
-      newBoard[sourceSlotId] = null;
+      const newBank = [...bank];
+
+      const emptyBankSlot = newBank.findIndex(p => p === null);
+
+      if (emptyBankSlot !== -1) {
+          newBoard[boardIndex] = null; 
+          newBank[emptyBankSlot] = droppedPiece; 
+      }
 
       return { bank: newBank, board: newBoard };
     });
@@ -398,6 +495,8 @@ function HarapPuzzleQuest() {
 
   return (
     <DndProvider backend={DndBackend} options={dndOptions}>
+      <CustomDragLayer />
+
       <div
         className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center p-4"
         style={{ backgroundImage: `url(${bgHome})` }}
