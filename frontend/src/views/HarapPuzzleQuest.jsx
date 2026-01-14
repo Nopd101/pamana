@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { DndProvider, useDrag, useDrop, useDragLayer } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
+import BackButton from "../components/BackButton";
+import charImg from "../assets/main-home-character-left.png";
 import API from "../api/axios";
-
-// --- Backend Detection for react-dnd ---
-const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-const DndBackend = isTouch ? TouchBackend : HTML5Backend;
-const dndOptions = isTouch ? { enableMouseEvents: true } : {};
 
 // --- Asset Loading ---
 const allPieceModules = import.meta.glob("../assets/HarapPuzzle/**/*.png", {
@@ -132,22 +128,24 @@ const CustomDragLayer = () => {
 
 // --- Draggable Piece Component ---
 const DraggablePiece = ({ piece, isBankPiece }) => {
-  // FIX: Added [piece] dependency array at the end!
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: ItemTypes.PIECE,
-    item: { piece },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: ItemTypes.PIECE,
+      item: { piece },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
     }),
-  }), [piece]); // <--- THIS FIXED THE ISSUE
+    [piece]
+  );
 
   const getPieceStyle = () => {
     if (isBankPiece) {
       return {
-        width: "100%", 
+        width: "100%",
         height: "100%",
-        objectFit: "contain", 
-        transform: "scale(0.9)", 
+        objectFit: "contain",
+        transform: "scale(0.9)",
         position: "relative",
       };
     }
@@ -259,7 +257,6 @@ const PieceBank = ({ pieces, onDrop }) => {
     }),
   }));
 
-  // Create fixed 12 slots for the bank structure
   const bankSlots = Array.from({ length: 12 });
 
   return (
@@ -279,7 +276,7 @@ const PieceBank = ({ pieces, onDrop }) => {
         }}
       >
         {bankSlots.map((_, index) => {
-          const piece = pieces[index]; 
+          const piece = pieces[index];
           return (
             <div
               key={index}
@@ -294,20 +291,66 @@ const PieceBank = ({ pieces, onDrop }) => {
   );
 };
 
+// --- Stage Navigator ---
+const StageNavigator = ({ puzzles, currentIndex, onSelect }) => {
+  return (
+    <div className="flex flex-col items-center mb-6 w-full max-w-4xl mx-auto">
+      <div className="flex flex-wrap justify-center gap-3 bg-[#FBE7C6]/80 p-3 rounded-xl border border-[#B06A3A]/30 shadow-sm backdrop-blur-sm">
+        {puzzles.map((p, index) => {
+          const isActive = index === currentIndex;
+          return (
+            <button
+              key={index}
+              onClick={() => onSelect(index)}
+              className={`
+                relative px-4 py-2 rounded-lg font-bold transition-all duration-200
+                flex flex-col items-center min-w-[80px]
+                ${
+                  isActive
+                    ? "bg-[#772402] text-[#FBE7C6] scale-105 shadow-md transform -translate-y-1"
+                    : "bg-[#fff8ee] text-[#772402] hover:bg-[#ffe0b2] hover:scale-105"
+                }
+              `}
+            >
+              <span className="text-xs uppercase tracking-wider opacity-80">
+                Stage {index + 1}
+              </span>
+              <span className="text-sm md:text-base leading-tight text-center">
+                {p.name}
+              </span>
+
+              {isActive && (
+                <div className="absolute -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#772402]"></div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // --- Main Game Component ---
 function HarapPuzzleQuest() {
   const navigate = useNavigate();
-  const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
-  
-  // Initialize both as fixed arrays of 12
-  const [pieces, setPieces] = useState({ 
-    bank: Array(12).fill(null), 
-    board: Array(12).fill(null) 
+
+  const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(() => {
+    const saved = localStorage.getItem("harap_puzzle_index");
+    return saved ? parseInt(saved, 10) : 0;
   });
-  
+
+  const [pieces, setPieces] = useState({
+    bank: Array(12).fill(null),
+    board: Array(12).fill(null),
+  });
+
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [isPuzzleComplete, setIsPuzzleComplete] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("harap_puzzle_index", currentPuzzleIndex);
+  }, [currentPuzzleIndex]);
 
   const currentPuzzle = useMemo(
     () => puzzles[currentPuzzleIndex],
@@ -335,22 +378,23 @@ function HarapPuzzleQuest() {
     });
   }, [currentPuzzle]);
 
-  // INITIALIZE GAME STATE
   useEffect(() => {
     if (imagesLoaded) {
       setIsPuzzleComplete(false);
       const shuffled = [...currentPuzzle.pieces].sort(
         () => Math.random() - 0.5
       );
-      
+
       const initialBank = Array(12).fill(null);
       shuffled.forEach((p, i) => {
-          if (i < 12) initialBank[i] = p;
+        if (i < 12) initialBank[i] = p;
       });
 
       setPieces({
         bank: initialBank,
-        board: Array(currentPuzzle.grid.rows * currentPuzzle.grid.cols).fill(null),
+        board: Array(currentPuzzle.grid.rows * currentPuzzle.grid.cols).fill(
+          null
+        ),
       });
     }
   }, [currentPuzzle, imagesLoaded]);
@@ -402,128 +446,139 @@ function HarapPuzzleQuest() {
     }
   }, [isGameFinished]);
 
-  // --- DROP LOGIC: BOARD ---
   const handleDropOnBoard = (targetSlotId, droppedPiece) => {
     setPieces((prev) => {
       const { bank, board } = prev;
       const newBoard = [...board];
       const newBank = [...bank];
 
-      // 1. Locate source of the piece
-      const bankIndex = bank.findIndex(p => p && p.id === droppedPiece.id);
-      const boardIndex = board.findIndex(p => p && p.id === droppedPiece.id);
+      const bankIndex = bank.findIndex((p) => p && p.id === droppedPiece.id);
+      const boardIndex = board.findIndex((p) => p && p.id === droppedPiece.id);
 
-      // 2. Identify piece currently at target
       const pieceAtTarget = newBoard[targetSlotId];
 
-      // 3. Remove dragged piece from its source
       if (bankIndex !== -1) {
-          newBank[bankIndex] = null; 
+        newBank[bankIndex] = null;
       } else if (boardIndex !== -1) {
-          newBoard[boardIndex] = null; 
+        newBoard[boardIndex] = null;
       }
 
-      // 4. Swap logic
       if (pieceAtTarget) {
-          if (boardIndex !== -1) {
-              // Swap within board
-              newBoard[boardIndex] = pieceAtTarget;
+        if (boardIndex !== -1) {
+          newBoard[boardIndex] = pieceAtTarget;
+        } else {
+          if (bankIndex !== -1) {
+            newBank[bankIndex] = pieceAtTarget;
           } else {
-              // Return displaced piece to bank
-              if (bankIndex !== -1) {
-                  newBank[bankIndex] = pieceAtTarget;
-              } else {
-                  // Fallback: Find first empty
-                  const emptyBankSlot = newBank.findIndex(p => p === null);
-                  if (emptyBankSlot !== -1) newBank[emptyBankSlot] = pieceAtTarget;
-              }
+            const emptyBankSlot = newBank.findIndex((p) => p === null);
+            if (emptyBankSlot !== -1) newBank[emptyBankSlot] = pieceAtTarget;
           }
+        }
       }
 
-      // 5. Place dropped piece
       newBoard[targetSlotId] = droppedPiece;
 
       return { bank: newBank, board: newBoard };
     });
   };
 
-  // --- DROP LOGIC: BANK ---
   const handleDropOnBank = (droppedPiece) => {
     setPieces((prev) => {
       const { bank, board } = prev;
-      
-      const boardIndex = board.findIndex(p => p && p.id === droppedPiece.id);
-      if (boardIndex === -1) return prev; 
+
+      const boardIndex = board.findIndex((p) => p && p.id === droppedPiece.id);
+      if (boardIndex === -1) return prev;
 
       const newBoard = [...board];
       const newBank = [...bank];
 
-      const emptyBankSlot = newBank.findIndex(p => p === null);
+      const emptyBankSlot = newBank.findIndex((p) => p === null);
 
       if (emptyBankSlot !== -1) {
-          newBoard[boardIndex] = null; 
-          newBank[emptyBankSlot] = droppedPiece; 
+        newBoard[boardIndex] = null;
+        newBank[emptyBankSlot] = droppedPiece;
       }
 
       return { bank: newBank, board: newBoard };
     });
   };
 
-  if (isGameFinished) {
-    return (
-      <div
-        className="min-h-screen bg-cover bg-center flex items-center justify-center p-4"
-        style={{ backgroundImage: `url(${bgHome})` }}
-      >
-        <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-10 border-4 border-[#C8AA86]/50 max-w-lg w-full">
-          <h2 className="text-5xl font-bold mb-4 text-[#5a2d0c]">
-            Congratulations!
-          </h2>
-          <p className="text-3xl mb-8 text-[#5a2d0c]">
-            You've completed all the puzzles!
-          </p>
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-[#772402] text-white py-3 px-12 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-2xl"
-          >
-            Finish
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const handleStageSelect = (index) => {
+    setCurrentPuzzleIndex(index);
+    setIsGameFinished(false);
+  };
 
   return (
-    <DndProvider backend={DndBackend} options={dndOptions}>
+    <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
       <CustomDragLayer />
 
       <div
-        className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center p-4"
+        className="min-h-screen bg-cover bg-center p-4 pt-10"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
-        <div className="w-full max-w-7xl mx-auto">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center text-[#5a2d0c] font-bold mb-4 transition-transform hover:scale-[1.01] text-lg md:text-xl cursor-pointer mt-20"
-          >
-            <span className="mr-2">◀</span> Back
-          </button>
-          <div className="text-center mb-8">
-            <h1 className="text-5xl font-extrabold text-[#7B3306] font-[var(--font-heading)] uppercase">
+        {isGameFinished && (
+          <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+              <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+                <img
+                  src={charImg}
+                  alt="Game Cleared Character"
+                  className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+                />
+                <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                  GAME <br /> CLEARED
+                </h1>
+              </div>
+
+              <div className="flex gap-4 mt-8 z-30">
+                <button
+                  onClick={() => handleStageSelect(0)}
+                  className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
+                >
+                  PLAY AGAIN
+                </button>
+                <button
+                  onClick={() => navigate(-1)}
+                  className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
+                >
+                  FINISH
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Back Button */}
+        <div className="absolute top-24 left-4 md:left-20 z-10">
+          <BackButton />
+        </div>
+
+        {/* Main Content Container */}
+        <div className="w-full max-w-7xl mx-auto flex flex-col items-center mt-24 md:mt-10">
+          {/* Header Title */}
+          <div className="text-center mb-6 px-4">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-[#7B3306] font-[var(--font-heading)] uppercase drop-shadow-sm">
               HARAPPUZZLE QUEST
             </h1>
-            <p className="text-[#B06A3A] font-bold text-lg">
+            <p className="text-[#B06A3A] font-bold text-lg mt-2">
               Assemble the pieces to reveal a part of history!
             </p>
           </div>
 
+          {/* Navigation Bar */}
+          <StageNavigator
+            puzzles={puzzles}
+            currentIndex={currentPuzzleIndex}
+            onSelect={handleStageSelect}
+          />
+
           {!imagesLoaded ? (
-            <div className="text-center text-2xl font-bold text-[#772402]">
+            <div className="text-center text-2xl font-bold text-[#772402] animate-pulse">
               Loading Puzzle...
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-              <div className="md:col-span-2 w-full aspect-[4/3] bg-white/30 rounded-2xl shadow-lg p-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start w-full">
+              <div className="md:col-span-2 w-full aspect-[4/3] bg-white/30 rounded-2xl shadow-lg p-2 border border-[#fff]/40">
                 <PuzzleBoard
                   puzzle={currentPuzzle}
                   boardState={pieces.board}

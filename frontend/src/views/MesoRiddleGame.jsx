@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // 👈 Added useEffect here
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
