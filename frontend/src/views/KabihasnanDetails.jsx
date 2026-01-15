@@ -489,7 +489,7 @@ function KabihasnanDetails() {
                 onClick={handleVideoComplete}
                 className="mt-8 self-center md:self-end border-2 border-emerald-600 text-emerald-700 px-6 py-1 rounded-lg font-bold hover:bg-emerald-50 transition-colors"
               >
-                Next →
+                Complete
               </button>
             </div>
           )}

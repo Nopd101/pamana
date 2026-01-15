@@ -105,9 +105,20 @@ function HomePage() {
       >
         {/* CHANGED: px-4 for mobile, md:px-40 for desktop */}
         <div className="pt-10 md:pt-32 px-2 md:px-40">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-[#7B3306] mb-8 font-[var(--font-heading)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">
-            THE CIVILIZATIONS
-          </h2>
+          
+          {/* 👇 MODIFIED HEADER SECTION: Flex container for Title + Button */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#7B3306] font-[var(--font-heading)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">
+              THE CIVILIZATIONS
+            </h2>
+            
+            <button
+              onClick={() => navigate('/post-test')}
+              className="bg-[#7B3306] hover:bg-[#5a2504] text-white px-5 py-2 rounded-lg font-bold shadow-md transition-transform hover:scale-105 flex items-center gap-2 text-sm md:text-base cursor-pointer"
+            >
+              <span>📝</span> Take Post-Test
+            </button>
+          </div>
 
           <div className="space-y-4 md:space-y-6">
             {kabihasnanList.map((item) => (

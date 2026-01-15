@@ -175,7 +175,7 @@ const PostTest = () => {
                         Your Final Score: <span className="font-extrabold">{score}/{questions.length}</span>
                     </p>
                     <button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/student-profile')}
                         className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-xl"
                     >
                         Finish

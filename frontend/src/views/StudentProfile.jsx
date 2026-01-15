@@ -9,9 +9,10 @@ import {
   ClipboardCheck,
   CheckCircle2,
   Circle,
+  GraduationCap // 👈 Added icon for Post-Test
 } from "lucide-react";
 
-// Placeholder images - replace with your actual asset imports
+// Placeholder images
 const CIVILIZATIONS = [
   { id: "mesopotamia", title: "Kabihasnang Mesopotamia", img: kabihasnanImg },
   { id: "indus", title: "Kabihasnang Indus", img: kabihasnanImg },
@@ -32,7 +33,8 @@ const StudentProfile = () => {
       games: 0,
       quizzes: 0,
     },
-    progressDetails: {}, // To store specific completion data
+    progressDetails: {},
+    isPostTestDone: false, // 👈 New State for Post-Test
   });
 
   useEffect(() => {
@@ -41,61 +43,60 @@ const StudentProfile = () => {
         const response = await API.get('student/stats/');
         const { name, section, stats, history } = response.data;
 
-        // Initialize details for all civilizations to ensure they exist
+        // Initialize details
         const details = {};
         CIVILIZATIONS.forEach(civ => {
             details[civ.id] = { 
                 video: false, 
                 quiz: false, 
                 games: false, 
-                _gamesFound: new Set() // Temporary set to track unique games
+                _gamesFound: new Set() 
             };
         });
         
-        // Helper to normalize civ names from DB (e.g., "Mesopotamia" -> "mesopotamia")
         const normalize = (str) => str?.toLowerCase().replace(" ", "");
+        let postTestFound = false; // Flag for Post-Test
 
         // Process history
         history.forEach(log => {
+           // 👇 CHECK FOR POST-TEST
+           if (log.activity_name === "Post-Test" || log.activity_name === "Post Test") {
+               postTestFound = true;
+           }
+
            const civKey = normalize(log.civilization);
            
            if (details[civKey]) {
-               if (log.activity_type === 'Quiz') {
-                   details[civKey].quiz = true;
-               }
-               if (log.activity_type === 'Video') {
-                   details[civKey].video = true;
-               }
-               if (log.activity_type === 'Game') {
-                   details[civKey]._gamesFound.add(log.activity_name);
-               }
+               if (log.activity_type === 'Quiz') details[civKey].quiz = true;
+               if (log.activity_type === 'Video') details[civKey].video = true;
+               if (log.activity_type === 'Game') details[civKey]._gamesFound.add(log.activity_name);
            }
         });
 
-        // Finalize Game Status (Must have 2 unique games to be "True")
+        // Finalize Game Status
         Object.values(details).forEach(d => {
             if (d._gamesFound.size >= 2) {
                 d.games = true;
             }
         });
 
-        // Calculate Stats for the top cards (Total counts)
+        // Calculate Stats
         const calculatedStats = {
             videos: history.filter(h => h.activity_type === 'Video').length,
             games: new Set(history.filter(h => h.activity_type === 'Game').map(h => h.activity_name)).size,
             quizzes: new Set(history.filter(h => h.activity_type === 'Quiz').map(h => h.activity_name)).size,
         };
 
-        // Calculate Overall Progress
-        // Now tracking 3 items per civilization: Video + Quiz + Games(Both)
+        // Calculate Overall Progress (Adding Post-Test as a requirement?)
+        // For now, let's keep it based on the modules, but you can add +1 for post-test if you want.
         let tasksCompleted = 0;
         Object.values(details).forEach(d => {
             if(d.quiz) tasksCompleted++;
-            if(d.video) tasksCompleted++; // Now tracking video
-            if(d.games) tasksCompleted++; // Only counts if >=2 games
+            if(d.video) tasksCompleted++;
+            if(d.games) tasksCompleted++;
         });
 
-        const totalTasks = 5 * 3; // 5 civs * 3 categories
+        const totalTasks = 5 * 3; 
         const progressPercent = totalTasks > 0 ? Math.round((tasksCompleted / totalTasks) * 100) : 0;
 
         setStudentData({
@@ -103,7 +104,8 @@ const StudentProfile = () => {
           section,
           overallProgress: progressPercent,
           stats: calculatedStats,
-          progressDetails: details
+          progressDetails: details,
+          isPostTestDone: postTestFound // 👈 Set state
         });
 
       } catch (error) {
@@ -121,7 +123,6 @@ const StudentProfile = () => {
       <div className="max-w-4xl mx-auto px-4 pt-32">
         {/* Header Progress Card */}
         <div className="bg-gradient-to-b from-[#8B2D06] to-[#772402] text-white rounded-xl shadow-xl overflow-hidden mb-6 border border-white/10">
-          {/* Top Section (Brown/Red Gradient) */}
           <div className="p-6 pb-4 flex justify-between items-start relative z-10">
             <div>
               <h2 className="text-3xl font-black font-heading leading-tight tracking-tight">
@@ -136,16 +137,13 @@ const StudentProfile = () => {
                 {studentData.overallProgress}%
               </span>
               <p className="text-white/80 font-medium font-body mt-1 leading-none tracking-tighter">
-                Overall Progress
+                Module Progress
               </p>
             </div>
           </div>
 
-          {/* Bottom Section (Solid White Full Width) */}
           <div className="bg-white px-6 py-8">
-            {/* The Gray Track */}
             <div className="bg-[#E5E7EB] h-1.5 rounded-full overflow-hidden w-full shadow-inner">
-              {/* The Actual Progress Fill */}
               <div
                 className="bg-[#C8AA86] h-full rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${studentData.overallProgress}%` }}
@@ -155,39 +153,63 @@ const StudentProfile = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 mb-10">
-          {/* Videos Watched */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-gradient-to-b from-[#8B2D06] to-[#5a2d0c] text-white rounded-xl p-4 py-6 flex flex-col items-center justify-center shadow-lg border border-white/10">
             <PlayCircle className="w-10 h-10 mb-1 text-white" />
-            <span className="text-3xl font-bold mb-1">
-              {studentData.stats.videos}
-            </span>
-            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-white/80 text-center">
-              Videos Watched
-            </span>
+            <span className="text-3xl font-bold mb-1">{studentData.stats.videos}</span>
+            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-white/80 text-center">Videos Watched</span>
           </div>
 
-          {/* Games Played */}
           <div className="bg-gradient-to-b from-[#8B2D06] to-[#5a2d0c] text-white rounded-xl p-4 py-6 flex flex-col items-center justify-center shadow-lg border border-white/10">
             <Gamepad2 className="w-10 h-10 mb-1 text-white" />
-            <span className="text-3xl font-bold mb-1">
-              {studentData.stats.games}
-            </span>
-            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-white/80 text-center">
-              Games Played
-            </span>
+            <span className="text-3xl font-bold mb-1">{studentData.stats.games}</span>
+            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-white/80 text-center">Games Played</span>
           </div>
 
-          {/* Quizzes Taken */}
           <div className="bg-gradient-to-b from-[#8B2D06] to-[#5a2d0c] text-white rounded-xl p-4 py-6 flex flex-col items-center justify-center shadow-lg border border-white/10">
             <ClipboardCheck className="w-10 h-10 mb-1 text-white" />
-            <span className="text-3xl font-bold mb-1">
-              {studentData.stats.quizzes}
-            </span>
-            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-white/80 text-center">
-              Quizzes Taken
-            </span>
+            <span className="text-3xl font-bold mb-1">{studentData.stats.quizzes}</span>
+            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-white/80 text-center">Quizzes Taken</span>
           </div>
+        </div>
+
+        {/* 👇 NEW: Post-Test Status Card */}
+        <div className={`rounded-xl p-6 shadow-lg border mb-10 flex items-center justify-between ${
+            studentData.isPostTestDone 
+            ? "bg-emerald-50 border-emerald-200" 
+            : "bg-white/90 border-gray-200"
+        }`}>
+            <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-full ${studentData.isPostTestDone ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>
+                    <GraduationCap className="w-8 h-8" />
+                </div>
+                <div>
+                    <h3 className={`text-xl font-black uppercase font-heading ${studentData.isPostTestDone ? "text-emerald-800" : "text-gray-600"}`}>
+                        Final Post-Test
+                    </h3>
+                    <p className="text-sm text-gray-500 font-bold">
+                        {studentData.isPostTestDone 
+                            ? "Assessment Completed" 
+                            : "Not yet taken"}
+                    </p>
+                </div>
+            </div>
+            
+            <div className="px-4 py-2">
+                {studentData.isPostTestDone ? (
+                    <div className="flex items-center gap-2 text-emerald-700 font-bold bg-emerald-100 px-4 py-2 rounded-lg">
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span>COMPLETED</span>
+                    </div>
+                ) : (
+                    <button 
+                        onClick={() => navigate('/post-test')}
+                        className="flex items-center gap-2 text-white font-bold bg-[#772402] hover:bg-[#5a2d0c] px-6 py-2 rounded-lg transition-colors shadow-md"
+                    >
+                        TAKE TEST
+                    </button>
+                )}
+            </div>
         </div>
 
         {/* Civilization Progress List */}
@@ -204,11 +226,10 @@ const StudentProfile = () => {
                 games: false,
               };
               
-              const isStarted =
-                progress.video || progress.quiz || progress.games;
+              const isStarted = progress.video || progress.quiz || progress.games;
 
               return (
-                <div key={civ.id} className="flex gap-6 items-center">
+                <div key={civ.id} className="flex gap-6 items-center border-b border-gray-100 pb-6 last:border-0 last:pb-0">
                   <div className="w-30 h-20 rounded-md overflow-hidden shadow-md shrink-0 border border-amber-900/10">
                     <img
                       src={civ.img}
@@ -227,50 +248,17 @@ const StudentProfile = () => {
                         Not Started
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-0.5">
-                        {/* Video Indicator */}
-                        <div
-                          className={`flex items-center gap-2 text-sm font-bold ${
-                            progress.video
-                              ? "text-emerald-600"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          {progress.video ? (
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5" />
-                          )}
+                      <div className="flex flex-col gap-1">
+                        <div className={`flex items-center gap-2 text-sm font-bold ${progress.video ? "text-emerald-600" : "text-gray-400"}`}>
+                          {progress.video ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                           <span>Video Lesson</span>
                         </div>
-
-                        {/* Quiz Indicator */}
-                        <div
-                          className={`flex items-center gap-2 text-sm font-bold ${
-                            progress.quiz ? "text-emerald-600" : "text-gray-400"
-                          }`}
-                        >
-                          {progress.quiz ? (
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5" />
-                          )}
+                        <div className={`flex items-center gap-2 text-sm font-bold ${progress.quiz ? "text-emerald-600" : "text-gray-400"}`}>
+                          {progress.quiz ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                           <span>Quiz</span>
                         </div>
-
-                        {/* Games Indicator (Requires both games) */}
-                        <div
-                          className={`flex items-center gap-2 text-sm font-bold ${
-                            progress.games
-                              ? "text-emerald-600"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          {progress.games ? (
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5" />
-                          )}
+                        <div className={`flex items-center gap-2 text-sm font-bold ${progress.games ? "text-emerald-600" : "text-gray-400"}`}>
+                          {progress.games ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                           <span>Games (Complete all)</span>
                         </div>
                       </div>
