@@ -128,7 +128,7 @@ const ClassProgress = () => {
                     onClick={() => requestSort('activities_done')}
                 >
                     <div className="flex items-center justify-center">
-                        Quiz(s) Completed {getSortIcon('activities_done')}
+                        Completion Progress {getSortIcon('activities_done')}
                     </div>
                 </th>
 
