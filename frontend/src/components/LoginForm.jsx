@@ -27,6 +27,8 @@ const LoginForm = () => {
       const userResponse = await API.get('me/');
       const role = userResponse.data.role;
 
+      localStorage.setItem('user_role', role);
+
       // 4. Direct Navigation (No Alert Popup)
       if (role === 'admin') {
         navigate('/admin/dashboard');

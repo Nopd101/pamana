@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Navbar from "./components/Nav.jsx";
 import Home from "./views/MainHomePage.jsx";
 import About from "./views/AboutUsPage.jsx";
@@ -28,6 +28,7 @@ import AdminNav from "./components/AdminNav.jsx";
 import StudentReport from "./views/teacher/StudentReport.jsx";
 import ScrollToTop from "./components/ScrollToTop";
 import StudentProfile from "./views/StudentProfile.jsx";
+import PrivateRoute from "./components/PrivateRoute";
 
 const AppContent = () => {
   const location = useLocation();
@@ -35,43 +36,56 @@ const AppContent = () => {
 
   return (
     <>
-      {/* Only show Navbar if we are NOT on a dashboard route */}
       {!isDashboardRoute && <Navbar />}
 
       <Routes>
+        {/* --- PUBLIC ROUTES (Accessible by anyone) --- */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/homepage" element={<HomePage />} />
-        <Route path="/kabihasnan/:id" element={<KabihasnanDetails />} />
-        <Route path="/caste-game" element={<CasteGame />} />
-        <Route path="/mindflip-game" element={<MindFlipGame />} />
-        <Route path="/riddle-game" element={<RiddleGame />} />
-        <Route path="/wordhunt-game" element={<WordHuntGame />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/privacy" element={<TermsAndAgreementPage />} />
-        <Route path="/itama-mo-ako" element={<ItamaMoAko />} />
-        <Route path="/saan-ako-nabibilang" element={<SaanAkoNabibilang />} />
-        <Route path="/four-pics-one-word" element={<FourPicsOneWord />} />
-        <Route path="/game-of-elimination" element={<GameOfElimination />} />
-        <Route path="/artifact-hidden-object" element={<ArtifactHiddenObject />} />
-        <Route path="/harappuzzle-quest" element={<HarapPuzzleQuest />} />
-        <Route path="/student-profile" element={<StudentProfile />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminNav />}> {/* Using your existing AdminNav as layout */}
-             <Route path="dashboard" element={<AdminDashboard />} />
-             <Route path="users" element={<UserManagement />} />
+        {/* --- 🛡️ STUDENT ROUTES --- */}
+        <Route element={<PrivateRoute allowedRoles={['student']} />}>
+            <Route path="/homepage" element={<HomePage />} />
+            <Route path="/student-profile" element={<StudentProfile />} />
+            <Route path="/kabihasnan/:id" element={<KabihasnanDetails />} />
+            
+            {/* Games */}
+            <Route path="/caste-game" element={<CasteGame />} />
+            <Route path="/mindflip-game" element={<MindFlipGame />} />
+            <Route path="/riddle-game" element={<RiddleGame />} />
+            <Route path="/wordhunt-game" element={<WordHuntGame />} />
+            <Route path="/itama-mo-ako" element={<ItamaMoAko />} />
+            <Route path="/saan-ako-nabibilang" element={<SaanAkoNabibilang />} />
+            <Route path="/four-pics-one-word" element={<FourPicsOneWord />} />
+            <Route path="/game-of-elimination" element={<GameOfElimination />} />
+            <Route path="/artifact-hidden-object" element={<ArtifactHiddenObject />} />
+            <Route path="/harappuzzle-quest" element={<HarapPuzzleQuest />} />
         </Route>
 
-        {/* --- NEW: TEACHER ROUTES --- */}
-        <Route path="/teacher" element={<TeacherLayout />}>
-             <Route path="dashboard" element={<TeacherDashboard />} />
-             <Route path="progress" element={<ClassProgress />} />
-             <Route path="report/:studentId" element={<StudentReport />} />
+        {/* --- 🛡️ ADMIN ROUTES --- */}
+        <Route element={<PrivateRoute allowedRoles={['admin']} />}>
+            <Route path="/admin" element={<AdminNav />}>
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="users" element={<UserManagement />} />
+            </Route>
         </Route>
+
+        {/* --- 🛡️ TEACHER ROUTES --- */}
+        <Route element={<PrivateRoute allowedRoles={['teacher']} />}>
+            <Route path="/teacher" element={<TeacherLayout />}>
+                <Route path="dashboard" element={<TeacherDashboard />} />
+                <Route path="progress" element={<ClassProgress />} />
+                <Route path="report/:studentId" element={<StudentReport />} />
+            </Route>
+        </Route>
+
+        {/* Catch-all redirect to login if page doesn't exist */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
   );
