@@ -161,25 +161,29 @@ class TeacherProgressView(APIView):
             # 1. FETCH ALL RAW ACTIVITIES
             all_activities = ActivityLog.objects.filter(student=student).values()
             
-            # 👇 2. FILTER: KEEP ONLY LATEST ATTEMPT PER ACTIVITY
-            # This aligns the backend calculation with the frontend report card
+            # 2. FILTER: KEEP ONLY LATEST ATTEMPT PER ACTIVITY
             latest_activities_map = {}
             for act in all_activities:
                 name = act['activity_name']
-                # If we haven't seen this activity yet, OR this attempt is newer than the stored one
-                if name not in latest_activities_map:
-                    latest_activities_map[name] = act
+                civ = act.get('civilization', 'General') # Get civilization
+                
+                # 👇 KEY FIX: Use a composite key (Name + Civilization)
+                # This ensures "Video Lecture" (Indus) and "Video Lecture" (Tsino) are treated as DIFFERENT items.
+                unique_key = (name, civ)
+                
+                # If new activity OR this attempt is newer than the stored one
+                if unique_key not in latest_activities_map:
+                    latest_activities_map[unique_key] = act
                 else:
-                    # Compare timestamps (handle potential string vs datetime object issues)
                     current_ts = act['timestamp']
-                    stored_ts = latest_activities_map[name]['timestamp']
+                    stored_ts = latest_activities_map[unique_key]['timestamp']
                     if current_ts > stored_ts:
-                        latest_activities_map[name] = act
+                        latest_activities_map[unique_key] = act
 
             # Convert map back to list
             final_activities = list(latest_activities_map.values())
 
-            # 3. CALCULATE STATS ON FINAL ACTIVITIES ONLY
+            # 3. CALCULATE STATS
             activities_done = len(final_activities)
             
             scores = [act['score'] for act in final_activities if act['max_score'] > 0]
@@ -198,13 +202,14 @@ class TeacherProgressView(APIView):
                 "section_id": student.section.id if student.section else None,
                 "activities_done": activities_done,
                 "average": round(avg_score, 1) if activities_done > 0 else "N/A",
-                "activities": final_activities # We still send full history if you ever need it
+                "activities": final_activities 
             })
             
         return Response({
             "sections": sections_data,
             "students": students_data
         })
+        
 class StudentStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
