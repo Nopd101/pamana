@@ -29,6 +29,7 @@ import StudentReport from "./views/teacher/StudentReport.jsx";
 import ScrollToTop from "./components/ScrollToTop";
 import StudentProfile from "./views/StudentProfile.jsx";
 import PrivateRoute from "./components/PrivateRoute";
+import PostTest from "./views/PostTest.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -53,6 +54,7 @@ const AppContent = () => {
             <Route path="/homepage" element={<HomePage />} />
             <Route path="/student-profile" element={<StudentProfile />} />
             <Route path="/kabihasnan/:id" element={<KabihasnanDetails />} />
+            <Route path="/post-test" element={<PostTest />} />
             
             {/* Games */}
             <Route path="/caste-game" element={<CasteGame />} />
