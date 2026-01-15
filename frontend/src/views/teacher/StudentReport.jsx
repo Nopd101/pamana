@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { PlayCircle, Gamepad2, ClipboardList, CheckCircle2, XCircle } from 'lucide-react';
 
 const StudentReport = () => {
   const { state } = useLocation();
@@ -21,12 +22,9 @@ const StudentReport = () => {
   }
 
   // 1. GET FINAL SCORES
-  // Logic: Create a list of unique activities. 
-  // FIX: We now check (Activity Name + Civilization) to treat "Video Lecture" (Indus) 
-  // and "Video Lecture" (Tsino) as two different items.
   const finalGrades = (student.activities || []).reduce((acc, current) => {
-    
-    // 👇 CHANGED: Check both Name AND Civilization
+    // Check both Name AND Civilization to treat "Video Lecture" (Indus) 
+    // and "Video Lecture" (Tsino) as two different items.
     const existing = acc.find(item => 
         item.activity_name === current.activity_name && 
         item.civilization === current.civilization
@@ -35,7 +33,6 @@ const StudentReport = () => {
     if (!existing) {
       acc.push(current);
     } else {
-      // If a newer version exists (same activity AND same civ), replace the old one
       if (new Date(current.timestamp) > new Date(existing.timestamp)) {
         const index = acc.indexOf(existing);
         acc[index] = current;
@@ -43,6 +40,24 @@ const StudentReport = () => {
     }
     return acc;
   }, []);
+
+  // 👇 NEW: CALCULATE SPECIFIC COUNTS
+  let videoCount = 0;
+  let gameCount = 0;
+  let quizCount = 0;
+  let isPostTestDone = false;
+
+  finalGrades.forEach(log => {
+      // Check for Post-Test specifically
+      if (log.activity_name === "Post-Test" || log.activity_name === "Post Test") {
+          isPostTestDone = true;
+      }
+
+      // Count by type
+      if (log.activity_type === 'Video') videoCount++;
+      else if (log.activity_type === 'Game') gameCount++;
+      else if (log.activity_type === 'Quiz') quizCount++;
+  });
 
   // 2. GROUP BY CIVILIZATION
   const gradesByCiv = finalGrades.reduce((acc, log) => {
@@ -53,10 +68,8 @@ const StudentReport = () => {
   }, {});
 
   const civKeys = Object.keys(gradesByCiv).sort();
-  const totalCompleted = finalGrades.length;
 
   return (
-    // 👇 FIX 1: Layout Wrapper (Fixed Height + Hidden Overflow)
     <div className="h-full flex flex-col bg-[#FFF3D1] font-[var(--font-body)] overflow-hidden">
       
       {/* Fixed Header Section */}
@@ -69,27 +82,73 @@ const StudentReport = () => {
         </button>
 
         {/* Student Profile Card */}
-        <div className="bg-white p-6 rounded-2xl shadow-md border-l-8 border-[#52392F] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="bg-white p-6 rounded-2xl shadow-md border-l-8 border-[#52392F] flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            
+            {/* Left Side: Name & Section */}
             <div>
                 <h1 className="text-3xl font-bold text-[#52392F] font-[var(--font-heading)] uppercase">{student.name}</h1>
                 <p className="text-gray-600 font-medium mt-1">Section: <span className="text-black">{student.section}</span></p>
-            </div>
-            <div className="flex gap-6 text-left md:text-right">
-                <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Activities Completed</p>
-                    <p className="text-3xl font-bold text-[#772402]">{totalCompleted}</p>
-                </div>
-                <div className="border-l border-gray-300 pl-6">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Average Performance</p>
-                    <p className={`text-3xl font-bold ${student.average >= 75 ? 'text-green-700' : 'text-[#772402]'}`}>
+                
+                {/* Average Performance (Moved here for better layout balance) */}
+                <div className="mt-4 flex items-center gap-2">
+                    <span className="text-xs text-gray-500 uppercase tracking-wide font-bold">Average Grade:</span>
+                    <span className={`text-xl font-bold ${student.average >= 75 ? 'text-green-700' : 'text-[#772402]'}`}>
                         {student.average === "N/A" ? "N/A" : `${student.average}%`}
-                    </p>
+                    </span>
                 </div>
+            </div>
+
+            {/* Right Side: Detailed Breakdown */}
+            <div className="flex flex-wrap gap-4 md:gap-8 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                
+                {/* Videos */}
+                <div className="flex flex-col items-center min-w-[60px]">
+                    <div className="bg-orange-100 p-2 rounded-full mb-1">
+                        <PlayCircle className="w-5 h-5 text-orange-700" />
+                    </div>
+                    <span className="text-xl font-bold text-[#772402] leading-none">{videoCount}</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase mt-1">Videos</span>
+                </div>
+
+                {/* Games */}
+                <div className="flex flex-col items-center min-w-[60px]">
+                    <div className="bg-blue-100 p-2 rounded-full mb-1">
+                        <Gamepad2 className="w-5 h-5 text-blue-700" />
+                    </div>
+                    <span className="text-xl font-bold text-[#772402] leading-none">{gameCount}</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase mt-1">Games</span>
+                </div>
+
+                {/* Quizzes */}
+                <div className="flex flex-col items-center min-w-[60px]">
+                    <div className="bg-purple-100 p-2 rounded-full mb-1">
+                        <ClipboardList className="w-5 h-5 text-purple-700" />
+                    </div>
+                    <span className="text-xl font-bold text-[#772402] leading-none">{quizCount}</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase mt-1">Quizzes</span>
+                </div>
+
+                {/* Post Test Status */}
+                <div className="flex flex-col items-center pl-4 border-l border-gray-200 min-w-[80px]">
+                    <span className="text-[10px] text-gray-400 font-bold uppercase mb-2">Post-Test</span>
+                    {isPostTestDone ? (
+                        <div className="flex flex-col items-center text-emerald-600">
+                            <CheckCircle2 className="w-6 h-6 mb-1" />
+                            <span className="text-xs font-bold">Done</span>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center text-gray-400">
+                            <XCircle className="w-6 h-6 mb-1" />
+                            <span className="text-xs font-bold">Uncompleted</span>
+                        </div>
+                    )}
+                </div>
+
             </div>
         </div>
       </div>
 
-      {/* 👇 FIX 2: Scrollable Content Area */}
+      {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto p-6 pt-0">
         
         <h2 className="text-xl font-bold text-[#52392F] mb-4 border-b-2 border-[#52392F]/20 pb-2 flex items-center gap-2 mt-4">
@@ -123,7 +182,6 @@ const StudentReport = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {gradesByCiv[civName].map((log, idx) => {
-                                // Logic: Prefer 'gamemode' if available, else 'activity_type'
                                 const displayType = (log.gamemode || log.activity_type || "Quiz").replace(/_/g, ' ');
 
                                 return (
