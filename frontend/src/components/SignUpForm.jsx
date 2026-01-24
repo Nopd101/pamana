@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import { Eye, EyeOff } from "lucide-react";
+// 👇 Import Toastify
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignUpForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -8,14 +12,13 @@ const SignUpForm = () => {
   const [section, setSection] = useState("");
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   
-  // NEW: State to store the list of sections from the DB
   const [sectionsList, setSectionsList] = useState([]); 
 
   const navigate = useNavigate();
 
-  // NEW: Fetch sections when the component mounts
   useEffect(() => {
     const fetchSections = async () => {
       try {
@@ -37,6 +40,11 @@ const SignUpForm = () => {
       return;
     }
 
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
     try {
       await API.post("register/", {
         username: studentId,
@@ -47,19 +55,41 @@ const SignUpForm = () => {
         role: "student"
       });
 
-      alert("Account created successfully! Please log in.");
-      navigate("/login");
+      // 👇 1. SHOW SUCCESS TOAST IMMEDIATELY
+      toast.success("Account created! Redirecting to login...", {
+        position: "top-center",
+        autoClose: 2000, // Disappears after 2 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored", // Using colored theme for better visibility
+        style: { backgroundColor: "#4caf50", color: "#fff" } // Force Green style
+      });
+
+      // 👇 2. WAIT 2 SECONDS, THEN REDIRECT
+      setTimeout(() => {
+          navigate("/login");
+      }, 2500); // Slight buffer (2.5s) to let them read it
+      
     } catch (err) {
       console.error("Registration Error:", err.response?.data);
       const errMsg = err.response?.data?.username 
         ? "Student ID already registered." 
         : "Registration failed. Check details.";
       setError(errMsg);
+      toast.error(errMsg);
     }
   };
 
   return (
-    <div className="max-w-sm mx-auto w-full text-white">
+    <div className="max-w-sm mx-auto w-full text-white relative">
+      
+      {/* 👇 3. TOAST CONTAINER (With High Z-Index to stay on top) */}
+      <div className="absolute top-0 left-0 w-full" style={{ zIndex: 9999 }}>
+        <ToastContainer />
+      </div>
+
       <h2
         className="text-3xl md:text-4xl tracking-widest text-center mb-6 font-[var(--font-heading)] font-light"
         style={{ textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)" }}
@@ -69,7 +99,7 @@ const SignUpForm = () => {
 
       <form className="space-y-3" onSubmit={handleRegister}>
         {error && (
-          <div className="text-red-500 text-xs text-center bg-red-100/10 p-2 rounded">
+          <div className="text-red-500 text-xs text-center bg-red-100/10 p-2 rounded border border-red-500/20">
             {error}
           </div>
         )}
@@ -83,7 +113,7 @@ const SignUpForm = () => {
             placeholder="ex. Juan"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] text-black"
             required
           />
         </div>
@@ -97,7 +127,7 @@ const SignUpForm = () => {
             placeholder="ex. Dela Cruz"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] text-black"
             required
           />
         </div>
@@ -108,7 +138,7 @@ const SignUpForm = () => {
           </label>
           <div className="relative">
             <select
-              className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] cursor-pointer"
+              className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] cursor-pointer text-black"
               value={section}
               onChange={(e) => setSection(e.target.value)}
               required
@@ -116,8 +146,6 @@ const SignUpForm = () => {
               <option value="" disabled>
                 Select Section
               </option>
-              
-              {/* NEW: Map through the fetched sectionsList */}
               {sectionsList.map((sec) => (
                 <option key={sec.id} value={sec.id}>
                   {sec.name}
@@ -145,7 +173,7 @@ const SignUpForm = () => {
             placeholder="20221515"
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
-            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] text-black"
             required
           />
         </div>
@@ -154,14 +182,23 @@ const SignUpForm = () => {
           <label className="block text-xs text-[#B89336] mb-1 font-[var(--font-body)] ml-1">
             Password
           </label>
-          <input
-            type="password"
-            placeholder="••••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Min. 8 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] text-black"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 cursor-pointer"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         <button

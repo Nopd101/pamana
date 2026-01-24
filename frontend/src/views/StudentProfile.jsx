@@ -145,7 +145,7 @@ const StudentProfile = () => {
           <div className="bg-white px-6 py-8">
             <div className="bg-[#E5E7EB] h-1.5 rounded-full overflow-hidden w-full shadow-inner">
               <div
-                className="bg-[#C8AA86] h-full rounded-full transition-all duration-1000 ease-out"
+                className="bg-[#bb6701] h-full rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${studentData.overallProgress}%` }}
               ></div>
             </div>
