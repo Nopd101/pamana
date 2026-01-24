@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react"; // 👈 Ensure useRef is imported
 import { DndProvider, useDrag, useDrop, useDragLayer } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { useNavigate } from "react-router-dom";
@@ -68,13 +68,51 @@ const PIECE_CONFIG = {
   11: { scaleX: "120%", scaleY: "125%", nudgeX: "7%", nudgeY: "0%" },
 };
 
-// --- CUSTOM DRAG LAYER ---
+// --- CUSTOM DRAG LAYER (UPDATED WITH AUTO-SCROLL) ---
 const CustomDragLayer = () => {
   const { isDragging, item, currentOffset } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
     currentOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
+
+  // 👇 1. Add Ref for Animation Frame
+  const scrollInterval = useRef(null);
+
+  // 👇 2. Add Scroll Logic Effect
+  useEffect(() => {
+    if (!isDragging || !currentOffset) {
+      if (scrollInterval.current) {
+        cancelAnimationFrame(scrollInterval.current);
+        scrollInterval.current = null;
+      }
+      return;
+    }
+
+    const scrollStep = () => {
+      const { y } = currentOffset;
+      const threshold = 100; // Distance from edge
+      const speed = 5;       // Scroll speed (Adjust as needed)
+      const viewportHeight = window.innerHeight;
+
+      // Scroll Down
+      if (y > viewportHeight - threshold) {
+        window.scrollBy(0, speed);
+      }
+      // Scroll Up
+      else if (y < threshold) {
+        window.scrollBy(0, -speed);
+      }
+
+      scrollInterval.current = requestAnimationFrame(scrollStep);
+    };
+
+    scrollStep();
+
+    return () => {
+      if (scrollInterval.current) cancelAnimationFrame(scrollInterval.current);
+    };
+  }, [isDragging, currentOffset]);
 
   if (!isDragging || !currentOffset) {
     return null;
@@ -410,13 +448,13 @@ function HarapPuzzleQuest() {
 
       if (isComplete) {
         setIsPuzzleComplete(true);
-        setTimeout(() => {
-          if (currentPuzzleIndex < puzzles.length - 1) {
-            setCurrentPuzzleIndex((prevIndex) => prevIndex + 1);
-          } else {
-            setIsGameFinished(true);
-          }
-        }, 1500);
+        
+        // Only auto-finish if it is the VERY LAST puzzle
+        if (currentPuzzleIndex === puzzles.length - 1) {
+            setTimeout(() => {
+                setIsGameFinished(true);
+            }, 1500);
+        }
       }
     }
   }, [
@@ -508,6 +546,11 @@ function HarapPuzzleQuest() {
     setIsGameFinished(false);
   };
 
+  const handleNextStage = () => {
+    setIsPuzzleComplete(false);
+    setCurrentPuzzleIndex((prev) => prev + 1);
+  };
+
   return (
     <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
       <CustomDragLayer />
@@ -516,6 +559,25 @@ function HarapPuzzleQuest() {
         className="min-h-screen bg-cover bg-center p-4 pt-10"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
+        {isPuzzleComplete && !isGameFinished && (
+          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#FDFBF7] p-8 rounded-2xl shadow-2xl border-4 border-[#772402] text-center max-w-md w-full animate-bounce-short">
+                <h2 className="text-3xl font-black text-[#772402] uppercase mb-4 font-[var(--font-heading)]">
+                    Stage {currentPuzzleIndex + 1} Complete!
+                </h2>
+                <div className="flex justify-center mb-6">
+                    <img src={charImg} alt="Good Job" className="w-32" />
+                </div>
+                <button
+                    onClick={handleNextStage}
+                    className="bg-[#772402] text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 transition-transform"
+                >
+                    Next Stage →
+                </button>
+            </div>
+          </div>
+        )}
+
         {isGameFinished && (
           <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
@@ -548,14 +610,11 @@ function HarapPuzzleQuest() {
           </div>
         )}
 
-        {/* Back Button */}
         <div className="absolute top-24 left-4 md:left-20 z-10">
           <BackButton />
         </div>
 
-        {/* Main Content Container */}
         <div className="w-full max-w-7xl mx-auto flex flex-col items-center mt-24 md:mt-10">
-          {/* Header Title */}
           <div className="text-center mb-6 px-4">
             <h1 className="text-3xl md:text-5xl font-extrabold text-[#7B3306] font-[var(--font-heading)] uppercase drop-shadow-sm">
               HARAPPUZZLE QUEST
@@ -565,7 +624,6 @@ function HarapPuzzleQuest() {
             </p>
           </div>
 
-          {/* Navigation Bar */}
           <StageNavigator
             puzzles={puzzles}
             currentIndex={currentPuzzleIndex}
