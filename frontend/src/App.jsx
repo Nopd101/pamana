@@ -30,6 +30,8 @@ import ScrollToTop from "./components/ScrollToTop";
 import StudentProfile from "./views/StudentProfile.jsx";
 import PrivateRoute from "./components/PrivateRoute";
 import PostTest from "./views/PostTest.jsx";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AppContent = () => {
   const location = useLocation();
@@ -38,6 +40,13 @@ const AppContent = () => {
   return (
     <>
       {!isDashboardRoute && <Navbar />}
+      
+      {/* Global Toast Container */}
+      <ToastContainer 
+        position="top-center"
+        style={{ zIndex: 99999 }}
+        limit={1}
+      />
 
       <Routes>
         {/* --- PUBLIC ROUTES (Accessible by anyone) --- */}

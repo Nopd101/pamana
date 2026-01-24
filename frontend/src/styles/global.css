@@ -6,6 +6,24 @@
   --font-body: 'Poppins', system-ui, sans-serif;
 }
 
+/* Toast Customizations */
+.Toastify__toast-icon {
+  color: #B89336 !important;
+}
+
+.Toastify__progress-bar--success {
+  background: #B89336 !important;
+}
+
+.Toastify__close-button {
+  color: #ffffff !important;
+  opacity: 0.8 !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
 html, body {
   overflow-x: hidden; 
   width: 100%;

@@ -123,20 +123,20 @@ const StudentProfile = () => {
       <div className="max-w-4xl mx-auto px-4 pt-32">
         {/* Header Progress Card */}
         <div className="bg-gradient-to-b from-[#8B2D06] to-[#772402] text-white rounded-xl shadow-xl overflow-hidden mb-6 border border-white/10">
-          <div className="p-6 pb-4 flex justify-between items-start relative z-10">
-            <div>
-              <h2 className="text-3xl font-black font-heading leading-tight tracking-tight">
+          <div className="p-6 pb-4 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 relative z-10">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl sm:text-3xl font-black font-heading leading-tight tracking-tight break-words">
                 {studentData.name}
               </h2>
               <p className="text-white/80 font-medium font-body mt-1">
                 Section: {studentData.section}
               </p>
             </div>
-            <div className="text-right">
-              <span className="text-4xl font-black font-heading">
+            <div className="text-right sm:text-left flex-shrink-0">
+              <span className="text-3xl sm:text-4xl font-black font-heading">
                 {studentData.overallProgress}%
               </span>
-              <p className="text-white/80 font-medium font-body mt-1 leading-none tracking-tighter">
+              <p className="text-white/80 font-medium font-body mt-1 leading-none tracking-tighter text-sm sm:text-base">
                 Module Progress
               </p>
             </div>
@@ -173,18 +173,18 @@ const StudentProfile = () => {
           </div>
         </div>
 
-        {/* 👇 NEW: Post-Test Status Card */}
-        <div className={`rounded-xl p-6 shadow-lg border mb-10 flex items-center justify-between ${
+        {/* NEW: Post-Test Status Card */}
+        <div className={`rounded-xl p-6 shadow-lg border mb-10 flex flex-col sm:flex-row items-center sm:justify-between gap-4 ${
             studentData.isPostTestDone 
             ? "bg-emerald-50 border-emerald-200" 
             : "bg-white/90 border-gray-200"
         }`}>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
                 <div className={`p-3 rounded-full ${studentData.isPostTestDone ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>
                     <GraduationCap className="w-8 h-8" />
                 </div>
-                <div>
-                    <h3 className={`text-xl font-black uppercase font-heading ${studentData.isPostTestDone ? "text-emerald-800" : "text-gray-600"}`}>
+                <div className="flex-1 min-w-0">
+                    <h3 className={`text-lg sm:text-xl font-black uppercase font-heading leading-tight ${studentData.isPostTestDone ? "text-emerald-800" : "text-gray-600"}`}>
                         Final Post-Test
                     </h3>
                     <p className="text-sm text-gray-500 font-bold">
@@ -195,16 +195,16 @@ const StudentProfile = () => {
                 </div>
             </div>
             
-            <div className="px-4 py-2">
+            <div className="w-full sm:w-auto px-4 py-2">
                 {studentData.isPostTestDone ? (
-                    <div className="flex items-center gap-2 text-emerald-700 font-bold bg-emerald-100 px-4 py-2 rounded-lg">
+                    <div className="flex items-center justify-center sm:justify-start gap-2 text-emerald-700 font-bold bg-emerald-100 px-4 py-2 rounded-lg">
                         <CheckCircle2 className="w-5 h-5" />
                         <span>COMPLETED</span>
                     </div>
                 ) : (
                     <button 
                         onClick={() => navigate('/post-test')}
-                        className="flex items-center gap-2 text-white font-bold bg-[#772402] hover:bg-[#5a2d0c] px-6 py-2 rounded-lg transition-colors shadow-md"
+                        className="w-full flex items-center justify-center gap-2 text-white font-bold bg-[#772402] hover:bg-[#5a2d0c] px-6 py-2 rounded-lg transition-colors shadow-md"
                     >
                         TAKE TEST
                     </button>
@@ -229,7 +229,7 @@ const StudentProfile = () => {
               const isStarted = progress.video || progress.quiz || progress.games;
 
               return (
-                <div key={civ.id} className="flex gap-6 items-center border-b border-gray-100 pb-6 last:border-0 last:pb-0">
+                <div key={civ.id} className="flex gap-6 items-center border-b-2 border-[#772402] pb-6 last:border-0 last:pb-0">
                   <div className="w-30 h-20 rounded-md overflow-hidden shadow-md shrink-0 border border-amber-900/10">
                     <img
                       src={civ.img}
