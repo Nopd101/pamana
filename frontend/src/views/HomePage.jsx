@@ -116,7 +116,7 @@ function HomePage() {
               onClick={() => navigate('/post-test')}
               className="bg-[#7B3306] hover:bg-[#5a2504] text-white px-5 py-2 rounded-lg font-bold shadow-md transition-transform hover:scale-105 flex items-center gap-2 text-sm md:text-base cursor-pointer"
             >
-              <span>📝</span> Take Post-Test
+              Take Post-Test
             </button>
           </div>
 
