@@ -111,7 +111,7 @@ const PostTest = () => {
     const navigate = useNavigate();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [score, setScore] = useState(0);
-    const [timer, setTimer] = useState(10);
+    const [timer, setTimer] = useState(20);
     const [isGameFinished, setIsGameFinished] = useState(false);
     const timerRef = React.useRef(null);
 
@@ -128,7 +128,7 @@ const PostTest = () => {
     };
 
     useEffect(() => {
-        setTimer(10); // Reset timer for new question
+        setTimer(20); // Reset timer for new question
         if (timerRef.current) clearInterval(timerRef.current);
 
         if (!isGameFinished) {
@@ -136,7 +136,7 @@ const PostTest = () => {
                 setTimer(prev => {
                     if (prev === 1) {
                         handleNextQuestion(null); // Move to next question when timer ends
-                        return 10;
+                        return 20;
                     }
                     return prev - 1;
                 });
@@ -186,7 +186,7 @@ const PostTest = () => {
     }
 
     const currentQuestion = questions[currentIndex];
-    const progress = (timer / 10) * 100;
+    const progress = (timer / 20) * 100;
 
     return (
         <div className="min-h-screen bg-cover bg-center font-[var(--font-body)]" style={{ backgroundImage: `url(${bgHome})` }}>
@@ -202,7 +202,7 @@ const PostTest = () => {
                             Post-Test
                         </h1>
                         <p className="text-[#964B1D] font-bold text-xs md:text-base max-w-xl mx-auto leading-relaxed px-4">
-                            Basahin ng mabuti ang bawat tanong. Mayroon kang 10 segundo bawat isa.
+                            Basahin ng mabuti ang bawat tanong. Mayroon kang 20 segundo bawat isa.
                         </p>
                     </div>
 
