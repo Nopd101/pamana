@@ -4,6 +4,8 @@ import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
 import API from '../api/axios';
+// 👇 Import Toast
+import { toast } from 'react-toastify'; 
 
 const RIDDLES = [
   {
@@ -33,16 +35,24 @@ const RIDDLES = [
   },
 ];
 
+// 👇 SHARED TOAST STYLE (Pamana Theme)
+const toastStyle = {
+  backgroundColor: "#772402", // Primary Brown
+  color: "#FDFBF7",           // Cream Text
+  border: "2px solid #B89336", // Gold/Amber Border
+  borderRadius: "10px",
+  fontWeight: "bold",
+  boxShadow: "0px 4px 10px rgba(0,0,0,0.3)"
+};
+
 const MesoRiddleGame = () => {
-  const navigate = useNavigate(); // Initialize hook
+  const navigate = useNavigate(); 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [score, setScore] = useState(0);
   const [showHint, setShowHint] = useState(false);
-  const [feedback, setFeedback] = useState("");
   const [isGameFinished, setIsGameFinished] = useState(false);
   
-
   const currentRiddle = RIDDLES[currentIndex];
 
   const handleSubmit = () => {
@@ -57,17 +67,29 @@ const MesoRiddleGame = () => {
     ) {
       handleCorrect();
     } else {
-      setFeedback("Mali ang iyong sagot. Subukan muli!");
-      setTimeout(() => setFeedback(""), 2000);
+      // 👇 Error Toast
+      toast.error("Mali ang iyong sagot. Subukan muli!", {
+        position: "top-center",
+        autoClose: 2000,
+        style: { ...toastStyle, border: "2px solid #ff4444" },
+        icon: "❌"
+      });
     }
   };
 
   const handleCorrect = () => {
-    setFeedback("TAMA!");
+    // 👇 Success Toast
+    toast.success("TAMA!", {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: true,
+        style: toastStyle,
+        icon: "✅"
+    });
+
     setScore((prev) => prev + 1);
 
     setTimeout(() => {
-      setFeedback("");
       setUserAnswer("");
       setShowHint(false);
 
@@ -85,7 +107,6 @@ const MesoRiddleGame = () => {
     setUserAnswer("");
     setShowHint(false);
     setIsGameFinished(false);
-    setFeedback("");
   };
 
   const getHintText = () => {
@@ -99,7 +120,6 @@ const MesoRiddleGame = () => {
     return `${firstChar} ${hidden}`;
   };
 
-  // 👇 This was causing the crash because useEffect wasn't imported
   useEffect(() => {
     if (isGameFinished) {
         const submitRiddleScore = async () => {
@@ -196,18 +216,6 @@ const MesoRiddleGame = () => {
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 disabled={isGameFinished}
               />
-
-              {feedback && (
-                <div
-                  className={`text-center font-black text-lg animate-bounce ${
-                    feedback.includes("TAMA")
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
-                >
-                  {feedback}
-                </div>
-              )}
 
               {showHint && (
                 <div className="text-center text-[#772402] font-bold animate-pulse">

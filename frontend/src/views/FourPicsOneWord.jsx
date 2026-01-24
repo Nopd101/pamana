@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton"; 
 import charImg from "../assets/main-home-character-left.png";
-import API from '../api/axios'; // 👈 Import API
+import API from '../api/axios'; 
+import { toast } from 'react-toastify'; 
 
+// Import Images
 import p1_1 from "../assets/4Pics1Word/1.png";
 import p1_2 from "../assets/4Pics1Word/2.png";
 import p1_3 from "../assets/4Pics1Word/3.png";
@@ -30,7 +32,7 @@ const puzzles = [
   {
     images: [p1_1, p1_2, p1_3, p1_4],
     answer: "PYRAMID",
-    hint: "A monumental structure with a square or triangular base and sloping sides that meet in a point at the top, especially one built of stone as a royal tomb in ancient Egypt.",
+    hint: "A monumental structure with a square or triangular base...",
   },
   {
     images: [p2_1, p2_2, p2_3, p2_4],
@@ -50,9 +52,19 @@ const puzzles = [
   {
     images: [p5_1, p5_2, p5_3, p5_4],
     answer: "OBELISK",
-    hint: "A stone pillar, typically having a square or rectangular cross section and a pyramidal top, set up as a monument or landmark.",
+    hint: "A stone pillar, typically having a square or rectangular cross section...",
   },
 ];
+
+// 👇 SHARED TOAST STYLE (Pamana Theme)
+const toastStyle = {
+  backgroundColor: "#772402", // Primary Brown
+  color: "#FDFBF7",           // Cream Text
+  border: "2px solid #B89336", // Gold/Amber Border
+  borderRadius: "10px",
+  fontWeight: "bold",
+  boxShadow: "0px 4px 10px rgba(0,0,0,0.3)"
+};
 
 const FourPicsOneWord = () => {
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
@@ -69,19 +81,36 @@ const FourPicsOneWord = () => {
     if (inputValue.trim().toUpperCase() === currentPuzzle.answer) {
       const newScore = score + 1;
       setScore(newScore);
+      
+      // 👇 Custom Styled Success Toast
+      toast.success("Correct Answer!", {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: true,
+        style: toastStyle, // Apply Style
+        icon: "✅"         // Custom Icon
+      });
+
       if (currentPuzzleIndex < puzzles.length - 1) {
-        setCurrentPuzzleIndex(currentPuzzleIndex + 1);
-        setInputValue("");
-        setShowHint(false);
+        setTimeout(() => {
+            setCurrentPuzzleIndex(currentPuzzleIndex + 1);
+            setInputValue("");
+            setShowHint(false);
+        }, 500);
       } else {
         setIsGameFinished(true);
       }
     } else {
-      alert("Wrong answer, try again!");
+      // 👇 Custom Styled Error Toast
+      toast.error("Wrong answer, try again!", {
+        position: "top-center",
+        autoClose: 2000,
+        style: { ...toastStyle, border: "2px solid #ff4444" }, // Red border for error
+        icon: "❌"
+      });
     }
   };
 
-  // 👇 Submit Score when Game Finished
   useEffect(() => {
     if (isGameFinished) {
         const submitScore = async () => {

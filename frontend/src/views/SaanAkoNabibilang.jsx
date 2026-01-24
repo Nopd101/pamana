@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react"; // 👈 Added useRef
 import { DndProvider, useDrag, useDrop, useDragLayer } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
-import API from '../api/axios'; // 👈 Import API
+import API from '../api/axios';
 
 const ItemTypes = {
   WORD: "word",
@@ -42,12 +42,49 @@ const WORDS = [
   { id: "Tunay na lalaki", label: "Tunay na lalaki", correct: "Imperyong Maya" },
 ];
 
+// 👇 UPDATED: Custom Drag Layer with Auto-Scroll Logic
 const CustomDragLayer = () => {
   const { isDragging, item, currentOffset } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
     currentOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
+
+  const scrollInterval = useRef(null);
+
+  useEffect(() => {
+    if (!isDragging || !currentOffset) {
+      if (scrollInterval.current) {
+        cancelAnimationFrame(scrollInterval.current);
+        scrollInterval.current = null;
+      }
+      return;
+    }
+
+    const scrollStep = () => {
+      const { y } = currentOffset;
+      const threshold = 150; // Distance from edge to start scrolling
+      const speed = 5; // Scroll speed
+      const viewportHeight = window.innerHeight;
+
+      // Scroll Down
+      if (y > viewportHeight - threshold) {
+        window.scrollBy(0, speed);
+      }
+      // Scroll Up
+      else if (y < threshold) {
+        window.scrollBy(0, -speed);
+      }
+
+      scrollInterval.current = requestAnimationFrame(scrollStep);
+    };
+
+    scrollStep();
+
+    return () => {
+      if (scrollInterval.current) cancelAnimationFrame(scrollInterval.current);
+    };
+  }, [isDragging, currentOffset]);
 
   if (!isDragging || !currentOffset) {
     return null;
