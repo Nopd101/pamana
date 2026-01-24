@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { Eye, EyeOff } from "lucide-react";
-// 👇 Import Toastify
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 const SignUpForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -55,22 +52,10 @@ const SignUpForm = () => {
         role: "student"
       });
 
-      // 👇 1. SHOW SUCCESS TOAST IMMEDIATELY
-      toast.success("Account created! Redirecting to login...", {
-        position: "top-center",
-        autoClose: 2000, // Disappears after 2 seconds
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored", // Using colored theme for better visibility
-        style: { backgroundColor: "#4caf50", color: "#fff" } // Force Green style
+      // ✅ Navigate with success message in state
+      navigate("/login", {
+        state: { successMessage: "Account created successfully! Please login." }
       });
-
-      // 👇 2. WAIT 2 SECONDS, THEN REDIRECT
-      setTimeout(() => {
-          navigate("/login");
-      }, 2500); // Slight buffer (2.5s) to let them read it
       
     } catch (err) {
       console.error("Registration Error:", err.response?.data);
@@ -78,17 +63,11 @@ const SignUpForm = () => {
         ? "Student ID already registered." 
         : "Registration failed. Check details.";
       setError(errMsg);
-      toast.error(errMsg);
     }
   };
 
   return (
     <div className="max-w-sm mx-auto w-full text-white relative">
-      
-      {/* 👇 3. TOAST CONTAINER (With High Z-Index to stay on top) */}
-      <div className="absolute top-0 left-0 w-full" style={{ zIndex: 9999 }}>
-        <ToastContainer />
-      </div>
 
       <h2
         className="text-3xl md:text-4xl tracking-widest text-center mb-6 font-[var(--font-heading)] font-light"

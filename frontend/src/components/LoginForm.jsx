@@ -1,37 +1,62 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom"; // 👈 Import useLocation
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import API from "../api/axios";
 import { Eye, EyeOff } from "lucide-react";
-// 👇 Import Toast logic here
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  
+  // 👇 FIX: Added missing error state
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
-  const location = useLocation(); // 👈 To get the state passed from register
+  const location = useLocation();
+  const toastShownRef = useRef(false);
 
-  // 👇 CHECK FOR SUCCESS MESSAGE ON MOUNT
+  // ✅ SHOW SUCCESS TOAST (StrictMode-safe)
   useEffect(() => {
-    if (location.state?.successMessage) {
-        toast.success(location.state.successMessage, {
-            position: "top-center",
-            autoClose: 3000, // Disappears after 3 seconds
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "light",
-        });
-        
-        // Clear the state so the toast doesn't reappear on refresh
-        window.history.replaceState({}, document.title);
+    const successMessage = location.state?.successMessage;
+    
+    if (successMessage && !toastShownRef.current) {
+      // Mark as shown immediately to prevent double-rendering
+      toastShownRef.current = true;
+      
+      // Show the toast
+      toast.success(successMessage, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        style: { 
+          zIndex: 99999,
+          background: '#3E2b26',
+          color: '#ffffff',
+          border: '1px solid #B89336',
+          borderRadius: '8px',
+          fontFamily: 'var(--font-body)'
+        },
+        progressStyle: {
+          background: '#B89336'
+        },
+        toastId: 'success-toast'
+      });
+      
+      // Clear navigation state after toast has had time to display
+      const timer = setTimeout(() => {
+        if (location.state?.successMessage) {
+          // Replace state to remove the message without reloading
+          navigate(location.pathname, { replace: true, state: {} });
+        }
+      }, 3500); 
+      
+      return () => clearTimeout(timer);
     }
-  }, [location]);
+  }, [location.state, navigate, location.pathname]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -67,9 +92,6 @@ const LoginForm = () => {
 
   return (
     <div className="max-w-xs mx-auto w-full text-white relative">
-      {/* 👇 ADD TOAST CONTAINER */}
-      <ToastContainer />
-
       <h2 className="text-3xl md:text-4xl tracking-widest text-center mb-10 font-[var(--font-heading)] font-light"
         style={{ textShadow: "0px 4px 4px rgba(0, 0, 1, 0.25)" }}>
         LOGIN
@@ -91,7 +113,7 @@ const LoginForm = () => {
             placeholder="20221515"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+            className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] text-black"
           />
         </div>
 
@@ -105,7 +127,7 @@ const LoginForm = () => {
               placeholder="••••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg pl-4 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)]"
+              className="w-full bg-[#E8E8E8] text-gray-800 rounded-lg pl-4 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#c19a4b] font-[var(--font-body)] text-black"
             />
             <button
               type="button"
