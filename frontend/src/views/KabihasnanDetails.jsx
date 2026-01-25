@@ -2,16 +2,18 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import API from "../api/axios";
-// import kabihasnanImg from "../assets/main-home-bg-2.png"; // 👈 Removed static image
 import { PlayCircle, Gamepad2, ClipboardList } from "lucide-react";
 import BackButton from "../components/BackButton";
 
-// 👇 NEW: Import Civilization Header Images
+// Import Civilization Header Images
 import chinaImg from "../assets/CivilizationPhotos/China.png";
 import egyptImg from "../assets/CivilizationPhotos/Egypt.png";
 import indusImg from "../assets/CivilizationPhotos/Indus.png";
 import mesoamericaImg from "../assets/CivilizationPhotos/Mesoamerica.png";
 import mesopotamiaImg from "../assets/CivilizationPhotos/Mesopotamia.png";
+
+// 👇 Import SFX
+import renameTabSfx from "../assets/sfx/rename_tab.mp3";
 
 // --- COMPONENT: LetterInputGroup (For Mesoamerica) ---
 const LetterInputGroup = ({ answer, onAnswerChange }) => {
@@ -78,16 +80,32 @@ function KabihasnanDetails() {
   const [lineCoords, setLineCoords] = useState([]);
   const [resetKey, setResetKey] = useState(0);
 
-  // 👇 MAPPING: ID to Image
+  // 👇 AUDIO SETUP: useRef to prevent garbage collection
+  const sfxRef = useRef(null);
+
+  useEffect(() => {
+    sfxRef.current = new Audio(renameTabSfx);
+    sfxRef.current.volume = 0.5;
+    sfxRef.current.preload = 'auto';
+  }, []);
+
+  const playSound = () => {
+    if (sfxRef.current) {
+      sfxRef.current.currentTime = 0; // Reset to start
+      sfxRef.current.play().catch((e) => console.error("Audio play failed:", e));
+    }
+  };
+
+  // --- MAPPING: ID to Image ---
   const CIVILIZATION_IMAGES = {
     mesopotamia: mesopotamiaImg,
     indus: indusImg,
-    tsino: chinaImg, // Maps 'tsino' ID to 'China.png'
+    tsino: chinaImg,
     egypt: egyptImg,
     mesoamerica: mesoamericaImg,
   };
 
-  const headerImage = CIVILIZATION_IMAGES[id] || mesopotamiaImg; // Fallback
+  const headerImage = CIVILIZATION_IMAGES[id] || mesopotamiaImg;
 
   // --- HANDLERS ---
   const handleAnswerChange = (questionId, value) => {
@@ -95,6 +113,7 @@ function KabihasnanDetails() {
   };
 
   const handleClearAnswers = () => {
+    playSound(); // 🔊
     setConnections([]);
     setLineCoords([]);
     setSelectedA(null);
@@ -104,6 +123,7 @@ function KabihasnanDetails() {
 
   // Handle Video Completion
   const handleVideoComplete = async () => {
+    playSound(); // 🔊
     try {
       await API.post("submit-score/", {
         civilization: currentData.title,
@@ -120,6 +140,7 @@ function KabihasnanDetails() {
   };
 
   const handleSubmitQuiz = async () => {
+    playSound(); // 🔊
     let currentScore = 0;
     let maxScore = 0;
 
@@ -173,6 +194,7 @@ function KabihasnanDetails() {
   };
 
   const handleStartGame = (gameTitle) => {
+    playSound(); // 🔊
     if (gameTitle === "HARAPPUZZLE QUEST") navigate("/harappuzzle-quest");
     else if (gameTitle === "CASTE YOUR ANSWER") navigate("/caste-game");
     else if (gameTitle === "MindFlip") navigate("/mindflip-game");
@@ -186,6 +208,7 @@ function KabihasnanDetails() {
   };
 
   const handleConnect = (idB) => {
+    playSound(); // 🔊
     if (selectedA) {
       setConnections((prev) => [
         ...prev.filter((c) => c.fromId !== selectedA),
@@ -193,6 +216,11 @@ function KabihasnanDetails() {
       ]);
       setSelectedA(null);
     }
+  };
+
+  const handleSelectA = (idA) => {
+    playSound(); // 🔊
+    setSelectedA(idA);
   };
 
   useEffect(() => {
@@ -315,8 +343,8 @@ function KabihasnanDetails() {
             Your Final Score: <span className="font-extrabold">{score}/{totalItems}</span>
           </p>
           <div className="flex flex-col gap-4">
-            <button onClick={() => { setIsQuizFinished(false); handleClearAnswers(); }} className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg">Retake Quiz</button>
-            <button onClick={() => navigate("/homepage")} className="bg-white border-2 border-[#772402] text-[#772402] py-3 px-8 rounded-lg shadow-lg hover:bg-gray-100 transition-colors font-bold text-lg">Back to Home</button>
+            <button onClick={() => { playSound(); setIsQuizFinished(false); handleClearAnswers(); }} className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg">Retake Quiz</button>
+            <button onClick={() => { playSound(); navigate("/homepage"); }} className="bg-white border-2 border-[#772402] text-[#772402] py-3 px-8 rounded-lg shadow-lg hover:bg-gray-100 transition-colors font-bold text-lg">Back to Home</button>
           </div>
         </div>
       </div>
@@ -329,7 +357,6 @@ function KabihasnanDetails() {
 
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-          {/* 👇 UPDATED: Uses the dynamic 'headerImage' */}
           <img src={headerImage} alt="Kabihasnan Thumbnail" className="w-full md:w-40 h-48 md:h-30 rounded-sm shadow-inner shrink-0 object-cover border border-amber-900/20" />
           <div className="text-center md:text-left">
             <h1 className="text-3xl font-extrabold text-[#7B3306] font-[var(--font-heading)] uppercase">Kabihasnang {currentData.title}</h1>
@@ -341,7 +368,7 @@ function KabihasnanDetails() {
           {["video", "game", "quiz"].map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => { playSound(); setActiveTab(tab); }}
               className={`flex-1 py-3 px-2 md:px-4 flex items-center justify-center gap-2 font-body transition-colors text-xs md:text-base ${activeTab === tab ? "bg-white text-[#5a2d0c]" : "bg-[#772402] text-white/80"}`}
             >
               {tab === "video" && <><PlayCircle className="w-4 h-4 md:w-5 md:h-5" /><span> Video Lecture</span></>}
@@ -411,7 +438,7 @@ function KabihasnanDetails() {
                       <div className="grid grid-cols-1 gap-2">
                         {item.options.map((opt, i) => (
                           <label key={i} className="flex items-center gap-3 cursor-pointer group">
-                            <input type="radio" name={`q-${item.id}`} className="w-4 h-4 accent-[#772402] shrink-0" onChange={() => handleAnswerChange(item.id, opt)} checked={userAnswers[item.id] === opt} />
+                            <input type="radio" name={`q-${item.id}`} className="w-4 h-4 accent-[#772402] shrink-0" onChange={() => { playSound(); handleAnswerChange(item.id, opt); }} checked={userAnswers[item.id] === opt} />
                             <span className="text-[#5a2d0c] group-hover:text-[#772402] transition-colors">{opt}</span>
                           </label>
                         ))}
@@ -464,7 +491,7 @@ function KabihasnanDetails() {
                         {hanayA.map((item) => {
                           const isConnected = connections.find((c) => c.fromId === item.id);
                           return (
-                            <div key={item.id} id={item.id} onClick={() => setSelectedA(item.id)} style={{ backgroundColor: isConnected ? "#772402" : item.color }} className={`p-4 rounded-lg font-bold text-center text-sm min-h-[100px] flex items-center justify-center cursor-pointer transition-all border-4 ${selectedA === item.id ? "border-amber-400 scale-105 shadow-lg z-20" : "border-transparent"} text-white`}>
+                            <div key={item.id} id={item.id} onClick={() => handleSelectA(item.id)} style={{ backgroundColor: isConnected ? "#772402" : item.color }} className={`p-4 rounded-lg font-bold text-center text-sm min-h-[100px] flex items-center justify-center cursor-pointer transition-all border-4 ${selectedA === item.id ? "border-amber-400 scale-105 shadow-lg z-20" : "border-transparent"} text-white`}>
                               {item.text}
                             </div>
                           );

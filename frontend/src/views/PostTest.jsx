@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Nav';
 import bgHome from '../assets/bg-home.png';
 import API from '../api/axios';
+
+// 👇 Import SFX
+import renameTabSfx from '../assets/sfx/rename_tab.mp3';
+import correctSfx from '../assets/sfx/correct.mp3';
+import incorrectSfx from '../assets/sfx/incorrect.mp3';
+import clearedSfx from '../assets/sfx/cleared.mp3';
 
 const questions = [
     {
@@ -116,6 +122,13 @@ const PostTest = () => {
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [timeUp, setTimeUp] = useState(false);
     const timerRef = React.useRef(null);
+    
+    // 👇 AUDIO SETUP (Generic)
+    const playSound = (soundFile) => {
+        const audio = new Audio(soundFile);
+        audio.volume = 0.5;
+        audio.play().catch(e => console.error("Audio play failed:", e));
+    };
 
    const handleNextQuestion = (answerClicked) => {
         // Prevent multiple clicks
@@ -124,6 +137,13 @@ const PostTest = () => {
         setSelectedAnswer(answerClicked); // Set selected answer to trigger UI change
 
         const isCorrect = answerClicked === questions[currentIndex].answer;
+
+        // 👇 Play Correct or Incorrect Sound
+        if (isCorrect) {
+            playSound(correctSfx);
+        } else {
+            playSound(incorrectSfx);
+        }
 
         // Delay moving to the next question to show the color feedback
         setTimeout(() => {
@@ -142,18 +162,21 @@ const PostTest = () => {
     
     // Modified Timer logic
     const handleTimeout = () => {
-        // 1. Mark that time is up (for CSS styling)
+        // 1. Mark that time is up
         setTimeUp(true);
         
-        // 2. Lock the options by setting selectedAnswer to a placeholder (prevent clicks)
+        // 👇 Play Incorrect Sound on Timeout
+        playSound(incorrectSfx);
+        
+        // 2. Lock the options
         setSelectedAnswer("TIME_UP");
 
-        // 3. Wait 1 second to show the correct answer, then proceed
+        // 3. Wait 1 second then proceed
         setTimeout(() => {
             if (currentIndex < questions.length - 1) {
                 setCurrentIndex(prev => prev + 1);
                 setSelectedAnswer(null); 
-                setTimeUp(false); // Reset timeUp state
+                setTimeUp(false); 
             } else {
                 setIsGameFinished(true);
             }
@@ -212,7 +235,11 @@ const PostTest = () => {
                         Your Final Score: <span className="font-extrabold">{score}/{questions.length}</span>
                     </p>
                     <button
-                        onClick={() => navigate('/student-profile')}
+                        onClick={() => {
+                            // 👇 Play Cleared SFX on Finish
+                            playSound(clearedSfx);
+                            navigate('/student-profile');
+                        }}
                         className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-xl"
                     >
                         Finish
@@ -230,9 +257,9 @@ const PostTest = () => {
         // Scenario 1: Time Ran Out (No User Click)
         if (timeUp) {
             if (option === currentQuestion.answer) {
-                return `${baseClass} bg-green-600 text-white`; // Reveal correct answer
+                return `${baseClass} bg-green-600 text-white`; 
             } else {
-                return `${baseClass} bg-red-600 text-white`; // All wrong answers turn red
+                return `${baseClass} bg-red-600 text-white`; 
             }
         }
 
@@ -257,7 +284,14 @@ const PostTest = () => {
             <Navbar />
             <div className="flex flex-col items-center justify-center min-h-screen pt-24 md:pt-32">
                 <div className="w-full max-w-4xl mx-auto px-4 pb-10">
-                    <button onClick={() => navigate(-1)} className="flex items-center text-[#5a2d0c] font-bold mb-4 transition-transform hover:scale-[1.01] text-sm md:text-base cursor-pointer">
+                    {/* 👇 MANUAL BACK BUTTON with Sound */}
+                    <button 
+                        onClick={() => {
+                            playSound(renameTabSfx);
+                            navigate(-1);
+                        }} 
+                        className="flex items-center text-[#5a2d0c] font-bold mb-4 transition-transform hover:scale-[1.01] text-sm md:text-base cursor-pointer"
+                    >
                         <span className="mr-2">◀</span> Back
                     </button>
 
@@ -273,7 +307,7 @@ const PostTest = () => {
                     <div className="bg-[#FDFBF7] rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 relative flex flex-col items-center">
                         <div className="w-full max-w-3xl">
                             
-                            {/* === UPDATED HEADER === */}
+                            {/* === HEADER === */}
                             <div className="relative flex justify-between items-center mb-10 border-b-2 border-[#C8AA86]/30 pb-6 pt-2">
                                 {/* Left: Question Count */}
                                 <span className="text-[#772402] font-extrabold text-base md:text-xl">
