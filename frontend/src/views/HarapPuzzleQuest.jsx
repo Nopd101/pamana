@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react"; // 👈 Ensure useRef is imported
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { DndProvider, useDrag, useDrop, useDragLayer } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { useNavigate } from "react-router-dom";
@@ -68,7 +68,7 @@ const PIECE_CONFIG = {
   11: { scaleX: "120%", scaleY: "125%", nudgeX: "7%", nudgeY: "0%" },
 };
 
-// --- CUSTOM DRAG LAYER (UPDATED WITH AUTO-SCROLL) ---
+// --- CUSTOM DRAG LAYER (WITH AUTO-SCROLL) ---
 const CustomDragLayer = () => {
   const { isDragging, item, currentOffset } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
@@ -76,10 +76,8 @@ const CustomDragLayer = () => {
     isDragging: monitor.isDragging(),
   }));
 
-  // 👇 1. Add Ref for Animation Frame
   const scrollInterval = useRef(null);
 
-  // 👇 2. Add Scroll Logic Effect
   useEffect(() => {
     if (!isDragging || !currentOffset) {
       if (scrollInterval.current) {
@@ -91,16 +89,13 @@ const CustomDragLayer = () => {
 
     const scrollStep = () => {
       const { y } = currentOffset;
-      const threshold = 100; // Distance from edge
-      const speed = 5;       // Scroll speed (Adjust as needed)
+      const threshold = 100;
+      const speed = 5;
       const viewportHeight = window.innerHeight;
 
-      // Scroll Down
       if (y > viewportHeight - threshold) {
         window.scrollBy(0, speed);
-      }
-      // Scroll Up
-      else if (y < threshold) {
+      } else if (y < threshold) {
         window.scrollBy(0, -speed);
       }
 
@@ -126,7 +121,6 @@ const CustomDragLayer = () => {
         transform: "scale(1.1)",
       };
     }
-
     return {
       width: "100px",
       height: "100px",
@@ -135,30 +129,9 @@ const CustomDragLayer = () => {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        pointerEvents: "none",
-        zIndex: 100,
-        left: 0,
-        top: 0,
-        width: "100%",
-        height: "100%",
-      }}
-    >
-      <div
-        style={{
-          transform: `translate(${currentOffset.x}px, ${currentOffset.y}px)`,
-        }}
-      >
-        <img
-          src={item.piece.img}
-          alt="Drag Preview"
-          style={{
-            ...getPreviewStyle(item.piece, true),
-            opacity: 0.9,
-          }}
-        />
+    <div style={{ position: "fixed", pointerEvents: "none", zIndex: 100, left: 0, top: 0, width: "100%", height: "100%" }}>
+      <div style={{ transform: `translate(${currentOffset.x}px, ${currentOffset.y}px)` }}>
+        <img src={item.piece.img} alt="Drag Preview" style={{ ...getPreviewStyle(item.piece, true), opacity: 0.9 }} />
       </div>
     </div>
   );
@@ -166,64 +139,29 @@ const CustomDragLayer = () => {
 
 // --- Draggable Piece Component ---
 const DraggablePiece = ({ piece, isBankPiece }) => {
-  const [{ isDragging }, drag] = useDrag(
-    () => ({
-      type: ItemTypes.PIECE,
-      item: { piece },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-    }),
-    [piece]
-  );
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.PIECE,
+    item: { piece },
+    collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
+  }), [piece]);
 
   const getPieceStyle = () => {
     if (isBankPiece) {
-      return {
-        width: "100%",
-        height: "100%",
-        objectFit: "contain",
-        transform: "scale(0.9)",
-        position: "relative",
-      };
+      return { width: "100%", height: "100%", objectFit: "contain", transform: "scale(0.9)", position: "relative" };
     }
-
     const config = PIECE_CONFIG[piece.id] || PIECE_CONFIG.default;
-    const width = config.scaleX || PIECE_CONFIG.default.scaleX;
-    const height = config.scaleY || PIECE_CONFIG.default.scaleY;
-    const nudgeX = config.nudgeX || "0%";
-    const nudgeY = config.nudgeY || "0%";
-
     return {
-      width: width,
-      height: height,
+      width: config.scaleX || "135%",
+      height: config.scaleY || "135%",
       position: "absolute",
       top: "50%",
       left: "50%",
-      transform: `translate(calc(-50% + ${nudgeX}), calc(-50% + ${nudgeY}))`,
+      transform: `translate(calc(-50% + ${config.nudgeX || "0%"}), calc(-50% + ${config.nudgeY || "0%"}))`,
       zIndex: 10,
     };
   };
 
-  const customStyle = getPieceStyle();
-
-  const style = {
-    opacity: isDragging ? 0 : 1,
-    transition: "transform 0.2s ease",
-    maxWidth: "none",
-    maxHeight: "none",
-    cursor: "grab",
-    ...customStyle,
-  };
-
-  return (
-    <img
-      ref={drag}
-      src={piece.img}
-      alt={`Puzzle piece ${piece.id}`}
-      style={{ ...style }}
-    />
-  );
+  return <img ref={drag} src={piece.img} alt={`Puzzle piece ${piece.id}`} style={{ opacity: isDragging ? 0 : 1, transition: "transform 0.2s ease", maxWidth: "none", maxHeight: "none", cursor: "grab", ...getPieceStyle() }} />;
 };
 
 // --- Drop Slot Component ---
@@ -231,29 +169,12 @@ const DropSlot = ({ slotId, piece, onDrop, isComplete, gridSize }) => {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.PIECE,
     drop: (item) => onDrop(slotId, item.piece),
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-      canDrop: !!monitor.canDrop(),
-    }),
+    collect: (monitor) => ({ isOver: !!monitor.isOver(), canDrop: !!monitor.canDrop() }),
   }));
 
-  const borderStyle = isComplete ? "none" : "2px dashed rgba(0, 0, 0, 0.2)";
-
   return (
-    <div
-      ref={drop}
-      className="relative w-full h-full"
-      style={{
-        border: borderStyle,
-        backgroundColor:
-          isOver && canDrop ? "rgba(255, 255, 255, 0.3)" : "transparent",
-        overflow: "visible",
-        zIndex: piece ? 2 : 1,
-      }}
-    >
-      {piece && (
-        <DraggablePiece piece={piece} isBankPiece={false} gridSize={gridSize} />
-      )}
+    <div ref={drop} className="relative w-full h-full" style={{ border: isComplete ? "none" : "2px dashed rgba(0, 0, 0, 0.2)", backgroundColor: isOver && canDrop ? "rgba(255, 255, 255, 0.3)" : "transparent", overflow: "visible", zIndex: piece ? 2 : 1 }}>
+      {piece && <DraggablePiece piece={piece} isBankPiece={false} gridSize={gridSize} />}
     </div>
   );
 };
@@ -262,24 +183,8 @@ const DropSlot = ({ slotId, piece, onDrop, isComplete, gridSize }) => {
 const PuzzleBoard = ({ puzzle, boardState, onDrop, isComplete }) => {
   const { rows, cols } = puzzle.grid;
   return (
-    <div
-      className="grid w-full"
-      style={{
-        aspectRatio: `${cols} / ${rows}`,
-        gridTemplateRows: `repeat(${rows}, 1fr)`,
-        gridTemplateColumns: `repeat(${cols}, 1fr)`,
-      }}
-    >
-      {boardState.map((piece, index) => (
-        <DropSlot
-          key={`slot-${index}`}
-          slotId={index}
-          piece={piece}
-          onDrop={onDrop}
-          isComplete={isComplete}
-          gridSize={puzzle.grid}
-        />
-      ))}
+    <div className="grid w-full" style={{ aspectRatio: `${cols} / ${rows}`, gridTemplateRows: `repeat(${rows}, 1fr)`, gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+      {boardState.map((piece, index) => <DropSlot key={`slot-${index}`} slotId={index} piece={piece} onDrop={onDrop} isComplete={isComplete} gridSize={puzzle.grid} />)}
     </div>
   );
 };
@@ -289,41 +194,18 @@ const PieceBank = ({ pieces, onDrop }) => {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.PIECE,
     drop: (item) => onDrop(item.piece),
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-      canDrop: !!monitor.canDrop(),
-    }),
+    collect: (monitor) => ({ isOver: !!monitor.isOver(), canDrop: !!monitor.canDrop() }),
   }));
 
-  const bankSlots = Array.from({ length: 12 });
-
   return (
-    <div
-      ref={drop}
-      className="w-full h-full bg-[#FBE7C6] p-4 rounded-2xl shadow-md border-2 border-amber-300/50 flex flex-col"
-    >
-      <h3 className="text-2xl font-bold text-center text-[#772402] mb-2 font-[var(--font-heading)]">
-        Mga Piraso
-      </h3>
-
-      <div
-        className="grid grid-cols-4 grid-rows-3 gap-2 w-full flex-1"
-        style={{
-          backgroundColor:
-            isOver && canDrop ? "rgba(119, 36, 2, 0.2)" : "transparent",
-        }}
-      >
-        {bankSlots.map((_, index) => {
-          const piece = pieces[index];
-          return (
-            <div
-              key={index}
-              className="w-full h-full flex items-center justify-center relative border border-black/5 rounded-lg bg-white/10"
-            >
-              {piece && <DraggablePiece piece={piece} isBankPiece={true} />}
-            </div>
-          );
-        })}
+    <div ref={drop} className="w-full h-full bg-[#FBE7C6] p-4 rounded-2xl shadow-md border-2 border-amber-300/50 flex flex-col">
+      <h3 className="text-2xl font-bold text-center text-[#772402] mb-2 font-[var(--font-heading)]">Mga Piraso</h3>
+      <div className="grid grid-cols-4 grid-rows-3 gap-2 w-full flex-1" style={{ backgroundColor: isOver && canDrop ? "rgba(119, 36, 2, 0.2)" : "transparent" }}>
+        {Array.from({ length: 12 }).map((_, index) => (
+          <div key={index} className="w-full h-full flex items-center justify-center relative border border-black/5 rounded-lg bg-white/10">
+            {pieces[index] && <DraggablePiece piece={pieces[index]} isBankPiece={true} />}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -334,35 +216,13 @@ const StageNavigator = ({ puzzles, currentIndex, onSelect }) => {
   return (
     <div className="flex flex-col items-center mb-6 w-full max-w-4xl mx-auto">
       <div className="flex flex-wrap justify-center gap-3 bg-[#FBE7C6]/80 p-3 rounded-xl border border-[#B06A3A]/30 shadow-sm backdrop-blur-sm">
-        {puzzles.map((p, index) => {
-          const isActive = index === currentIndex;
-          return (
-            <button
-              key={index}
-              onClick={() => onSelect(index)}
-              className={`
-                relative px-4 py-2 rounded-lg font-bold transition-all duration-200
-                flex flex-col items-center min-w-[80px]
-                ${
-                  isActive
-                    ? "bg-[#772402] text-[#FBE7C6] scale-105 shadow-md transform -translate-y-1"
-                    : "bg-[#fff8ee] text-[#772402] hover:bg-[#ffe0b2] hover:scale-105"
-                }
-              `}
-            >
-              <span className="text-xs uppercase tracking-wider opacity-80">
-                Stage {index + 1}
-              </span>
-              <span className="text-sm md:text-base leading-tight text-center">
-                {p.name}
-              </span>
-
-              {isActive && (
-                <div className="absolute -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#772402]"></div>
-              )}
-            </button>
-          );
-        })}
+        {puzzles.map((p, index) => (
+          <button key={index} onClick={() => onSelect(index)} className={`relative px-4 py-2 rounded-lg font-bold transition-all duration-200 flex flex-col items-center min-w-[80px] ${index === currentIndex ? "bg-[#772402] text-[#FBE7C6] scale-105 shadow-md transform -translate-y-1" : "bg-[#fff8ee] text-[#772402] hover:bg-[#ffe0b2] hover:scale-105"}`}>
+            <span className="text-xs uppercase tracking-wider opacity-80">Stage {index + 1}</span>
+            <span className="text-sm md:text-base leading-tight text-center">{p.name}</span>
+            {index === currentIndex && <div className="absolute -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#772402]"></div>}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -390,10 +250,7 @@ function HarapPuzzleQuest() {
     localStorage.setItem("harap_puzzle_index", currentPuzzleIndex);
   }, [currentPuzzleIndex]);
 
-  const currentPuzzle = useMemo(
-    () => puzzles[currentPuzzleIndex],
-    [currentPuzzleIndex]
-  );
+  const currentPuzzle = useMemo(() => puzzles[currentPuzzleIndex], [currentPuzzleIndex]);
 
   useEffect(() => {
     setImagesLoaded(false);
@@ -402,16 +259,13 @@ function HarapPuzzleQuest() {
       setImagesLoaded(true);
       return;
     }
-
     let loadedCount = 0;
     allImages.forEach((src) => {
       const img = new Image();
       img.src = src;
       img.onload = img.onerror = () => {
         loadedCount++;
-        if (loadedCount === allImages.length) {
-          setImagesLoaded(true);
-        }
+        if (loadedCount === allImages.length) setImagesLoaded(true);
       };
     });
   }, [currentPuzzle]);
@@ -419,52 +273,31 @@ function HarapPuzzleQuest() {
   useEffect(() => {
     if (imagesLoaded) {
       setIsPuzzleComplete(false);
-      const shuffled = [...currentPuzzle.pieces].sort(
-        () => Math.random() - 0.5
-      );
-
+      const shuffled = [...currentPuzzle.pieces].sort(() => Math.random() - 0.5);
       const initialBank = Array(12).fill(null);
-      shuffled.forEach((p, i) => {
-        if (i < 12) initialBank[i] = p;
-      });
-
-      setPieces({
-        bank: initialBank,
-        board: Array(currentPuzzle.grid.rows * currentPuzzle.grid.cols).fill(
-          null
-        ),
-      });
+      shuffled.forEach((p, i) => { if (i < 12) initialBank[i] = p; });
+      setPieces({ bank: initialBank, board: Array(currentPuzzle.grid.rows * currentPuzzle.grid.cols).fill(null) });
     }
   }, [currentPuzzle, imagesLoaded]);
 
   useEffect(() => {
-    if (isGameFinished || !pieces.board.length || !imagesLoaded) {
-      return;
-    }
-
+    if (isGameFinished || !pieces.board.length || !imagesLoaded) return;
+    
     const boardPieces = pieces.board.filter(Boolean);
     if (boardPieces.length === pieces.board.length) {
       const isComplete = pieces.board.every((p, index) => p && p.id === index);
-
-      if (isComplete) {
-        setIsPuzzleComplete(true);
-        
-        // Only auto-finish if it is the VERY LAST puzzle
-        if (currentPuzzleIndex === puzzles.length - 1) {
-            setTimeout(() => {
-                setIsGameFinished(true);
-            }, 1500);
-        }
+      if (isComplete && !isPuzzleComplete) {
+        const timer = setTimeout(() => {
+          setIsPuzzleComplete(true);
+          // 👇 CHANGED: Removed auto-finish logic here. We wait for user input now.
+        }, 700);
+        return () => clearTimeout(timer);
       }
     }
-  }, [
-    pieces.board,
-    currentPuzzleIndex,
-    isGameFinished,
-    currentPuzzle.name,
-    imagesLoaded,
-  ]);
+  }, [pieces.board, currentPuzzleIndex, isGameFinished, currentPuzzle.name, imagesLoaded, isPuzzleComplete]);
 
+  // Score submission is now handled when clicking "Complete" for the last stage
+  // OR when isGameFinished is explicitly set (e.g. from the Stage Navigator or other paths)
   useEffect(() => {
     if (isGameFinished) {
       const submitScore = async () => {
@@ -489,33 +322,22 @@ function HarapPuzzleQuest() {
       const { bank, board } = prev;
       const newBoard = [...board];
       const newBank = [...bank];
-
       const bankIndex = bank.findIndex((p) => p && p.id === droppedPiece.id);
       const boardIndex = board.findIndex((p) => p && p.id === droppedPiece.id);
-
       const pieceAtTarget = newBoard[targetSlotId];
 
-      if (bankIndex !== -1) {
-        newBank[bankIndex] = null;
-      } else if (boardIndex !== -1) {
-        newBoard[boardIndex] = null;
-      }
+      if (bankIndex !== -1) newBank[bankIndex] = null;
+      else if (boardIndex !== -1) newBoard[boardIndex] = null;
 
       if (pieceAtTarget) {
-        if (boardIndex !== -1) {
-          newBoard[boardIndex] = pieceAtTarget;
-        } else {
-          if (bankIndex !== -1) {
-            newBank[bankIndex] = pieceAtTarget;
-          } else {
-            const emptyBankSlot = newBank.findIndex((p) => p === null);
-            if (emptyBankSlot !== -1) newBank[emptyBankSlot] = pieceAtTarget;
-          }
+        if (boardIndex !== -1) newBoard[boardIndex] = pieceAtTarget;
+        else if (bankIndex !== -1) newBank[bankIndex] = pieceAtTarget;
+        else {
+          const emptyBankSlot = newBank.findIndex((p) => p === null);
+          if (emptyBankSlot !== -1) newBank[emptyBankSlot] = pieceAtTarget;
         }
       }
-
       newBoard[targetSlotId] = droppedPiece;
-
       return { bank: newBank, board: newBoard };
     });
   };
@@ -523,20 +345,15 @@ function HarapPuzzleQuest() {
   const handleDropOnBank = (droppedPiece) => {
     setPieces((prev) => {
       const { bank, board } = prev;
-
       const boardIndex = board.findIndex((p) => p && p.id === droppedPiece.id);
       if (boardIndex === -1) return prev;
-
       const newBoard = [...board];
       const newBank = [...bank];
-
       const emptyBankSlot = newBank.findIndex((p) => p === null);
-
       if (emptyBankSlot !== -1) {
         newBoard[boardIndex] = null;
         newBank[emptyBankSlot] = droppedPiece;
       }
-
       return { bank: newBank, board: newBoard };
     });
   };
@@ -546,33 +363,56 @@ function HarapPuzzleQuest() {
     setIsGameFinished(false);
   };
 
-  const handleNextStage = () => {
+  // Helper to check if it's the last stage
+  const isLastStage = currentPuzzleIndex === puzzles.length - 1;
+
+  // 👇 UPDATED: Handle Next Stage / Complete Logic
+  const handleNextStage = async () => {
     setIsPuzzleComplete(false);
-    setCurrentPuzzleIndex((prev) => prev + 1);
+    
+    if (isLastStage) {
+        // 1. Submit Score Manually
+        try {
+            await API.post("submit-score/", {
+              civilization: "Indus",
+              activity_type: "Game",
+              activity_name: "HARAPPUZZLE QUEST",
+              score: puzzles.length,
+              max_score: puzzles.length,
+            });
+        } catch (err) {
+            console.error("Error submitting score:", err);
+        }
+
+        // 2. Navigate Back to Indus Details
+        navigate('/kabihasnan/indus');
+    } else {
+        // Go to next stage
+        setCurrentPuzzleIndex((prev) => prev + 1);
+    }
   };
 
   return (
     <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
       <CustomDragLayer />
 
-      <div
-        className="min-h-screen bg-cover bg-center p-4 pt-10"
-        style={{ backgroundImage: `url(${bgHome})` }}
-      >
+      <div className="min-h-screen bg-cover bg-center p-4 pt-10" style={{ backgroundImage: `url(${bgHome})` }}>
+        
+        {/* 👇 UPDATED MODAL: Shows "Complete" for last stage */}
         {isPuzzleComplete && !isGameFinished && (
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#FDFBF7] p-8 rounded-2xl shadow-2xl border-4 border-[#772402] text-center max-w-md w-full animate-bounce-short">
                 <h2 className="text-3xl font-black text-[#772402] uppercase mb-4 font-[var(--font-heading)]">
-                    Stage {currentPuzzleIndex + 1} Complete!
+                    {isLastStage ? "All Stages Cleared!" : `Stage ${currentPuzzleIndex + 1} Complete!`}
                 </h2>
                 <div className="flex justify-center mb-6">
                     <img src={charImg} alt="Good Job" className="w-32" />
                 </div>
                 <button
                     onClick={handleNextStage}
-                    className="bg-[#772402] text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 transition-transform"
+                    className="bg-[#772402] text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 transition-transform uppercase"
                 >
-                    Next Stage →
+                    {isLastStage ? "Complete" : "Next Stage →"}
                 </button>
             </div>
           </div>
@@ -582,29 +422,14 @@ function HarapPuzzleQuest() {
           <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
               <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
-                <img
-                  src={charImg}
-                  alt="Game Cleared Character"
-                  className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
-                />
+                <img src={charImg} alt="Game Cleared Character" className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10" />
                 <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
                   GAME <br /> CLEARED
                 </h1>
               </div>
-
               <div className="flex gap-4 mt-8 z-30">
-                <button
-                  onClick={() => handleStageSelect(0)}
-                  className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
-                >
-                  PLAY AGAIN
-                </button>
-                <button
-                  onClick={() => navigate(-1)}
-                  className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"
-                >
-                  FINISH
-                </button>
+                <button onClick={() => handleStageSelect(0)} className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]">PLAY AGAIN</button>
+                <button onClick={() => navigate(-1)} className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]">FINISH</button>
               </div>
             </div>
           </div>
@@ -624,25 +449,14 @@ function HarapPuzzleQuest() {
             </p>
           </div>
 
-          <StageNavigator
-            puzzles={puzzles}
-            currentIndex={currentPuzzleIndex}
-            onSelect={handleStageSelect}
-          />
+          <StageNavigator puzzles={puzzles} currentIndex={currentPuzzleIndex} onSelect={handleStageSelect} />
 
           {!imagesLoaded ? (
-            <div className="text-center text-2xl font-bold text-[#772402] animate-pulse">
-              Loading Puzzle...
-            </div>
+            <div className="text-center text-2xl font-bold text-[#772402] animate-pulse">Loading Puzzle...</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start w-full">
               <div className="md:col-span-2 w-full aspect-[4/3] bg-white/30 rounded-2xl shadow-lg p-2 border border-[#fff]/40">
-                <PuzzleBoard
-                  puzzle={currentPuzzle}
-                  boardState={pieces.board}
-                  onDrop={handleDropOnBoard}
-                  isComplete={isPuzzleComplete}
-                />
+                <PuzzleBoard puzzle={currentPuzzle} boardState={pieces.board} onDrop={handleDropOnBoard} isComplete={isPuzzleComplete} />
               </div>
               <div className="w-full h-[400px] md:h-auto md:aspect-[1/1.2]">
                 <PieceBank pieces={pieces.bank} onDrop={handleDropOnBank} />
