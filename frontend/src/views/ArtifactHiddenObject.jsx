@@ -150,7 +150,7 @@ const ArtifactHiddenObject = () => {
 
         <div className="text-center mb-6">
           <h1 className="text-4xl md:text-5xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">
-            Artifact Hidden Object
+            EgyptHunt
           </h1>
           <p className="text-[#964B1D] font-bold text-sm md:text-base max-w-3xl mx-auto leading-relaxed px-4">
             Tuklasin ang mga nakatagong kayamanan ng sinaunang Egypt. Bawat

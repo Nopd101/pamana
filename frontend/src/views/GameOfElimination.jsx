@@ -145,7 +145,7 @@ const GameOfElimination = () => {
 
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">
-            Game of Elimination
+            DynastOut
           </h1>
           <p className="text-[#964B1D] font-bold text-sm md:text-lg max-w-3xl mx-auto leading-relaxed px-4">
             Basahing mabuti ang bawat tanong at mga pagpipilian. Sa bawat round, alisin o i-eliminate ang mga sagot na sa tingin ninyo ay mali o hindi tama. Ipagpatuloy ang pag-aalis ng maling sagot hanggang sa iisa na lamang ang matira. Ang sagot na hindi na-eliminate ang siyang tamang sagot.

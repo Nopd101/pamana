@@ -46,13 +46,13 @@ const puzzles = [
   },
   {
     images: [p4_1, p4_2, p4_3, p4_4],
-    answer: "ANKH",
-    hint: 'An ancient Egyptian hieroglyphic ideograph with the meaning "life".',
+    answer: "MUMMY",
+    hint: 'A preserved body from ancient Egypt.',
   },
   {
     images: [p5_1, p5_2, p5_3, p5_4],
-    answer: "OBELISK",
-    hint: "A stone pillar, typically having a square or rectangular cross section...",
+    answer: "HIEROGLYPHICS",
+    hint: "A system of writing using symbols and pictures used in ancient Egypt.",
   },
 ];
 
@@ -295,7 +295,7 @@ const FourPicsOneWord = () => {
 
         <div className="text-center mb-6">
           <h1 className="text-4xl md:text-5xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">
-            4 Pics 1 Word
+            PictoWord
           </h1>
         </div>
 
