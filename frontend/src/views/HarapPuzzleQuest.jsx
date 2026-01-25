@@ -7,6 +7,9 @@ import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
 import API from "../api/axios";
 
+// 👇 Import Clear SFX
+import clearedSfx from "../assets/sfx/cleared.mp3";
+
 // --- Asset Loading ---
 const allPieceModules = import.meta.glob("../assets/HarapPuzzle/**/*.png", {
   eager: true,
@@ -246,6 +249,13 @@ function HarapPuzzleQuest() {
   const [isPuzzleComplete, setIsPuzzleComplete] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
+
   useEffect(() => {
     localStorage.setItem("harap_puzzle_index", currentPuzzleIndex);
   }, [currentPuzzleIndex]);
@@ -287,17 +297,18 @@ function HarapPuzzleQuest() {
     if (boardPieces.length === pieces.board.length) {
       const isComplete = pieces.board.every((p, index) => p && p.id === index);
       if (isComplete && !isPuzzleComplete) {
+        
+        // 👇 Play Clear SFX on Stage Completion
+        playSound(clearedSfx);
+
         const timer = setTimeout(() => {
           setIsPuzzleComplete(true);
-          // 👇 CHANGED: Removed auto-finish logic here. We wait for user input now.
         }, 700);
         return () => clearTimeout(timer);
       }
     }
   }, [pieces.board, currentPuzzleIndex, isGameFinished, currentPuzzle.name, imagesLoaded, isPuzzleComplete]);
 
-  // Score submission is now handled when clicking "Complete" for the last stage
-  // OR when isGameFinished is explicitly set (e.g. from the Stage Navigator or other paths)
   useEffect(() => {
     if (isGameFinished) {
       const submitScore = async () => {
@@ -363,15 +374,12 @@ function HarapPuzzleQuest() {
     setIsGameFinished(false);
   };
 
-  // Helper to check if it's the last stage
   const isLastStage = currentPuzzleIndex === puzzles.length - 1;
 
-  // 👇 UPDATED: Handle Next Stage / Complete Logic
   const handleNextStage = async () => {
     setIsPuzzleComplete(false);
     
     if (isLastStage) {
-        // 1. Submit Score Manually
         try {
             await API.post("submit-score/", {
               civilization: "Indus",
@@ -384,10 +392,8 @@ function HarapPuzzleQuest() {
             console.error("Error submitting score:", err);
         }
 
-        // 2. Navigate Back to Indus Details
         navigate('/kabihasnan/indus');
     } else {
-        // Go to next stage
         setCurrentPuzzleIndex((prev) => prev + 1);
     }
   };
@@ -398,7 +404,6 @@ function HarapPuzzleQuest() {
 
       <div className="min-h-screen bg-cover bg-center p-4 pt-10" style={{ backgroundImage: `url(${bgHome})` }}>
         
-        {/* 👇 UPDATED MODAL: Shows "Complete" for last stage */}
         {isPuzzleComplete && !isGameFinished && (
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#FDFBF7] p-8 rounded-2xl shadow-2xl border-4 border-[#772402] text-center max-w-md w-full animate-bounce-short">
@@ -418,16 +423,20 @@ function HarapPuzzleQuest() {
           </div>
         )}
 
+        {/* 👇 FIXED GAME CLEARED MODAL (Flexbox Layout) */}
         {isGameFinished && (
           <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
-              <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
-                <img src={charImg} alt="Game Cleared Character" className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10" />
-                <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+            <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
+              
+              {/* Changed to flex-row to prevent overlap */}
+              <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
+                <img src={charImg} alt="Game Cleared Character" className="w-40 md:w-56 drop-shadow-2xl animate-bounce-short z-10" />
+                <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
                   GAME <br /> CLEARED
                 </h1>
               </div>
-              <div className="flex gap-4 mt-8 z-30">
+
+              <div className="flex gap-4 mt-2 z-30">
                 <button onClick={() => handleStageSelect(0)} className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]">PLAY AGAIN</button>
                 <button onClick={() => navigate(-1)} className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]">FINISH</button>
               </div>

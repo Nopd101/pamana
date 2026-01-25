@@ -2,9 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import API from "../api/axios";
-import kabihasnanImg from "../assets/main-home-bg-2.png";
+// import kabihasnanImg from "../assets/main-home-bg-2.png"; // 👈 Removed static image
 import { PlayCircle, Gamepad2, ClipboardList } from "lucide-react";
 import BackButton from "../components/BackButton";
+
+// 👇 NEW: Import Civilization Header Images
+import chinaImg from "../assets/CivilizationPhotos/China.png";
+import egyptImg from "../assets/CivilizationPhotos/Egypt.png";
+import indusImg from "../assets/CivilizationPhotos/Indus.png";
+import mesoamericaImg from "../assets/CivilizationPhotos/Mesoamerica.png";
+import mesopotamiaImg from "../assets/CivilizationPhotos/Mesopotamia.png";
 
 // --- COMPONENT: LetterInputGroup (For Mesoamerica) ---
 const LetterInputGroup = ({ answer, onAnswerChange }) => {
@@ -70,6 +77,17 @@ function KabihasnanDetails() {
   const containerRef = useRef(null);
   const [lineCoords, setLineCoords] = useState([]);
   const [resetKey, setResetKey] = useState(0);
+
+  // 👇 MAPPING: ID to Image
+  const CIVILIZATION_IMAGES = {
+    mesopotamia: mesopotamiaImg,
+    indus: indusImg,
+    tsino: chinaImg, // Maps 'tsino' ID to 'China.png'
+    egypt: egyptImg,
+    mesoamerica: mesoamericaImg,
+  };
+
+  const headerImage = CIVILIZATION_IMAGES[id] || mesopotamiaImg; // Fallback
 
   // --- HANDLERS ---
   const handleAnswerChange = (questionId, value) => {
@@ -214,7 +232,6 @@ function KabihasnanDetails() {
   ];
   const hanayB = ["Nomarch", "Nome", "Hieroglyphics", "Chariot", "Polyteismo", "Monoteismo"];
 
-  // 👇 FIX 1: Use 'www.youtube-nocookie.com' to prevent browser blocking on deployment
   const civilizationData = {
     mesopotamia: {
       title: "Mesopotamia",
@@ -312,7 +329,8 @@ function KabihasnanDetails() {
 
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-          <img src={kabihasnanImg} alt="Kabihasnan Thumbnail" className="w-full md:w-40 h-48 md:h-30 rounded-sm shadow-inner shrink-0 object-cover border border-amber-900/20" />
+          {/* 👇 UPDATED: Uses the dynamic 'headerImage' */}
+          <img src={headerImage} alt="Kabihasnan Thumbnail" className="w-full md:w-40 h-48 md:h-30 rounded-sm shadow-inner shrink-0 object-cover border border-amber-900/20" />
           <div className="text-center md:text-left">
             <h1 className="text-3xl font-extrabold text-[#7B3306] font-[var(--font-heading)] uppercase">Kabihasnang {currentData.title}</h1>
             <p className="text-[#A5521E] text-lg font-body font-bold">{currentData.subtitle}</p>
@@ -340,7 +358,6 @@ function KabihasnanDetails() {
             <div className="flex flex-col h-full">
               <h2 className="text-2xl font-bold text-[#5a2d0c] mb-6 font-[var(--font-heading)]">Kabihasnang {currentData.title}</h2>
               <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
-                {/* 👇 FIX 2: Added 'referrerPolicy' and 'web-share' which are required by YouTube on hosted sites */}
                 <iframe
                   className="absolute top-0 left-0 w-full h-full rounded-lg shadow-inner"
                   src={currentData.videoUrl} 
@@ -357,7 +374,6 @@ function KabihasnanDetails() {
             </div>
           )}
 
-          {/* ... (Rest of the component remains exactly the same) ... */}
           {/* MINI-GAME TAB */}
           {activeTab === "game" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

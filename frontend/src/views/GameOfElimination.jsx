@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton"; 
 import charImg from "../assets/main-home-character-left.png";
-import API from '../api/axios'; // 👈 Import API
+import API from '../api/axios'; 
+
+// --- Sound Effects ---
+import correctSfx from "../assets/sfx/correct.mp3";
+import incorrectSfx from "../assets/sfx/incorrect.mp3";
+import clearedSfx from "../assets/sfx/cleared.mp3";
 
 const questions = [
   {
@@ -47,18 +52,39 @@ const GameOfElimination = () => {
 
   const currentQuestion = questions[currentQuestionIndex];
 
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
+
+  // 👇 UPDATED: Toggle Logic (Select / Deselect)
   const handleOptionClick = (option) => {
-    if (eliminatedOptions.length < 2) {
-      setEliminatedOptions([...eliminatedOptions, option]);
+    if (eliminatedOptions.includes(option)) {
+      // If already eliminated, DESELECT it (bring it back)
+      setEliminatedOptions(eliminatedOptions.filter((opt) => opt !== option));
+    } else {
+      // If not eliminated yet, check if we still have moves left
+      if (eliminatedOptions.length < 2) {
+        setEliminatedOptions([...eliminatedOptions, option]);
+      }
     }
   };
 
   const handleNextQuestion = () => {
+    // The "answer" is the one NOT eliminated
     const finalAnswer = currentQuestion.options.find(
       (opt) => !eliminatedOptions.includes(opt)
     );
+
     if (finalAnswer === currentQuestion.answer) {
+      // --- CORRECT SFX ---
+      playSound(correctSfx);
       setScore(score + 1);
+    } else {
+      // --- INCORRECT SFX ---
+      playSound(incorrectSfx);
     }
 
     if (currentQuestionIndex < questions.length - 1) {
@@ -69,9 +95,13 @@ const GameOfElimination = () => {
     }
   };
 
-  // 👇 Submit Score when Game Finished
+  // 👇 Submit Score & Play Sound when Game Finished
   useEffect(() => {
     if (isGameFinished) {
+        
+        // --- CLEARED SFX ---
+        playSound(clearedSfx);
+
         const submitScore = async () => {
             try {
                 await API.post('submit-score/', {
@@ -101,17 +131,19 @@ const GameOfElimination = () => {
       className="min-h-screen bg-cover bg-center overflow-x-hidden relative"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
+      {/* --- GAME CLEARED MODAL (FIXED LAYOUT) --- */}
       {isGameFinished && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
             
-            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+            {/* Flex container to prevent overlap */}
+            <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
                 <img 
                     src={charImg} 
                     alt="Game Cleared Character" 
-                    className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+                    className="w-40 md:w-56 drop-shadow-2xl animate-bounce-short z-10"
                 />
-                <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
                     GAME <br/> CLEARED
                 </h1>
             </div>
@@ -149,7 +181,6 @@ const GameOfElimination = () => {
           </h1>
           <p className="text-[#964B1D] font-bold text-sm md:text-lg max-w-3xl mx-auto leading-relaxed px-4">
             Basahing mabuti ang bawat tanong at mga pagpipilian. Sa bawat round, alisin o i-eliminate ang mga sagot na sa tingin ninyo ay mali o hindi tama. Ipagpatuloy ang pag-aalis ng maling sagot hanggang sa iisa na lamang ang matira. Ang sagot na hindi na-eliminate ang siyang tamang sagot.
-
           </p>
         </div>
 
@@ -162,7 +193,7 @@ const GameOfElimination = () => {
               <button
                 key={index}
                 onClick={() => handleOptionClick(option)}
-                disabled={eliminatedOptions.includes(option)}
+                // 👇 UPDATED: Removed "disabled" so you can click again to deselect
                 className={`w-full max-w-md text-center p-3 md:p-4 font-bold text-base md:text-xl rounded-lg transition-all duration-200
                   ${
                     eliminatedOptions.includes(option)

@@ -7,6 +7,11 @@ import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
 import API from "../api/axios";
 
+// --- Sound Effects ---
+import correctSfx from "../assets/sfx/correct.mp3";
+import incorrectSfx from "../assets/sfx/incorrect.mp3";
+import clearedSfx from "../assets/sfx/cleared.mp3";
+
 // --- data ---
 const ItemTypes = {
   CASTE: "caste",
@@ -195,6 +200,13 @@ const IndusCasteGame = () => {
   const [isGameWon, setIsGameWon] = useState(false);
   const [isGameLost, setIsGameLost] = useState(false);
 
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
+
   // --- object swapping ---
   const handleDrop = (targetLevelId, item) => {
     setPlacements((prev) => {
@@ -236,9 +248,11 @@ const IndusCasteGame = () => {
     });
 
     if (correctCount === LEVELS.length) {
+      playSound(clearedSfx); // Win = Clear Sound
       setIsGameWon(true);
       setIsGameLost(false);
     } else {
+      playSound(incorrectSfx); // Lose = Incorrect Sound
       setIsGameLost(true);
     }
   };
@@ -276,7 +290,8 @@ const IndusCasteGame = () => {
         {isGameWon && (
           <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
-              {/* FIXED: Changed to flex-row to prevent overlap */}
+              
+              {/* FIXED: Flex layout to prevent overlap */}
               <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
                 <img
                   src={charImg}
@@ -310,7 +325,8 @@ const IndusCasteGame = () => {
         {isGameLost && (
           <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
-              {/* FIXED: Changed to flex-row to prevent overlap */}
+              
+              {/* FIXED: Flex layout to prevent overlap */}
               <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
                 <img
                   src={charImg}

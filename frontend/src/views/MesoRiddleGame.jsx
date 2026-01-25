@@ -4,8 +4,12 @@ import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
 import API from '../api/axios';
-// 👇 Import Toast
 import { toast } from 'react-toastify'; 
+
+// --- Sound Effects ---
+import correctSfx from "../assets/sfx/correct.mp3";
+import incorrectSfx from "../assets/sfx/incorrect.mp3";
+import clearedSfx from "../assets/sfx/cleared.mp3";
 
 const RIDDLES = [
   {
@@ -55,6 +59,13 @@ const MesoRiddleGame = () => {
   
   const currentRiddle = RIDDLES[currentIndex];
 
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5; 
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
+
   const handleSubmit = () => {
     if (!userAnswer.trim()) return;
 
@@ -67,7 +78,9 @@ const MesoRiddleGame = () => {
     ) {
       handleCorrect();
     } else {
-      // 👇 Error Toast
+      // 👇 Incorrect SFX
+      playSound(incorrectSfx);
+
       toast.error("Mali ang iyong sagot. Subukan muli!", {
         position: "top-center",
         autoClose: 2000,
@@ -78,7 +91,9 @@ const MesoRiddleGame = () => {
   };
 
   const handleCorrect = () => {
-    // 👇 Success Toast
+    // 👇 Correct SFX
+    playSound(correctSfx);
+
     toast.success("TAMA!", {
         position: "top-center",
         autoClose: 1000,
@@ -122,6 +137,9 @@ const MesoRiddleGame = () => {
 
   useEffect(() => {
     if (isGameFinished) {
+        // 👇 Cleared SFX
+        playSound(clearedSfx);
+
         const submitRiddleScore = async () => {
             try {
                 await API.post('submit-score/', {

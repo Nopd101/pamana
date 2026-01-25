@@ -4,7 +4,12 @@ import bgHome from "../assets/bg-home.png";
 import Navbar from "../components/Nav";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
-import API from '../api/axios'; // 👈 Import API
+import API from '../api/axios'; 
+
+// --- Sound Effects ---
+import correctSfx from "../assets/sfx/correct.mp3";
+import incorrectSfx from "../assets/sfx/incorrect.mp3";
+import clearedSfx from "../assets/sfx/cleared.mp3";
 
 const questionsData = [
   {
@@ -65,6 +70,13 @@ const ItamaMoAko = () => {
 
   const currentQuestion = questionsData[currentIndex];
 
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
+
   const handleWordClick = () => {
     if (isGameFinished) return;
     setIsWordClicked(true);
@@ -77,8 +89,12 @@ const ItamaMoAko = () => {
     const cleanAnswer = currentQuestion.correct.toLowerCase();
 
     if (cleanUser === cleanAnswer) {
+      // --- CORRECT SFX ---
+      playSound(correctSfx);
       handleCorrect();
     } else {
+      // --- INCORRECT SFX ---
+      playSound(incorrectSfx);
       setFeedback("Mali ang iyong sagot. Subukan muli!");
       setTimeout(() => setFeedback(""), 2000);
     }
@@ -101,9 +117,13 @@ const ItamaMoAko = () => {
     }, 1500);
   };
 
-  // 👇 Submit Score when Game Finished
+  // 👇 Submit Score & Play Sound when Game Finished
   useEffect(() => {
     if (isGameFinished) {
+        
+        // --- CLEARED SFX ---
+        playSound(clearedSfx);
+
         const submitScore = async () => {
             try {
                 await API.post('submit-score/', {
@@ -156,20 +176,24 @@ const ItamaMoAko = () => {
     >
       <Navbar />
 
+      {/* --- GAME CLEARED MODAL (FIXED LAYOUT) --- */}
       {isGameFinished && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
-            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
-              <img 
-                src={charImg} 
-                alt="Game Cleared Character" 
-                className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
-              />
-              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
-                GAME <br/> CLEARED
-              </h1>
+            
+            {/* Flex container to prevent overlap */}
+            <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
+                <img 
+                    src={charImg} 
+                    alt="Game Cleared Character" 
+                    className="w-40 md:w-56 drop-shadow-2xl animate-bounce-short z-10"
+                />
+                <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                    GAME <br/> CLEARED
+                </h1>
             </div>
-            <div className="flex gap-4 mt-8 z-30">
+
+            <div className="flex gap-4 mt-2 z-30">
               <button
                 onClick={handleReset}
                 className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"

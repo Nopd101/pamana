@@ -5,12 +5,18 @@ import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
 import API from '../api/axios';
 
+// --- Images ---
 import img1 from "../assets/mindflip/1.png";
 import img2 from "../assets/mindflip/2.png";
 import img3 from "../assets/mindflip/3.png";
 import img4 from "../assets/mindflip/4.png";
 import img5 from "../assets/mindflip/5.png";
 import img6 from "../assets/mindflip/6.png";
+
+// --- Sound Effects ---
+import correctSfx from "../assets/sfx/correct.mp3";
+import incorrectSfx from "../assets/sfx/incorrect.mp3";
+import clearedSfx from "../assets/sfx/cleared.mp3";
 
 const UNIQUE_CARDS = [
   { id: 1, src: img1 },
@@ -77,8 +83,14 @@ const MesoMemoryGame = () => {
   const [choiceOne, setChoiceOne] = useState(null);
   const [choiceTwo, setChoiceTwo] = useState(null);
   
-
   const disabled = isPeekPhase || (choiceOne && choiceTwo);
+
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5; // Adjust volume as needed
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
 
   const resetTurn = () => {
     setChoiceOne(null);
@@ -111,12 +123,18 @@ const MesoMemoryGame = () => {
     setChoiceTwo(card);
 
     if (choiceOne.src === card.src) {
+      // --- CORRECT MATCH ---
+      playSound(correctSfx);
+      
       setCards((prev) =>
         prev.map((c) => (c.src === card.src ? { ...c, matched: true } : c))
       );
       setMatches((prev) => prev + 1);
       setTimeout(resetTurn, 500);
     } else {
+      // --- WRONG MATCH ---
+      playSound(incorrectSfx);
+      
       setTimeout(resetTurn, 1000);
     }
   };
@@ -128,15 +146,20 @@ const MesoMemoryGame = () => {
     }, 1000);
     return () => clearTimeout(timer);
   }, [peekTimer]);
+
   useEffect(() => {
     if (matches === 6 && !isPeekPhase) { // 6 matches = 12 cards (Game Over)
+       
+       // --- GAME CLEARED ---
+       playSound(clearedSfx);
+
        const submitGameScore = async () => {
           try {
              await API.post('submit-score/', {
                 civilization: "Mesopotamia",
                 activity_type: "Game",
                 activity_name: "MindFlip",
-                score: 6, // Perfect score for completing it
+                score: 6, 
                 max_score: 6
              });
           } catch (err) {
@@ -146,6 +169,7 @@ const MesoMemoryGame = () => {
        submitGameScore();
     }
   }, [matches]);
+
   return (
     <div
       className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden relative"

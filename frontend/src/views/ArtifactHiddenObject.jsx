@@ -6,6 +6,11 @@ import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
 import API from '../api/axios';
 
+// --- Sound Effects ---
+import correctSfx from "../assets/sfx/correct.mp3";
+import incorrectSfx from "../assets/sfx/incorrect.mp3";
+import clearedSfx from "../assets/sfx/cleared.mp3";
+
 const artifacts = [
   {
     name: "TUTANKHAMEN MASK",
@@ -41,15 +46,22 @@ const artifacts = [
 
 const ArtifactHiddenObject = () => {
   const [foundItems, setFoundItems] = useState([]);
-  const [mistakes, setMistakes] = useState([]); // 👈 Store wrong click coordinates
+  const [mistakes, setMistakes] = useState([]); 
   const [activeHint, setActiveHint] = useState(null);
   const navigate = useNavigate();
   const imageContainerRef = useRef(null);
 
   const isGameFinished = foundItems.length === artifacts.length;
 
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
+
   const handleImageClick = (e) => {
-    if (isGameFinished) return; // Prevent clicks if game is over
+    if (isGameFinished) return; 
 
     const rect = imageContainerRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -65,6 +77,9 @@ const ArtifactHiddenObject = () => {
         y >= artifact.coords.y &&
         y <= artifact.coords.y + artifact.coords.height
       ) {
+        // --- CORRECT SFX ---
+        playSound(correctSfx);
+        
         setFoundItems((prev) => [...prev, artifact.name]);
         setActiveHint(null); 
         isCorrect = true;
@@ -73,10 +88,13 @@ const ArtifactHiddenObject = () => {
 
     // 👇 Handle Wrong Click
     if (!isCorrect) {
+      // --- INCORRECT SFX ---
+      playSound(incorrectSfx);
+
       const newMistake = { x, y, id: Date.now() };
       setMistakes((prev) => [...prev, newMistake]);
 
-      // Remove the red X after 800ms to keep DOM light
+      // Remove the red X after 800ms
       setTimeout(() => {
         setMistakes((prev) => prev.filter((m) => m.id !== newMistake.id));
       }, 800);
@@ -85,6 +103,10 @@ const ArtifactHiddenObject = () => {
 
   useEffect(() => {
     if (isGameFinished) {
+        
+        // --- CLEARED SFX ---
+        playSound(clearedSfx);
+
         const submitScore = async () => {
             try {
                 await API.post('submit-score/', {
@@ -113,21 +135,24 @@ const ArtifactHiddenObject = () => {
       className="min-h-screen bg-cover bg-center overflow-x-hidden relative"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
-      {/* --- Game Won Modal --- */}
+      {/* --- Game Won Modal (Fixed Layout) --- */}
       {isGameFinished && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
-            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
-              <img 
-                src={charImg} 
-                alt="Game Cleared Character" 
-                className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
-              />
-              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
-                GAME <br/> CLEARED
-              </h1>
+          <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
+            
+            {/* Flex container to prevent overlap */}
+            <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
+                <img 
+                    src={charImg} 
+                    alt="Game Cleared Character" 
+                    className="w-40 md:w-56 drop-shadow-2xl animate-bounce-short z-10"
+                />
+                <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                    GAME <br/> CLEARED
+                </h1>
             </div>
-            <div className="flex gap-4 mt-8 z-30">
+
+            <div className="flex gap-4 mt-2 z-30">
               <button
                 onClick={handleReset}
                 className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
@@ -195,12 +220,12 @@ const ArtifactHiddenObject = () => {
                 key={mistake.id}
                 className="absolute text-red-600 font-bold text-3xl pointer-events-none drop-shadow-md"
                 style={{
-                  fontSize: '1rem',
+                  fontSize: '2rem', // Increased size for better visibility
                   left: `${mistake.x}%`,
                   top: `${mistake.y}%`,
                   transform: "translate(-50%, -50%)",
                   animation: "ping 1s cubic-bezier(0, 0, 0.2, 1) forwards", 
-                  opacity: 80
+                  opacity: 0.8 // Fixed typo from '80' to '0.8'
                 }}
               >
                 ❌
@@ -243,14 +268,6 @@ const ArtifactHiddenObject = () => {
           </div>
         </div>
       </div>
-      
-      {/* Add subtle keyframe for custom fade out if needed, but 'animate-ping' works great out of box in Tailwind */}
-      <style>{`
-        @keyframes fadeOutUp {
-          0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-          100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
-        }
-      `}</style>
     </div>
   );
 };

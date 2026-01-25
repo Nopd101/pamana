@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
-import API from '../api/axios'; // 👈 Import API
+import API from '../api/axios'; 
+
+// --- Sound Effects ---
+import correctSfx from "../assets/sfx/correct.mp3";
+import incorrectSfx from "../assets/sfx/incorrect.mp3";
+import clearedSfx from "../assets/sfx/cleared.mp3";
 
 const WORDS_TO_FIND = [
   { word: "ZHONGGUO", hint: "Tawag sa Tsina: 'Gitnang Kaharian'" },
@@ -37,15 +42,26 @@ const TsinoWordHunt = () => {
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackType, setFeedbackType] = useState("");
 
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
+
   useEffect(() => {
     if (foundWords.length === WORDS_TO_FIND.length) {
       setTimeout(() => setIsGameWon(true), 1000);
     }
   }, [foundWords]);
 
-  // 👇 Submit Score when Game Won
+  // 👇 Submit Score & Play Sound when Game Won
   useEffect(() => {
     if (isGameWon) {
+        
+        // --- CLEARED SFX ---
+        playSound(clearedSfx);
+
         const submitScore = async () => {
             try {
                 await API.post('submit-score/', {
@@ -99,6 +115,9 @@ const TsinoWordHunt = () => {
         setStartCell(null);
         setSelectedCells([]);
       } else {
+        // --- CORRECT SFX ---
+        playSound(correctSfx);
+
         setFeedbackText(`You found: ${validWordObj.word}!`);
         setFeedbackType("success");
         setFoundWords((prev) => [...prev, validWordObj.word]);
@@ -107,6 +126,9 @@ const TsinoWordHunt = () => {
         setSelectedCells([]);
       }
     } else {
+      // --- INCORRECT SFX ---
+      playSound(incorrectSfx);
+
       setFeedbackText(`"${formedWord}" is incorrect.`);
       setFeedbackType("error");
       setErrorCells(cells);
@@ -136,6 +158,8 @@ const TsinoWordHunt = () => {
       if (path.length > 0) {
         checkWordSelection(path);
       } else {
+        // Not a straight line
+        playSound(incorrectSfx); 
         setStartCell({ row, col });
         setSelectedCells([{ row, col }]);
         setFeedbackText("Must be a straight line!");
@@ -178,22 +202,24 @@ const TsinoWordHunt = () => {
       className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
+      {/* --- GAME CLEARED MODAL (FIXED LAYOUT) --- */}
       {isGameWon && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
+          <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
             
-            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+            {/* Flex container to prevent overlap */}
+            <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
                 <img 
                     src={charImg} 
                     alt="Game Cleared Character" 
-                    className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+                    className="w-40 md:w-56 drop-shadow-2xl animate-bounce-short z-10"
                 />
-                <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
                     GAME <br/> CLEARED
                 </h1>
             </div>
 
-            <div className="flex gap-4 mt-8 z-30">
+            <div className="flex gap-4 mt-2 z-30">
                 <button
                     onClick={handleReset}
                     className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"

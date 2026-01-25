@@ -6,6 +6,11 @@ import charImg from "../assets/main-home-character-left.png";
 import API from '../api/axios'; 
 import { toast } from 'react-toastify'; 
 
+// --- Sound Effects ---
+import correctSfx from "../assets/sfx/correct.mp3";
+import incorrectSfx from "../assets/sfx/incorrect.mp3";
+import clearedSfx from "../assets/sfx/cleared.mp3";
+
 // Import Images
 import p1_1 from "../assets/4Pics1Word/1.png";
 import p1_2 from "../assets/4Pics1Word/2.png";
@@ -80,6 +85,13 @@ const FourPicsOneWord = () => {
 
   const currentPuzzle = puzzles[currentPuzzleIndex];
 
+  // --- Audio Helper ---
+  const playSound = (soundFile) => {
+    const audio = new Audio(soundFile);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Audio play failed:", e));
+  };
+
   // 1. PRELOAD IMAGES
   useEffect(() => {
     const allImages = puzzles.flatMap(p => p.images);
@@ -140,7 +152,7 @@ const FourPicsOneWord = () => {
     setShuffledLetters(newPool);
   };
 
-  // 5. 👇 NEW: Reveal Random Letter Function
+  // 5. Reveal Random Letter Function
   const handleRevealLetter = () => {
     if (hasUsedReveal) return; // Only allow once
 
@@ -199,6 +211,9 @@ const FourPicsOneWord = () => {
       const constructedWord = userAnswer.map(obj => obj.letter).join("");
       
       if (constructedWord === currentPuzzle.answer) {
+        // --- CORRECT SFX ---
+        playSound(correctSfx);
+
         setScore(prev => prev + 1);
         toast.success("Correct Answer!", {
           position: "top-center",
@@ -210,6 +225,10 @@ const FourPicsOneWord = () => {
 
         setTimeout(() => {
             if (currentPuzzleIndex < puzzles.length - 1) {
+                // 👇 FIX: Reset userAnswer to empty so the next render 
+                // doesn't think we have a (wrong) answer filled in.
+                setUserAnswer([]); 
+                
                 setCurrentPuzzleIndex(prev => prev + 1);
             } else {
                 setIsGameFinished(true);
@@ -217,6 +236,9 @@ const FourPicsOneWord = () => {
         }, 1000);
 
       } else {
+        // --- INCORRECT SFX ---
+        playSound(incorrectSfx);
+
         toast.error("Incorrect Arrangement!", {
             position: "top-center",
             autoClose: 1500,
@@ -228,9 +250,13 @@ const FourPicsOneWord = () => {
   }, [userAnswer, currentPuzzle, currentPuzzleIndex, isGameFinished]);
 
 
-  // 7. Submit Score
+  // 7. Submit Score & Play Sound when Game Finished
   useEffect(() => {
     if (isGameFinished) {
+        
+        // --- CLEARED SFX ---
+        playSound(clearedSfx);
+
         const submitScore = async () => {
             try {
                 await API.post('submit-score/', {
@@ -259,20 +285,24 @@ const FourPicsOneWord = () => {
       className="min-h-screen bg-cover bg-center overflow-x-hidden relative font-[var(--font-body)]"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
+      {/* --- GAME CLEARED MODAL (FIXED LAYOUT) --- */}
       {isGameFinished && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
-            <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
-              <img 
-                src={charImg} 
-                alt="Game Cleared Character" 
-                className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
-              />
-              <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
-                GAME <br/> CLEARED
-              </h1>
+          <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
+            
+            {/* Flex container to prevent overlap */}
+            <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
+                <img 
+                    src={charImg} 
+                    alt="Game Cleared Character" 
+                    className="w-40 md:w-56 drop-shadow-2xl animate-bounce-short z-10"
+                />
+                <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                    GAME <br/> CLEARED
+                </h1>
             </div>
-            <div className="flex gap-4 mt-8 z-30">
+
+            <div className="flex gap-4 mt-2 z-30">
               <button
                 onClick={handleReset}
                 className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
