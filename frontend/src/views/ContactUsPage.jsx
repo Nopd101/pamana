@@ -1,6 +1,8 @@
 import Footer from "../components/Footer";
 import { useInView } from "react-intersection-observer";
 import KabihasnanCard from "../components/KabihasnanCard";
+import pamanaTitle from "../assets/pamana-title.png";
+
 
 const AnimatedElement = ({ children, className, animation = "fadeInUp", style }) => {
   const { ref, inView } = useInView({
@@ -33,7 +35,7 @@ export default function ContactUsPage() {
           <div className="flex items-center justify-center">
             <span className="w-[50px] h-[3px] bg-gradient-to-r from-[#3d2817] via-[#5a3b26] to-[#3d2817] block rounded-[10px] filter drop-shadow-[0_5px_5px_rgb(0,0,0)]"></span>
             <img 
-              src="/src/assets/pamana-title.png" 
+              src={pamanaTitle}
               alt="PAMANA" 
               className="max-w-[550px] w-full h-auto mx-auto block filter drop-shadow-[0_12px_5px_rgba(0,0,0,0.452)]"
             />

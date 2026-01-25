@@ -162,9 +162,9 @@ function KabihasnanDetails() {
     else if (gameTitle === "DynasSeek") navigate("/wordhunt-game");
     else if (gameTitle === "MistakeMaze") navigate("/itama-mo-ako");
     else if (gameTitle === "Selectify") navigate("/saan-ako-nabibilang");
-    else if (gameTitle === "4 Pics 1 Word") navigate("/four-pics-one-word");
-    else if (gameTitle === "Game of Elimination") navigate("/game-of-elimination");
-    else if (gameTitle === "Artifact Hidden Object") navigate("/artifact-hidden-object");
+    else if (gameTitle === "PictoWord") navigate("/four-pics-one-word");
+    else if (gameTitle === "DynastOut") navigate("/game-of-elimination");
+    else if (gameTitle === "EgyptHunt") navigate("/artifact-hidden-object");
   };
 
   const handleConnect = (idB) => {
@@ -238,7 +238,7 @@ function KabihasnanDetails() {
       ],
       quizType: "true-false",
       quizTitle: "IndusQUIZtery",
-      quizInstructions: "Isulat ang TAMA o MALI sa bawat pahayag.",
+      quizInstructions: " Piliin kung TAMA o MALI ang bawat pahayag tungkol sa Kabihasnang Indus at mga imperyo ng India. Tuklasin ang “mystery” gamit ang tamang sagot!",
     },
     tsino: {
       title: "Tsino",
@@ -246,19 +246,19 @@ function KabihasnanDetails() {
       videoUrl: "https://www.youtube-nocookie.com/embed/GTZP3iPhu3w",
       games: [
         { title: "DynasSeek", desc: "Find the dynasties in the grid." },
-        { title: "Game of Elimination", desc: "Eliminate the wrong choices." },
+        { title: "DynastOut", desc: "Eliminate the wrong choices." },
       ],
       quizType: "identification",
       quizTitle: "IdentiFun - IDENTIFICATION",
-      quizInstructions: "Ayusin ang mga magulong titik upang mabuo ang tamang sagot.",
+      quizInstructions: "Ayusin ang mga magulong titik upang mabuo ang tamang termino na may kaugnayan sa Kabihasnang Tsino. Gamit ang ibinigay na clue o pangungusap, ilagay ang tamang sagot sa patlang.",
     },
     egypt: {
       title: "Egypt",
       subtitle: "Ang Kabihasnang Egyptian at ang pamana ng mga Paraon.",
       videoUrl: "https://www.youtube-nocookie.com/embed/NTiXxQFn_1M",
       games: [
-        { title: "4 Pics 1 Word", desc: "Hulaan ang salita batay sa apat na larawan." },
-        { title: "Artifact Hidden Object", desc: "Tuklasin ang mga nakatagong kayamanan." },
+        { title: "PictoWord", desc: "Hulaan ang salita batay sa apat na larawan." },
+        { title: "EgyptHunt", desc: "Tuklasin ang mga nakatagong kayamanan." },
       ],
       quizType: "matching-type",
       quizTitle: "Egypto-Connect",
@@ -273,7 +273,7 @@ function KabihasnanDetails() {
         { title: "Selectify", desc: "Select the correct artifact." },
       ],
       quizType: "fill-in-the-blank",
-      quizTitle: "MesoQuiz - PUNAN MO AKO!",
+      quizTitle: "MesoQuiz",
       quizInstructions: "Punan ang mga patlang ng tamang sagot.",
       wordBank: ["Huitzilopochtli", "Francisco Pizarro", "Yucatan Peninsula", "Quetzalcoatl", "Aztec", "Hilagang Mexico", "Halack Uinic", "Mansa Musa", "Maya"],
     },

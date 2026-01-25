@@ -111,32 +111,66 @@ const PostTest = () => {
     const navigate = useNavigate();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [score, setScore] = useState(0);
-    const [timer, setTimer] = useState(20);
+    const [timer, setTimer] = useState(60);
     const [isGameFinished, setIsGameFinished] = useState(false);
+    const [selectedAnswer, setSelectedAnswer] = useState(null);
+    const [timeUp, setTimeUp] = useState(false);
     const timerRef = React.useRef(null);
 
-    const handleNextQuestion = (selectedAnswer) => {
-        if (selectedAnswer === questions[currentIndex].answer) {
-            setScore(prev => prev + 1);
-        }
+   const handleNextQuestion = (answerClicked) => {
+        // Prevent multiple clicks
+        if (selectedAnswer) return;
 
-        if (currentIndex < questions.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-        } else {
-            setIsGameFinished(true);
-        }
+        setSelectedAnswer(answerClicked); // Set selected answer to trigger UI change
+
+        const isCorrect = answerClicked === questions[currentIndex].answer;
+
+        // Delay moving to the next question to show the color feedback
+        setTimeout(() => {
+            if (isCorrect) {
+                setScore(prev => prev + 1);
+            }
+
+            if (currentIndex < questions.length - 1) {
+                setCurrentIndex(prev => prev + 1);
+                setSelectedAnswer(null); // Reset for next question
+            } else {
+                setIsGameFinished(true);
+            }
+        }, 1000); // 1 second delay
     };
+    // Modified Timer logic
+    const handleTimeout = () => {
+        // 1. Mark that time is up (for CSS styling)
+        setTimeUp(true);
+        
+        // 2. Lock the options by setting selectedAnswer to a placeholder (prevent clicks)
+        setSelectedAnswer("TIME_UP");
 
+        // 3. Wait 1 second to show the correct answer, then proceed
+        setTimeout(() => {
+            if (currentIndex < questions.length - 1) {
+                setCurrentIndex(prev => prev + 1);
+                setSelectedAnswer(null); 
+                setTimeUp(false); // Reset timeUp state
+            } else {
+                setIsGameFinished(true);
+            }
+        }, 1000);
+    };
     useEffect(() => {
-        setTimer(20); // Reset timer for new question
+        setTimer(60); // Reset timer for new question
         if (timerRef.current) clearInterval(timerRef.current);
 
         if (!isGameFinished) {
             timerRef.current = setInterval(() => {
                 setTimer(prev => {
                     if (prev === 1) {
-                        handleNextQuestion(null); // Move to next question when timer ends
-                        return 20;
+                        // If user hasn't selected an answer yet and time runs out
+                        if (!selectedAnswer) {
+                            handleTimeout();
+                        }
+                        return 60;
                     }
                     return prev - 1;
                 });
@@ -144,7 +178,7 @@ const PostTest = () => {
         }
 
         return () => clearInterval(timerRef.current);
-    }, [currentIndex, isGameFinished]);
+    }, [currentIndex, isGameFinished, selectedAnswer]);
     useEffect(() => {
         if (isGameFinished) {
             const submitPostTestScore = async () => {
@@ -186,8 +220,35 @@ const PostTest = () => {
     }
 
     const currentQuestion = questions[currentIndex];
-    const progress = (timer / 20) * 100;
+    const progress = (timer / 60) * 100;
 
+   const getOptionClass = (option) => {
+        const baseClass = "font-bold py-4 px-6 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#C8AA86]";
+        
+        // Scenario 1: Time Ran Out (No User Click)
+        if (timeUp) {
+            if (option === currentQuestion.answer) {
+                return `${baseClass} bg-green-600 text-white`; // Reveal correct answer
+            } else {
+                return `${baseClass} bg-red-600 text-white`; // All wrong answers turn red
+            }
+        }
+
+        // Scenario 2: User Clicked an Answer
+        if (selectedAnswer && !timeUp) {
+            // Always highlight the correct answer in green
+            if (option === currentQuestion.answer) {
+                return `${baseClass} bg-green-600 text-white`; 
+            }
+            // If this specific option was the one clicked AND it is wrong, highlight it red
+            if (option === selectedAnswer) {
+                return `${baseClass} bg-red-600 text-white`; 
+            }
+        }
+        
+        // Default state
+        return `${baseClass} bg-[#83643E] text-white hover:bg-[#7a4e2c]`; 
+    };
     return (
         <div className="min-h-screen bg-cover bg-center font-[var(--font-body)]" style={{ backgroundImage: `url(${bgHome})` }}>
             <Navbar />
@@ -202,7 +263,7 @@ const PostTest = () => {
                             Post-Test
                         </h1>
                         <p className="text-[#964B1D] font-bold text-xs md:text-base max-w-xl mx-auto leading-relaxed px-4">
-                            Basahin ng mabuti ang bawat tanong. Mayroon kang 20 segundo bawat isa.
+                            Basahing mabuti ang bawat tanong. Piliin ang tamang sagot sa mga ibinigay na pagpipilian. Mayroon ka lamang isang minuto para sagutin ang bawat katanungan.
                         </p>
                     </div>
 
@@ -229,7 +290,8 @@ const PostTest = () => {
                                     <button
                                         key={index}
                                         onClick={() => handleNextQuestion(option)}
-                                        className="bg-[#8B5E3C] text-white font-bold py-4 px-6 rounded-lg shadow-md hover:bg-[#7a4e2c] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#C8AA86]"
+                                        disabled={selectedAnswer !== null} // Disable buttons during delay
+                                        className={getOptionClass(option)}
                                     >
                                         {option}
                                     </button>

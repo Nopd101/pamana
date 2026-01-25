@@ -620,7 +620,7 @@ function HarapPuzzleQuest() {
               HARAPPUZZLE QUEST
             </h1>
             <p className="text-[#B06A3A] font-bold text-lg mt-2">
-              Assemble the pieces to reveal a part of history!
+              Buuin ang puzzle gamit ang tamang piraso upang mabuo ang larawan o konseptong may kinalaman sa Kabihasnang Indus.
             </p>
           </div>
 

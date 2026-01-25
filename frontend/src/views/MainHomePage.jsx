@@ -3,6 +3,7 @@ import FeatureCard from "../components/FeatureCard";
 import KabihasnanCard from "../components/KabihasnanCard";
 import characterLeft from "../assets/main-home-character-left.png";
 import characterRight from "../assets/main-home-character-right.png";
+import pamanaTitle from "../assets/pamana-title.png";
 import { useInView } from "react-intersection-observer";
 
 const AnimatedElement = ({ children, className, animation = "fadeInUp", style }) => {
@@ -36,7 +37,7 @@ export default function Home() {
           <div className="flex items-center justify-center">
             <span className="w-[30px] h-[3px] md:w-[67.5px] md:h-[4.5px] bg-gradient-to-r from-[#3d2817] via-[#5a3b26] to-[#3d2817] block rounded-[10px] filter drop-shadow-[0_5px_5px_rgb(0,0,0)]"></span>
             <img 
-              src="/src/assets/pamana-title.png" 
+              src= {pamanaTitle}
               alt="PAMANA" 
               className="w-full max-w-[300px] md:max-w-[750px] h-auto mx-auto block filter drop-shadow-[0_12px_5px_rgba(0,0,0,0.452)]"
             />

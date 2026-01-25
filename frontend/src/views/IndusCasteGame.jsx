@@ -18,35 +18,30 @@ const LEVELS = [
     correctId: "brahmin",
     label: "BRAHMIN",
     clue: "Ang pinakamataas na caste; mga pari, guro, at tagapangalaga ng kaalaman at ritwal.",
-    desc: "Ang pinakamataas na caste; mga pari, guro, at tagapangalaga ng kaalaman at ritwal.", 
   },
   {
     id: 2,
     correctId: "kshatriya",
     label: "KSHATRIYA",
     clue: "Mandirigma at pinuno; responsable sa pagtatanggol at pamumuno sa lipunan.",
-    desc: "Mandirigma at pinuno; responsable sa pagtatanggol at pamumuno sa lipunan.",
   },
   {
     id: 3,
     correctId: "vaishya",
     label: "VAISHYA",
     clue: "Mangangalakal, negosyante, at magsasaka; tagapangalaga ng kalakalan at kabuhayan.",
-    desc: "Mangangalakal, negosyante, at magsasaka; tagapangalaga ng kalakalan at kabuhayan.",
   },
   {
     id: 4,
     correctId: "shudra",
     label: "SHUDRA",
     clue: "Mga manggagawa, artesano, at tagapaglingkod; gumagawa ng iba’t ibang serbisyo sa lipunan.",
-    desc: "Mga manggagawa, artesano, at tagapaglingkod; gumagawa ng iba’t ibang serbisyo sa lipunan.",
   },
   {
     id: 5,
     correctId: "dalit",
     label: "DALIT",
     clue: "Itinuturing na nasa labas ng caste system; gumagawa ng mga trabahong “marumi” o mabigat sa lipunan.",
-    desc: "Itinuturing na nasa labas ng caste system; gumagawa ng mga trabahong “marumi” o mabigat sa lipunan.",
   },
 ];
 
@@ -164,7 +159,7 @@ const ContentLevel = ({ levelData, currentItem, onDrop, setHoveredLevel }) => {
               isOver ? "scale-110" : ""
             }`}
           >
-            <span className="font-extrabold text-[10px] md:text-sm lg:text-base leading-tight uppercase tracking-wide">
+            <span className="font-extrabold text-[10px] md:text-sm lg:text-base leading-tight tracking-wide">
               {levelData.clue}
             </span>
             <span
@@ -343,8 +338,7 @@ const IndusCasteGame = () => {
               CASTE YOUR ANSWER
             </h1>
             <p className="text-[#964B1D] font-bold text-xs md:text-lg max-w-2xl mx-auto leading-relaxed px-2">
-              I-drag at i-drop ang tamang pangalan ng caste sa tamang pwesto sa
-              pyramid. Click Submit to check.
+               Basahin ang bawat paglalarawan ng iba't ibang caste sa lipunang India. I-drag at i-drop ang tamang pangalan ng caste sa katabing kahon na naaayon sa paglalarawan.
             </p>
           </div>
 

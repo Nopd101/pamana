@@ -3,7 +3,11 @@ import heroBanner from "../assets/hero-banner.png";
 import bgHome from "../assets/bg-home.png";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
-import kabihasnanImg from "../assets/main-home-bg-2.png";
+import chinaImg from "../assets/CivilizationPhotos/China.png";
+import egyptImg from "../assets/CivilizationPhotos/Egypt.png";
+import indusImg from "../assets/CivilizationPhotos/Indus.png";
+import mesoamericaImg from "../assets/CivilizationPhotos/Mesoamerica.png";
+import mesopotamiaImg from "../assets/CivilizationPhotos/Mesopotamia.png";
 
 function HomePage() {
   const navigate = useNavigate();
@@ -16,31 +20,31 @@ function HomePage() {
     {
       id: "mesopotamia",
       name: "Kabihasnang Mesopotamia",
-      image: kabihasnanImg,
+      image: mesopotamiaImg,
       description: "Ang Kabihasnang Mesopotamia - ang lupain sa pagitan ng dalawang ilog",
     },
     {
       id: "indus",
       name: "Kabihasnang Indus",
-      image: kabihasnanImg,
+      image: indusImg,
       description: "Ang Kabihasnang Indus - tanyag sa maunlad nitong mga lungsod at sistema ng kanal",
     },
     {
       id: "tsino",
       name: "Kabihasnang Tsino",
-      image: kabihasnanImg,
+      image: chinaImg,
       description: "Ang Kabihasnang Tsina – ang duyan ng sinaunang imbensyon at pilosopiya.",
     },
     {
       id: "egypt",
       name: "Kabihasnang Egypt",
-      image: kabihasnanImg,
+      image: egyptImg,
       description: "Ang Kabihasnang Egypt – ang lupain ng mga piramide at mga paraon.",
     },
     {
       id: "mesoamerica",
       name: "Kabihasnang Mesoamerica",
-      image: kabihasnanImg,
+      image: mesoamericaImg,
       description: "Ang Kabihasnang Mesoamerica – ang sibilisasyon ng mga Maya, Aztec, at iba pang katutubo ng Gitnang Amerika.",
     },
   ];

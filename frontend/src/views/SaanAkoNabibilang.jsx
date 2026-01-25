@@ -279,7 +279,7 @@ const SaanAkoNabibilang = () => {
 
             <div className="text-center mb-6">
               <h1 className="text-3xl md:text-5xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">
-                Saan Ako Nabibilang?
+                Selectify
               </h1>
               <p className="text-[#964B1D] font-bold text-xs md:text-base max-w-2xl mx-auto leading-relaxed px-4">
                 Ilipat ang mga salitang nasa kahon patungo sa mga tamang

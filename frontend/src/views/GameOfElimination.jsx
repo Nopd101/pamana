@@ -148,8 +148,8 @@ const GameOfElimination = () => {
             Game of Elimination
           </h1>
           <p className="text-[#964B1D] font-bold text-sm md:text-lg max-w-3xl mx-auto leading-relaxed px-4">
-            Click an option to cross it out, the last remaining unclicked is the
-            final answer of the user.
+            Basahing mabuti ang bawat tanong at mga pagpipilian. Sa bawat round, alisin o i-eliminate ang mga sagot na sa tingin ninyo ay mali o hindi tama. Ipagpatuloy ang pag-aalis ng maling sagot hanggang sa iisa na lamang ang matira. Ang sagot na hindi na-eliminate ang siyang tamang sagot.
+
           </p>
         </div>
 

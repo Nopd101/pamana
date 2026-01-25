@@ -192,11 +192,10 @@ const ItamaMoAko = () => {
 
         <div className="text-center mb-6">
           <h1 className="text-3xl md:text-5xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">
-            Itama Mo Ako!
+            MistakeMaze 
           </h1>
           <p className="text-[#964B1D] font-bold text-xs md:text-base max-w-xl mx-auto leading-relaxed px-4">
-            Pindutin ang salitang mali sa pangungusap at i-type ang tamang
-            sagot.
+            Pindutin ang salita sa pangungusap na nagpamali rito at ilagay kung ano ang angkop na kasagutan.
           </p>
         </div>
 
