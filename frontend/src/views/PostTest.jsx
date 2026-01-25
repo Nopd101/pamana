@@ -139,6 +139,7 @@ const PostTest = () => {
             }
         }, 1000); // 1 second delay
     };
+    
     // Modified Timer logic
     const handleTimeout = () => {
         // 1. Mark that time is up (for CSS styling)
@@ -158,6 +159,7 @@ const PostTest = () => {
             }
         }, 1000);
     };
+
     useEffect(() => {
         setTimer(60); // Reset timer for new question
         if (timerRef.current) clearInterval(timerRef.current);
@@ -179,6 +181,7 @@ const PostTest = () => {
 
         return () => clearInterval(timerRef.current);
     }, [currentIndex, isGameFinished, selectedAnswer]);
+
     useEffect(() => {
         if (isGameFinished) {
             const submitPostTestScore = async () => {
@@ -220,7 +223,6 @@ const PostTest = () => {
     }
 
     const currentQuestion = questions[currentIndex];
-    const progress = (timer / 60) * 100;
 
    const getOptionClass = (option) => {
         const baseClass = "font-bold py-4 px-6 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#C8AA86]";
@@ -249,6 +251,7 @@ const PostTest = () => {
         // Default state
         return `${baseClass} bg-[#83643E] text-white hover:bg-[#7a4e2c]`; 
     };
+
     return (
         <div className="min-h-screen bg-cover bg-center font-[var(--font-body)]" style={{ backgroundImage: `url(${bgHome})` }}>
             <Navbar />
@@ -269,15 +272,29 @@ const PostTest = () => {
 
                     <div className="bg-[#FDFBF7] rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 relative flex flex-col items-center">
                         <div className="w-full max-w-3xl">
-                            <div className="flex justify-between items-center mb-4 text-[#772402] font-bold">
-                                <span>Question {currentIndex + 1} of {questions.length}</span>
-                                <span>Score: {score}/{questions.length}</span>
-                            </div>
+                            
+                            {/* === UPDATED HEADER === */}
+                            <div className="relative flex justify-between items-center mb-10 border-b-2 border-[#C8AA86]/30 pb-6 pt-2">
+                                {/* Left: Question Count */}
+                                <span className="text-[#772402] font-extrabold text-base md:text-xl">
+                                    Q. {currentIndex + 1}/{questions.length}
+                                </span>
 
-                            <div className="w-full bg-gray-200 rounded-full h-4 mb-6 border border-gray-300">
-                                <div className="bg-gradient-to-r from-[#8B5E3C] to-[#C8AA86] h-full rounded-full" style={{ width: `${progress}%`, transition: 'width 0.5s linear' }}></div>
-                                <span className="absolute right-4 -mt-4 text-sm font-bold text-[#5a2d0c]">{timer}s</span>
+                                {/* Center: Timer Badge (Absolute Position) */}
+                                <div className={`absolute left-1/2 transform -translate-x-1/2 shadow-xl rounded-full px-6 py-2 border-2 border-[#FDFBF7] transition-all duration-300 ${
+                                    timer <= 10 ? 'bg-red-600 scale-110' : 'bg-[#772402]'
+                                }`}>
+                                    <span className="text-white font-black text-xl tracking-wider">
+                                        {timer}s
+                                    </span>
+                                </div>
+
+                                {/* Right: Score */}
+                                <span className="text-[#772402] font-extrabold text-base md:text-xl">
+                                    Score: {score}
+                                </span>
                             </div>
+                            {/* ======================= */}
 
                             <div className="bg-gradient-to-b from-[#8B5E3C] to-[#5a2d0c] rounded-xl p-6 md:p-10 shadow-inner mb-6 text-center flex flex-col justify-center min-h-[150px]">
                                 <p className="text-white font-semibold text-lg md:text-xl leading-relaxed whitespace-pre-line drop-shadow-md">
@@ -290,7 +307,7 @@ const PostTest = () => {
                                     <button
                                         key={index}
                                         onClick={() => handleNextQuestion(option)}
-                                        disabled={selectedAnswer !== null} // Disable buttons during delay
+                                        disabled={selectedAnswer !== null} 
                                         className={getOptionClass(option)}
                                     >
                                         {option}

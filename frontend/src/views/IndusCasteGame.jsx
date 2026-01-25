@@ -272,21 +272,23 @@ const IndusCasteGame = () => {
         className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-x-hidden relative"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
+        {/* === MODAL: GAME WON === */}
         {isGameWon && (
           <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
-              <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+            <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
+              {/* FIXED: Changed to flex-row to prevent overlap */}
+              <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
                 <img
                   src={charImg}
                   alt="Game Cleared Character"
-                  className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl animate-bounce-short z-10"
+                  className="w-40 md:w-56 drop-shadow-2xl animate-bounce-short z-10"
                 />
-                <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
                   GAME <br /> CLEARED
                 </h1>
               </div>
 
-              <div className="flex gap-4 mt-8 z-30">
+              <div className="flex gap-4 mt-2 z-30">
                 <button
                   onClick={handleReset}
                   className="bg-[#FDFBF7] text-[#772402] font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#772402]"
@@ -304,21 +306,23 @@ const IndusCasteGame = () => {
           </div>
         )}
 
+        {/* === MODAL: GAME LOST === */}
         {isGameLost && (
           <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
-              <div className="relative w-full h-64 md:h-80 flex justify-center items-center">
+            <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
+              {/* FIXED: Changed to flex-row to prevent overlap */}
+              <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
                 <img
                   src={charImg}
                   alt="Game Character"
-                  className="absolute left-0 bottom-0 w-48 md:w-64 drop-shadow-2xl z-10 grayscale-[50%]" // Added grayscale for subtle "fail" effect
+                  className="w-40 md:w-56 drop-shadow-2xl z-10 grayscale-[50%]"
                 />
-                <h1 className="text-4xl md:text-6xl font-black text-red-600 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
+                <h1 className="text-3xl md:text-5xl font-black text-red-600 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
                   INCORRECT <br /> ARRANGEMENT
                 </h1>
               </div>
 
-              <div className="flex gap-4 mt-8 z-30">
+              <div className="flex gap-4 mt-2 z-30">
                 <button
                   onClick={handleTryAgain}
                   className="bg-[#772402] text-white font-black py-3 px-8 rounded-xl shadow-xl hover:scale-105 transition-transform border-4 border-[#FDFBF7]"

@@ -4,7 +4,7 @@ import bgHome from "../assets/bg-home.png";
 import mainImage from "../assets/ArtifactHiddenObject/1.png";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
-import API from '../api/axios'; // 👈 Import API
+import API from '../api/axios';
 
 const artifacts = [
   {
@@ -41,6 +41,7 @@ const artifacts = [
 
 const ArtifactHiddenObject = () => {
   const [foundItems, setFoundItems] = useState([]);
+  const [mistakes, setMistakes] = useState([]); // 👈 Store wrong click coordinates
   const [activeHint, setActiveHint] = useState(null);
   const navigate = useNavigate();
   const imageContainerRef = useRef(null);
@@ -48,9 +49,13 @@ const ArtifactHiddenObject = () => {
   const isGameFinished = foundItems.length === artifacts.length;
 
   const handleImageClick = (e) => {
+    if (isGameFinished) return; // Prevent clicks if game is over
+
     const rect = imageContainerRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    let isCorrect = false;
 
     artifacts.forEach((artifact) => {
       if (
@@ -62,11 +67,22 @@ const ArtifactHiddenObject = () => {
       ) {
         setFoundItems((prev) => [...prev, artifact.name]);
         setActiveHint(null); 
+        isCorrect = true;
       }
     });
+
+    // 👇 Handle Wrong Click
+    if (!isCorrect) {
+      const newMistake = { x, y, id: Date.now() };
+      setMistakes((prev) => [...prev, newMistake]);
+
+      // Remove the red X after 800ms to keep DOM light
+      setTimeout(() => {
+        setMistakes((prev) => prev.filter((m) => m.id !== newMistake.id));
+      }, 800);
+    }
   };
 
-  // 👇 Submit Score when Game Finished
   useEffect(() => {
     if (isGameFinished) {
         const submitScore = async () => {
@@ -88,6 +104,7 @@ const ArtifactHiddenObject = () => {
 
   const handleReset = () => {
     setFoundItems([]);
+    setMistakes([]);
     setActiveHint(null);
   };
 
@@ -96,6 +113,7 @@ const ArtifactHiddenObject = () => {
       className="min-h-screen bg-cover bg-center overflow-x-hidden relative"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
+      {/* --- Game Won Modal --- */}
       {isGameFinished && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
@@ -144,13 +162,15 @@ const ArtifactHiddenObject = () => {
           <div
             ref={imageContainerRef}
             onClick={handleImageClick}
-            className="w-full lg:w-3/4 relative cursor-pointer rounded-lg overflow-hidden shadow-lg border-4 border-[#7B3306]"
+            className="w-full lg:w-3/4 relative cursor-pointer rounded-lg overflow-hidden shadow-lg border-4 border-[#7B3306] select-none"
           >
             <img
               src={mainImage}
               alt="Ancient Egyptian Tomb"
               className="w-full h-auto"
             />
+            
+            {/* Correct Find Indicator */}
             {artifacts.map(
               (artifact) =>
                 foundItems.includes(artifact.name) && (
@@ -168,6 +188,25 @@ const ArtifactHiddenObject = () => {
                   />
                 )
             )}
+
+            {/* 👇 MISTAKE INDICATOR (Red X) */}
+            {mistakes.map((mistake) => (
+              <div
+                key={mistake.id}
+                className="absolute text-red-600 font-bold text-3xl pointer-events-none drop-shadow-md"
+                style={{
+                  fontSize: '1rem',
+                  left: `${mistake.x}%`,
+                  top: `${mistake.y}%`,
+                  transform: "translate(-50%, -50%)",
+                  animation: "ping 1s cubic-bezier(0, 0, 0.2, 1) forwards", 
+                  opacity: 80
+                }}
+              >
+                ❌
+              </div>
+            ))}
+            
           </div>
 
           <div className="w-full lg:w-1/4 bg-white/80 backdrop-blur-sm p-4 md:p-6 rounded-2xl shadow-lg border-4 border-[#7B3306]">
@@ -204,6 +243,14 @@ const ArtifactHiddenObject = () => {
           </div>
         </div>
       </div>
+      
+      {/* Add subtle keyframe for custom fade out if needed, but 'animate-ping' works great out of box in Tailwind */}
+      <style>{`
+        @keyframes fadeOutUp {
+          0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+          100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
+        }
+      `}</style>
     </div>
   );
 };

@@ -56,61 +56,179 @@ const puzzles = [
   },
 ];
 
-// 👇 SHARED TOAST STYLE (Pamana Theme)
+// 👇 SHARED TOAST STYLE
 const toastStyle = {
-  backgroundColor: "#772402", // Primary Brown
-  color: "#FDFBF7",           // Cream Text
-  border: "2px solid #B89336", // Gold/Amber Border
+  backgroundColor: "#772402", 
+  color: "#FDFBF7",           
+  border: "2px solid #B89336", 
   borderRadius: "10px",
   fontWeight: "bold",
   boxShadow: "0px 4px 10px rgba(0,0,0,0.3)"
 };
 
 const FourPicsOneWord = () => {
+  const navigate = useNavigate();
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [inputValue, setInputValue] = useState("");
   const [showHint, setShowHint] = useState(false);
+  const [hasUsedReveal, setHasUsedReveal] = useState(false); // 👈 Track usage
   const [isGameFinished, setIsGameFinished] = useState(false);
-  const navigate = useNavigate();
+  
+  // Game Logic States
+  const [userAnswer, setUserAnswer] = useState([]); 
+  const [shuffledLetters, setShuffledLetters] = useState([]); 
 
   const currentPuzzle = puzzles[currentPuzzleIndex];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (inputValue.trim().toUpperCase() === currentPuzzle.answer) {
-      const newScore = score + 1;
-      setScore(newScore);
-      
-      // 👇 Custom Styled Success Toast
-      toast.success("Correct Answer!", {
-        position: "top-center",
-        autoClose: 1000,
-        hideProgressBar: true,
-        style: toastStyle, // Apply Style
-        icon: "✅"         // Custom Icon
-      });
+  // 1. PRELOAD IMAGES
+  useEffect(() => {
+    const allImages = puzzles.flatMap(p => p.images);
+    allImages.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
 
-      if (currentPuzzleIndex < puzzles.length - 1) {
-        setTimeout(() => {
-            setCurrentPuzzleIndex(currentPuzzleIndex + 1);
-            setInputValue("");
-            setShowHint(false);
-        }, 500);
-      } else {
-        setIsGameFinished(true);
-      }
-    } else {
-      // 👇 Custom Styled Error Toast
-      toast.error("Wrong answer, try again!", {
+  // 2. Initialize Level
+  useEffect(() => {
+    if (!currentPuzzle) return;
+
+    setUserAnswer(Array(currentPuzzle.answer.length).fill(null));
+
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let pool = currentPuzzle.answer.toUpperCase().split("");
+    
+    while (pool.length < 12) {
+      pool.push(alphabet[Math.floor(Math.random() * alphabet.length)]);
+    }
+
+    const shuffled = pool
+      .sort(() => Math.random() - 0.5)
+      .map((char, i) => ({ letter: char, id: i, isUsed: false }));
+
+    setShuffledLetters(shuffled);
+    setShowHint(false);
+    setHasUsedReveal(false); // 👈 Reset reveal usage
+
+  }, [currentPuzzleIndex]);
+
+  // 3. Handle Clicking a Letter from Pool
+  const handlePoolClick = (letterObj) => {
+    if (letterObj.isUsed) return;
+    const firstEmptyIndex = userAnswer.indexOf(null);
+    if (firstEmptyIndex !== -1) {
+      const newAnswer = [...userAnswer];
+      newAnswer[firstEmptyIndex] = letterObj;
+      setUserAnswer(newAnswer);
+      const newPool = shuffledLetters.map(l => 
+        l.id === letterObj.id ? { ...l, isUsed: true } : l
+      );
+      setShuffledLetters(newPool);
+    }
+  };
+
+  // 4. Handle Clicking an Answer Slot (Undo)
+  const handleSlotClick = (index) => {
+    const item = userAnswer[index];
+    if (!item) return;
+    const newAnswer = [...userAnswer];
+    newAnswer[index] = null;
+    setUserAnswer(newAnswer);
+    const newPool = shuffledLetters.map(l => 
+      l.id === item.id ? { ...l, isUsed: false } : l
+    );
+    setShuffledLetters(newPool);
+  };
+
+  // 5. 👇 NEW: Reveal Random Letter Function
+  const handleRevealLetter = () => {
+    if (hasUsedReveal) return; // Only allow once
+
+    // Find indices that are currently empty
+    const emptyIndices = userAnswer
+      .map((val, idx) => val === null ? idx : null)
+      .filter(val => val !== null);
+
+    if (emptyIndices.length === 0) {
+      toast.info("Remove a letter first to make space!", {
         position: "top-center",
         autoClose: 2000,
-        style: { ...toastStyle, border: "2px solid #ff4444" }, // Red border for error
-        icon: "❌"
+        style: toastStyle,
+      });
+      return;
+    }
+
+    // Pick a random empty index
+    const randomIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    const correctChar = currentPuzzle.answer[randomIndex];
+
+    // Find that char in the pool (must be unused)
+    const availableLetterObj = shuffledLetters.find(
+      item => item.letter === correctChar && !item.isUsed
+    );
+
+    if (availableLetterObj) {
+      // Place it
+      const newAnswer = [...userAnswer];
+      newAnswer[randomIndex] = availableLetterObj;
+      setUserAnswer(newAnswer);
+
+      // Mark used in pool
+      const newPool = shuffledLetters.map(l =>
+        l.id === availableLetterObj.id ? { ...l, isUsed: true } : l
+      );
+      setShuffledLetters(newPool);
+
+      // Mark hint as used
+      setHasUsedReveal(true);
+    } else {
+      // If the needed letter is already on the board (but in the wrong spot)
+      toast.warn("The letter you need is already on the board! Clear some wrong letters.", {
+        position: "top-center",
+        autoClose: 2000,
+        style: toastStyle,
       });
     }
   };
 
+  // 6. Check Answer automatically
+  useEffect(() => {
+    if (isGameFinished) return;
+    
+    if (!userAnswer.includes(null) && userAnswer.length > 0) {
+      const constructedWord = userAnswer.map(obj => obj.letter).join("");
+      
+      if (constructedWord === currentPuzzle.answer) {
+        setScore(prev => prev + 1);
+        toast.success("Correct Answer!", {
+          position: "top-center",
+          autoClose: 1000,
+          hideProgressBar: true,
+          style: toastStyle,
+          icon: "✅"
+        });
+
+        setTimeout(() => {
+            if (currentPuzzleIndex < puzzles.length - 1) {
+                setCurrentPuzzleIndex(prev => prev + 1);
+            } else {
+                setIsGameFinished(true);
+            }
+        }, 1000);
+
+      } else {
+        toast.error("Incorrect Arrangement!", {
+            position: "top-center",
+            autoClose: 1500,
+            style: { ...toastStyle, border: "2px solid #ff4444" },
+            icon: "❌"
+        });
+      }
+    }
+  }, [userAnswer, currentPuzzle, currentPuzzleIndex, isGameFinished]);
+
+
+  // 7. Submit Score
   useEffect(() => {
     if (isGameFinished) {
         const submitScore = async () => {
@@ -128,19 +246,17 @@ const FourPicsOneWord = () => {
         };
         submitScore();
     }
-  }, [isGameFinished, score]);
+  }, [isGameFinished]);
 
   const handleReset = () => {
     setCurrentPuzzleIndex(0);
     setScore(0);
-    setInputValue("");
-    setShowHint(false);
     setIsGameFinished(false);
   };
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center overflow-x-hidden relative"
+      className="min-h-screen bg-cover bg-center overflow-x-hidden relative font-[var(--font-body)]"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
       {isGameFinished && (
@@ -174,63 +290,100 @@ const FourPicsOneWord = () => {
         </div>
       )}
 
-      <div className="w-full max-w-4xl mx-auto px-4 pb-10 pt-32 md:pt-40">
+      <div className="w-full max-w-4xl mx-auto px-4 pb-10 pt-24 md:pt-32">
         <BackButton className="mb-6 md:ml-20" />
 
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl md:text-5xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">
             4 Pics 1 Word
           </h1>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm p-4 md:p-8 rounded-2xl shadow-lg border-4 border-[#7B3306] w-full max-w-lg md:max-w-xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-5">
-            <h2 className="text-lg sm:text-2xl font-bold text-[#5a2d0c] mb-2 sm:mb-0">
-              Puzzle {currentPuzzleIndex + 1}/{puzzles.length}
-            </h2>
-            <h2 className="text-lg sm:text-2xl font-bold text-[#5a2d0c]">
-              Score: {score}/{puzzles.length}
-            </h2>
+        <div className="bg-white/80 backdrop-blur-sm p-4 md:p-6 rounded-2xl shadow-lg border-4 border-[#7B3306] w-full max-w-lg md:max-w-xl mx-auto">
+          
+          <div className="flex justify-between items-center mb-4 text-[#5a2d0c] font-bold text-sm md:text-lg">
+            <span>Puzzle {currentPuzzleIndex + 1}/{puzzles.length}</span>
+            <span>Score: {score}</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 md:gap-3 mb-5">
+
+          <div className="grid grid-cols-2 gap-2 mb-6">
             {currentPuzzle.images.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`Puzzle clue ${index + 1}`}
-                className="rounded-lg shadow-md w-full h-auto"
-              />
+              <div key={index} className="aspect-square w-full h-full overflow-hidden rounded-lg shadow-md border-2 border-[#C8AA86]">
+                <img
+                  src={img}
+                  alt={`Puzzle clue ${index + 1}`}
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                />
+              </div>
             ))}
           </div>
-          {showHint && (
-            <p className="text-sm md:text-base text-center text-[#5a2d0c] mb-5 italic">
-              {currentPuzzle.hint}
-            </p>
-          )}
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Isulat ang sagot dito..."
-              className="w-full p-3 border-2 border-[#7B3306] rounded-lg mb-5 text-center text-base md:text-lg"
-            />
-            <div className="flex flex-col sm:flex-row justify-between gap-3">
+
+          <div className="flex justify-center gap-2 mb-6 flex-wrap">
+            {userAnswer.map((item, index) => (
               <button
-                type="submit"
-                className="w-full sm:w-auto bg-[#772402] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#5a2d0c] transition-colors text-base md:text-lg"
+                key={index}
+                onClick={() => handleSlotClick(index)}
+                className={`w-10 h-10 md:w-12 md:h-12 border-4 rounded-md font-black text-xl md:text-2xl flex items-center justify-center shadow-inner transition-all ${
+                  item 
+                    ? "bg-[#772402] text-white border-[#5a2d0c] scale-105" 
+                    : "bg-[#FDFBF7] border-[#7B3306]"
+                }`}
               >
-                Submit Answer
+                {item ? item.letter : ""}
               </button>
+            ))}
+          </div>
+
+          {/* 👇 HINT ACTION AREA */}
+          <div className="flex justify-between items-center mb-6 min-h-[24px] px-2 md:px-6">
+             {/* Text Hint Toggle */}
+             <div>
+                {showHint ? (
+                    <p className="text-sm md:text-base font-bold text-[#772402] italic animate-fade-in text-left">
+                    💡 {currentPuzzle.hint}
+                    </p>
+                ) : (
+                <button 
+                    onClick={() => setShowHint(true)}
+                    className="text-xs md:text-sm text-[#772402]/80 underline hover:text-[#772402] font-bold"
+                >
+                    Show Meaning Hint
+                </button>
+                )}
+             </div>
+
+             {/* Reveal Letter Button */}
+             <button
+                onClick={handleRevealLetter}
+                disabled={hasUsedReveal}
+                className={`text-xs md:text-sm font-bold py-1 px-3 rounded-full border-2 transition-colors ${
+                    hasUsedReveal 
+                        ? "bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed"
+                        : "bg-[#C8AA86] border-[#772402] text-[#772402] hover:bg-[#b08d55] hover:text-white"
+                }`}
+             >
+                {hasUsedReveal ? "Letter Used" : "Reveal Letter"}
+             </button>
+          </div>
+
+          {/* Keyboard / Letter Pool */}
+          <div className="grid grid-cols-6 gap-2 md:gap-3">
+            {shuffledLetters.map((item) => (
               <button
-                type="button"
-                onClick={() => setShowHint(!showHint)}
-                className="w-full sm:w-auto border-2 border-[#772402] text-[#772402] font-bold py-3 px-6 rounded-lg hover:bg-amber-50 transition-colors text-base md:text-lg"
+                key={item.id}
+                onClick={() => handlePoolClick(item)}
+                disabled={item.isUsed}
+                className={`aspect-square rounded-lg font-black text-lg md:text-xl shadow-md border-b-4 border-r-4 transition-all active:scale-95 ${
+                  item.isUsed
+                    ? "bg-gray-300 text-gray-400 border-gray-400 cursor-default opacity-50"
+                    : "bg-[#C8AA86] text-[#5a2d0c] border-[#964B1D] hover:bg-[#b08d55]"
+                }`}
               >
-                {showHint ? "Hide Hint" : "Show Hint"}
+                {item.letter}
               </button>
-            </div>
-          </form>
+            ))}
+          </div>
+
         </div>
       </div>
     </div>
