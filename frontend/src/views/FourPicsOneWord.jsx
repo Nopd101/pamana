@@ -10,6 +10,8 @@ import { toast } from 'react-toastify';
 import correctSfx from "../assets/sfx/correct.mp3";
 import incorrectSfx from "../assets/sfx/incorrect.mp3";
 import clearedSfx from "../assets/sfx/cleared.mp3";
+import letterSfx from "../assets/sfx/rename_tab.mp3"; // 👈 New: Letter press sound
+import hintSfx from "../assets/sfx/hint.mp3";         // 👈 New: Hint button sound
 
 // Import Images
 import p1_1 from "../assets/4Pics1Word/1.png";
@@ -37,27 +39,27 @@ const puzzles = [
   {
     images: [p1_1, p1_2, p1_3, p1_4],
     answer: "PYRAMID",
-    hint: "A monumental structure with a square or triangular base...",
+    hint: "Isang malaking gusali na may hugis parisukat o tatsulok ang pundasyon.",
   },
   {
     images: [p2_1, p2_2, p2_3, p2_4],
     answer: "PHARAOH",
-    hint: "A ruler in ancient Egypt.",
+    hint: "Ang hari o pinuno ng sinaunang Egypt.",
   },
   {
     images: [p3_1, p3_2, p3_3, p3_4],
     answer: "CLEOPATRA",
-    hint: "The last active ruler of the Ptolemaic Kingdom of Egypt.",
+    hint: "Ang huling reyna na namuno sa Egypt noong panahon ng mga Ptolemy.",
   },
   {
     images: [p4_1, p4_2, p4_3, p4_4],
     answer: "MUMMY",
-    hint: 'A preserved body from ancient Egypt.',
+    hint: 'Isang patay na katawan na binalutan at iningatan sa loob ng mahabang panahon.',
   },
   {
     images: [p5_1, p5_2, p5_3, p5_4],
     answer: "HIEROGLYPHICS",
-    hint: "A system of writing using symbols and pictures used in ancient Egypt.",
+    hint: "Paraan ng pagsusulat na gumagamit ng mga simbolo at larawan sa sinaunang Egypt.",
   },
 ];
 
@@ -76,7 +78,7 @@ const FourPicsOneWord = () => {
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [showHint, setShowHint] = useState(false);
-  const [hasUsedReveal, setHasUsedReveal] = useState(false); // 👈 Track usage
+  const [hasUsedReveal, setHasUsedReveal] = useState(false); 
   const [isGameFinished, setIsGameFinished] = useState(false);
   
   // Game Logic States
@@ -120,13 +122,17 @@ const FourPicsOneWord = () => {
 
     setShuffledLetters(shuffled);
     setShowHint(false);
-    setHasUsedReveal(false); // 👈 Reset reveal usage
+    setHasUsedReveal(false); 
 
   }, [currentPuzzleIndex]);
 
   // 3. Handle Clicking a Letter from Pool
   const handlePoolClick = (letterObj) => {
     if (letterObj.isUsed) return;
+    
+    // 👇 Play Letter Sound
+    playSound(letterSfx);
+
     const firstEmptyIndex = userAnswer.indexOf(null);
     if (firstEmptyIndex !== -1) {
       const newAnswer = [...userAnswer];
@@ -143,6 +149,10 @@ const FourPicsOneWord = () => {
   const handleSlotClick = (index) => {
     const item = userAnswer[index];
     if (!item) return;
+
+    // 👇 Play Letter Sound
+    playSound(letterSfx);
+
     const newAnswer = [...userAnswer];
     newAnswer[index] = null;
     setUserAnswer(newAnswer);
@@ -152,9 +162,9 @@ const FourPicsOneWord = () => {
     setShuffledLetters(newPool);
   };
 
-  // 5. Reveal Random Letter Function
+  // 5. Reveal 2 Random Letters Function
   const handleRevealLetter = () => {
-    if (hasUsedReveal) return; // Only allow once
+    if (hasUsedReveal) return; 
 
     // Find indices that are currently empty
     const emptyIndices = userAnswer
@@ -170,36 +180,48 @@ const FourPicsOneWord = () => {
       return;
     }
 
-    // Pick a random empty index
-    const randomIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-    const correctChar = currentPuzzle.answer[randomIndex];
+    // Determine how many to reveal (max 2)
+    const countToReveal = Math.min(2, emptyIndices.length);
+    
+    // Shuffle empty indices to pick random ones
+    const shuffledIndices = emptyIndices.sort(() => 0.5 - Math.random());
+    const selectedIndices = shuffledIndices.slice(0, countToReveal);
 
-    // Find that char in the pool (must be unused)
-    const availableLetterObj = shuffledLetters.find(
-      item => item.letter === correctChar && !item.isUsed
-    );
+    let newAnswer = [...userAnswer];
+    let newPool = [...shuffledLetters];
+    let lettersFound = false;
 
-    if (availableLetterObj) {
-      // Place it
-      const newAnswer = [...userAnswer];
-      newAnswer[randomIndex] = availableLetterObj;
-      setUserAnswer(newAnswer);
+    // Loop through selected indices and fill them
+    selectedIndices.forEach((idx) => {
+        const correctChar = currentPuzzle.answer[idx];
 
-      // Mark used in pool
-      const newPool = shuffledLetters.map(l =>
-        l.id === availableLetterObj.id ? { ...l, isUsed: true } : l
-      );
-      setShuffledLetters(newPool);
+        // Find that char in the pool (must be unused)
+        const availableLetterObj = newPool.find(
+            item => item.letter === correctChar && !item.isUsed
+        );
 
-      // Mark hint as used
-      setHasUsedReveal(true);
+        if (availableLetterObj) {
+            newAnswer[idx] = availableLetterObj;
+            newPool = newPool.map(l =>
+                l.id === availableLetterObj.id ? { ...l, isUsed: true } : l
+            );
+            lettersFound = true;
+        }
+    });
+
+    if (lettersFound) {
+        // 👇 Play Hint Sound
+        playSound(hintSfx);
+
+        setUserAnswer(newAnswer);
+        setShuffledLetters(newPool);
+        setHasUsedReveal(true);
     } else {
-      // If the needed letter is already on the board (but in the wrong spot)
-      toast.warn("The letter you need is already on the board! Clear some wrong letters.", {
-        position: "top-center",
-        autoClose: 2000,
-        style: toastStyle,
-      });
+        toast.warn("The letters you need are already on the board! Clear some wrong letters.", {
+            position: "top-center",
+            autoClose: 2000,
+            style: toastStyle,
+        });
     }
   };
 
@@ -225,8 +247,7 @@ const FourPicsOneWord = () => {
 
         setTimeout(() => {
             if (currentPuzzleIndex < puzzles.length - 1) {
-                // 👇 FIX: Reset userAnswer to empty so the next render 
-                // doesn't think we have a (wrong) answer filled in.
+                // Reset userAnswer to empty to prevent false incorrect sound on next stage
                 setUserAnswer([]); 
                 
                 setCurrentPuzzleIndex(prev => prev + 1);
@@ -374,7 +395,10 @@ const FourPicsOneWord = () => {
                     </p>
                 ) : (
                 <button 
-                    onClick={() => setShowHint(true)}
+                    onClick={() => {
+                        playSound(hintSfx); // 👈 Play sound on click
+                        setShowHint(true);
+                    }}
                     className="text-xs md:text-sm text-[#772402]/80 underline hover:text-[#772402] font-bold"
                 >
                     Show Meaning Hint
@@ -392,7 +416,7 @@ const FourPicsOneWord = () => {
                         : "bg-[#C8AA86] border-[#772402] text-[#772402] hover:bg-[#b08d55] hover:text-white"
                 }`}
              >
-                {hasUsedReveal ? "Letter Used" : "Reveal Letter"}
+                {hasUsedReveal ? "Letter Used" : "Reveal 2 Letters"}
              </button>
           </div>
 
