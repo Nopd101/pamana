@@ -60,8 +60,8 @@ export default function Home() {
           </AnimatedElement>
           
           <AnimatedElement className="relative z-[2] text-center mb-8 md:mb-18">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-[0.1em] md:tracking-[0.15em] m-0 p-0 text-[#3b2a1a] text-center">FEATURES</h2>
-            <p className="text-xs md:text-sm tracking-[1rem] md:tracking-[2.25rem] text-[#6b5544] text-center pl-2 md:pl-6 font-bold">OF PAMANA</p>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-[0.1em] md:tracking-[0.15em] m-0 p-0 text-[#3b2a1a] text-center">KATANGIAN</h2>
+            <p className="text-xs md:text-sm tracking-[1rem] md:tracking-[2.25rem] text-[#6b5544] text-center pl-2 md:pl-6 font-bold">NG PAMANA</p>
           </AnimatedElement>
 
           <div className="relative z-[2] flex justify-center gap-8 flex-wrap max-w-full mx-auto">
@@ -69,28 +69,28 @@ export default function Home() {
               <FeatureCard
                 icon="fa-solid fa-video"
                 color="Tan"
-                desc="Animated video lectures to engage the youth in ancient civilizations."
+                desc="Animated na bidyo upang mapukaw ang interes sa sinaunang kabihasnan."
               />
             </AnimatedElement>
             <AnimatedElement style={{ animationDelay: "0.1s" }}>
               <FeatureCard
                 icon="fa-solid fa-people-group"
                 color="DarkBrown"
-                desc="Prioritizing the assessment of student's prior knowledge."
+                desc="Tinataya ang dating kaalaman ng mga mag-aaral bago ang aralin."
               />
             </AnimatedElement>
             <AnimatedElement style={{ animationDelay: "0.2s" }}>
               <FeatureCard
                 icon="fa-solid fa-gamepad"
                 color="Orange"
-                desc="Ten interactive games are prepared for a fun learning experience."
+                desc="May sampung (10) interactive na laro para sa mas epektibong pagkatuto."
               />
             </AnimatedElement>
             <AnimatedElement style={{ animationDelay: "0.3s" }}>
               <FeatureCard
                 icon="fa-solid fa-star"
                 color="Brown"
-                desc="Automatic progress tracking for students."
+                desc="Awtomatikong sinusubaybayan ang progreso ng mga mag-aaral."
               />
             </AnimatedElement>
           </div>
@@ -100,9 +100,9 @@ export default function Home() {
       {/* KABIHASNAN SECTION */}
       <div className="py-20 px-8 pb-60 text-center bg-[#f6efe6] relative isolate mb-[-62.4px] z-0 shadow-[inset_0_10px_30px_rgba(0,0,0,0.5)] before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-[url('/src/assets/main-home-bg-2.png')] before:bg-cover before:bg-center before:opacity-25 before:z-[-1]">
         <div>
-          <h2 className="text-xl md:text-2xl font-semibold tracking-[0.2em] md:tracking-[0.35em] m-0 mt-12 p-0 text-[#3b2a1a] uppercase">The</h2>
-          <h1 className="text-4xl md:text-6xl font-black tracking-[0.05em] m-0 p-0 text-[#772402] filter drop-shadow-[0_12px_5px_rgba(0,0,0,0.452)]">CIVILIZATIONS</h1>
-          <p className="text-sm md:text-lg tracking-[0.5em] md:tracking-[0.75em] text-[#6b5544] text-center pl-1 md:pl-3 font-bold">To Discover</p>
+          <h2 className="text-xl md:text-2xl font-semibold tracking-[0.2em] md:tracking-[0.35em] m-0 mt-12 p-0 text-[#3b2a1a] uppercase">MGA</h2>
+          <h1 className="text-4xl md:text-6xl font-black tracking-[0.05em] m-0 p-0 text-[#772402] filter drop-shadow-[0_12px_5px_rgba(0,0,0,0.452)]">KABIHASNANG </h1>
+          <p className="text-sm md:text-lg tracking-[0.5em] md:tracking-[0.75em] text-[#6b5544] text-center pl-1 md:pl-3 font-bold">MATUTUKLASAN</p>
         </div>
 
         <div className="mt-20 flex flex-col gap-8">
@@ -110,7 +110,7 @@ export default function Home() {
             <KabihasnanCard
               number={1}
               title="Kabihasnang Mesopotamia"
-              description='Found between the Tigris and Euphrates rivers, it is called the "Cradle of Civilization." The first system of writing and law emerged here.'
+              description='Matatagpuan sa pagitan ng mga ilog Tigris at Euphrates at kinikilalang Duyan ng Kabihasnan, kung saan nabuo ang unang pagsulat at mga batas.'
               imagePosition="right"
               patternOffsetY="0%"
             />
@@ -119,7 +119,7 @@ export default function Home() {
             <KabihasnanCard
               number={2}
               title="Kabihasnang Indus"
-              description="Known for its well-planned cities and canal systems. It shows the importance of discipline and planning in a community."
+              description="Kilala sa maayos na planong mga lungsod at mga sistemang patubig. Ipinapakita nito ang kahalagahan ng organisasyon at disiplina sa isang komunidad."
               imagePosition="left"
               patternOffsetY="25%"
             />
@@ -127,8 +127,8 @@ export default function Home() {
           <AnimatedElement animation="slideInRight" className="w-full">
             <KabihasnanCard
               number={3}
-              title="Kabihasnang Tsina (Shang Dynasty)"
-              description="Ideas about government, family, and philosophy that influence the present day began here."
+              title="Kabihasnang Tsino"
+              description="Pinagmulan ng mahahalagang ideya tungkol sa pamahalaan, pamilya, at pilosopiya na nakaimpluwensya hanggang sa kasalukuyan."
               imagePosition="right"
               patternOffsetY="50%"
             />
@@ -137,7 +137,7 @@ export default function Home() {
             <KabihasnanCard
               number={4}
               title="Kabihasnang Egypt"
-              description="Flourished along the Nile River and is known for its pyramids, belief in the afterlife, and excellent knowledge of science and art."
+              description="Umunlad sa Ilog Nile at kilala sa mga piramide, paniniwala sa kabilang-buhay, at kahusayan sa agham at sining."
               imagePosition="left"
               patternOffsetY="75%"
             />
@@ -146,7 +146,7 @@ export default function Home() {
             <KabihasnanCard
               number={5}
               title="Kabihasnang Mesoamerica"
-              description="Home to the Maya and Aztec civilizations, with unique knowledge in calendars, mathematics, and astronomy."
+              description="Tahanan ng mga kabihasnang Maya at Aztec na may kaalaman sa kalendaryo, matematika, at astronomiya."
               imagePosition="right"
               patternOffsetY="100%"
             />

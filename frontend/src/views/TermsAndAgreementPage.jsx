@@ -60,11 +60,11 @@ export default function TermsAndAgreementPage() {
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Data Privacy</h2>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Pribasiya ng Datos</h2>
                         <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white">
-                            <li>Student names, sections, and scores are stored securely.</li>
-                            <li>Teachers only see data from their assigned sections.</li>
-                            <li>Admins manage accounts but cannot alter student performance records.</li>
+                            <li>Ang pangalan ng mga mag-aaral, seksyon, at marka ay ligtas at ituturing na pribado.</li>
+                            <li>Ang mga guro ay makikita lamang ang datos mula sa kanilang nakatalagang seksyon.</li>
+                            <li>Ang mga admin ay may kakayahang pamahalaan ang mga accounts, ngunit hindi maaaring baguhin ang performance records ng mga mag-aaral.</li>
                         </ul>
                     </div>
                 </KabihasnanCard>
@@ -72,11 +72,11 @@ export default function TermsAndAgreementPage() {
             <AnimatedElement animation="slideInLeft" className="w-full">
                 <KabihasnanCard imagePosition="left">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Terms of Use</h2>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Mga Tuntunin ng Paggamit</h2>
                         <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white">
-                            <li>PAMANA is for educational purposes only.</li>
-                            <li>Users must log in with accurate information.</li>
-                            <li>Accounts may be deactivated if misused.</li>
+                            <li>Ang PAMANA ay para lamang sa layuning pang‑edukasyon.</li>
+                            <li>Ang mga user ay dapat mag‑log in gamit ang tamang impormasyon.</li>
+                            <li>Ang mga account ay maaaring i‑deactivate kung gagamitin sa maling paraan.</li>
                         </ul>
                     </div>
                 </KabihasnanCard>
@@ -84,9 +84,9 @@ export default function TermsAndAgreementPage() {
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Confidentiality</h2>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Pagiging Kompidensiyal</h2>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        All project-related communications are handled professionally. No personal information of the development team will be disclosed.
+                        Ang lahat ng komunikasyon na may kaugnayan sa proyekto ay pinangangasiwaan nang propesyunal. Walang personal na impormasyon ng developers ang ibubunyag.
                         </p>
                     </div>
                 </KabihasnanCard>

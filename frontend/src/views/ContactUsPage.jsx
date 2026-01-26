@@ -60,9 +60,9 @@ export default function ContactUsPage() {
             <AnimatedElement animation="slideInRight" className="w-full my-32">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">We value your feedback and are here to help.</h2>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Pinahahalagahan namin ang iyong puna at handa kaming tumulong.</h2>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        For any concerns, whether technical issues, academic inquiries, or general suggestions, please message us directly through our email: (our group will create one)
+                        Para sa anumang katanungan, maging ito man ay teknikal na problema, akademikong tanong, o pangkalahatang suhestiyon, maaari ninyo kaming direktang padalhan ng mensahe sa aming email: pamanasocialstudies@gmail.com
                         </p>
                     </div>
                 </KabihasnanCard>

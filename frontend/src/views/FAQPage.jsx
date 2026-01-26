@@ -60,18 +60,18 @@ export default function FAQPage() {
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">For Students</h2>
-                        <h3 className="text-lg font-semibold mt-4 text-white">How do I log in?</h3>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Para sa mga Mag-aaral</h2>
+                        <h3 className="text-lg font-semibold mt-4 text-white">Paano ako magla-log in?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        Enter your name, school, and section on the login page.
+                        Ilagay ang iyong pangalan, paaralan, at seksyon sa login page.
                         </p>
-                        <h3 className="text-lg font-semibold mt-4 text-white">What can I do inside PAMANA?</h3>
+                        <h3 className="text-lg font-semibold mt-4 text-white">Ano ang magagawa ko sa loob ng PAMANA?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        Watch video lectures, play mini-games, and answer quizzes. Your scores are saved automatically.
+                        Manood ng mga video lecture, maglaro ng mini-games, at sagutin ang mga quiz. Awtomatikong nasusubaybayan ang iyong mga puntos.
                         </p>
-                        <h3 className="text-lg font-semibold mt-4 text-white">How do I track my progress?</h3>
+                        <h3 className="text-lg font-semibold mt-4 text-white">Paano ko masusubaybayan ang aking progreso?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        Visit your Profile Page to see completed modules, quiz scores, and game results.
+                        Bisitahin ang iyong Profile Page upang makita ang mga natapos na module, quiz scores, at resulta ng laro.
                         </p>
                     </div>
                 </KabihasnanCard>
@@ -79,14 +79,14 @@ export default function FAQPage() {
             <AnimatedElement animation="slideInLeft" className="w-full">
                 <KabihasnanCard imagePosition="left">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">For Teachers</h2>
-                        <h3 className="text-lg font-semibold mt-4 text-white">How do I view student progress?</h3>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Para sa Mga Guro</h2>
+                        <h3 className="text-lg font-semibold mt-4 text-white">Paano ko makikita ang progreso ng mga estudyante?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        Use the Teacher Dashboard to see class performance, quiz scores, and game results.
+                        Gamitin ang Teacher Dashboard upang makita ang performance ng klase, quiz scores, at resulta ng laro.
                         </p>
-                        <h3 className="text-lg font-semibold mt-4 text-white">Can I download reports?</h3>
+                        <h3 className="text-lg font-semibold mt-4 text-white">Puwede ba akong mag-download ng mga report?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        Yes, reports can be exported for submission to school administration.
+                        Oo, maaaring i-export ang mga report para isumite sa school administration.
                         </p>
                     </div>
                 </KabihasnanCard>
@@ -94,10 +94,10 @@ export default function FAQPage() {
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">For Admins</h2>
-                        <h3 className="text-lg font-semibold mt-4 text-white">How do I manage users?</h3>
+                        <h2 className="text-xl font-bold mb-4 text-[#B89336] tracking-wider">Para sa Admins</h2>
+                        <h3 className="text-lg font-semibold mt-4 text-white">Paano ko pamamahalaan ang mga user?</h3>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        Use the Admin Dashboard to create accounts, assign sections, and reset passwords.
+                        Gamitin ang Admin Dashboard upang gumawa ng account, mag-assign ng seksyon, at i-reset ang mga password.
                         </p>
                     </div>
                 </KabihasnanCard>

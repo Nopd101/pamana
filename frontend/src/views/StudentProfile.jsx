@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bgHome from "../assets/bg-home.png";
-import kabihasnanImg from "../assets/main-home-bg-2.png";
 import API from "../api/axios";
 import {
   PlayCircle,
@@ -9,16 +8,23 @@ import {
   ClipboardCheck,
   CheckCircle2,
   Circle,
-  GraduationCap // 👈 Added icon for Post-Test
+  GraduationCap 
 } from "lucide-react";
 
-// Placeholder images
+// 👇 NEW: Import Civilization Photos
+import chinaImg from "../assets/CivilizationPhotos/China.png";
+import egyptImg from "../assets/CivilizationPhotos/Egypt.png";
+import indusImg from "../assets/CivilizationPhotos/Indus.png";
+import mesoamericaImg from "../assets/CivilizationPhotos/Mesoamerica.png";
+import mesopotamiaImg from "../assets/CivilizationPhotos/Mesopotamia.png";
+
+// Updated images in the configuration array
 const CIVILIZATIONS = [
-  { id: "mesopotamia", title: "Kabihasnang Mesopotamia", img: kabihasnanImg },
-  { id: "indus", title: "Kabihasnang Indus", img: kabihasnanImg },
-  { id: "tsino", title: "Kabihasnang Tsino", img: kabihasnanImg },
-  { id: "egypt", title: "Kabihasnang Egyptian", img: kabihasnanImg },
-  { id: "mesoamerica", title: "Kabihasnang Mesoamerica", img: kabihasnanImg },
+  { id: "mesopotamia", title: "Kabihasnang Mesopotamia", img: mesopotamiaImg },
+  { id: "indus", title: "Kabihasnang Indus", img: indusImg },
+  { id: "tsino", title: "Kabihasnang Tsino", img: chinaImg },
+  { id: "egypt", title: "Kabihasnang Egyptian", img: egyptImg },
+  { id: "mesoamerica", title: "Kabihasnang Mesoamerica", img: mesoamericaImg },
 ];
 
 const StudentProfile = () => {
@@ -34,7 +40,7 @@ const StudentProfile = () => {
       quizzes: 0,
     },
     progressDetails: {},
-    isPostTestDone: false, // 👈 New State for Post-Test
+    isPostTestDone: false, 
   });
 
   useEffect(() => {
@@ -59,7 +65,7 @@ const StudentProfile = () => {
 
         // Process history
         history.forEach(log => {
-           // 👇 CHECK FOR POST-TEST
+           // CHECK FOR POST-TEST
            if (log.activity_name === "Post-Test" || log.activity_name === "Post Test") {
                postTestFound = true;
            }
@@ -87,8 +93,7 @@ const StudentProfile = () => {
             quizzes: new Set(history.filter(h => h.activity_type === 'Quiz').map(h => h.activity_name)).size,
         };
 
-        // Calculate Overall Progress (Adding Post-Test as a requirement?)
-        // For now, let's keep it based on the modules, but you can add +1 for post-test if you want.
+        // Calculate Overall Progress
         let tasksCompleted = 0;
         Object.values(details).forEach(d => {
             if(d.quiz) tasksCompleted++;
@@ -105,7 +110,7 @@ const StudentProfile = () => {
           overallProgress: progressPercent,
           stats: calculatedStats,
           progressDetails: details,
-          isPostTestDone: postTestFound // 👈 Set state
+          isPostTestDone: postTestFound 
         });
 
       } catch (error) {
@@ -173,7 +178,7 @@ const StudentProfile = () => {
           </div>
         </div>
 
-        {/* NEW: Post-Test Status Card */}
+        {/* Post-Test Status Card */}
         <div className={`rounded-xl p-6 shadow-lg border mb-10 flex flex-col sm:flex-row items-center sm:justify-between gap-4 ${
             studentData.isPostTestDone 
             ? "bg-emerald-50 border-emerald-200" 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import footerCharacter from "../assets/footer-character.png";
+import titleLogo from "../assets/pamana-title.png"; 
 
 export default function Footer() {
   const [isSiteMapExpanded, setIsSiteMapExpanded] = useState(false);
@@ -33,61 +34,76 @@ export default function Footer() {
     <footer className="relative font-sans text-[#432818] z-10">
       <div className="bg-[#F3F0E8] pt-2 pb-8 md:pt-10 md:pb-16 px-4 rounded-t-[62.4px] relative overflow-hidden shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
         {/* Desktop View */}
-        <div className="hidden md:flex justify-between max-w-6xl mx-auto relative z-[2] gap-24 text-left">
-          <div className="flex-1">
-            <h3
-              className="text-6xl font-bold mb-4"
-              style={{
-                fontFamily: "'Tourney', sans-serif",
-                fontWeight: 900,
-                color: "#52392F",
-                letterSpacing: "0.05em",
-              }}
-            >
-              PAMANA
-            </h3>
-            <p className="max-w-[300px] mb-4 leading-relaxed text-lg">
-              An interactive learning platform for Grade 8 Social Studies
-              students.
-            </p>
-            <button
-              onClick={scrollToTop}
-              className="bg-gradient-to-b from-[#772402] to-[#551900] text-white border-none py-3.5 px-7 rounded-3xl cursor-pointer text-lg font-bold shadow-[0_4px_10px_rgba(0,0,0,0.2)]"
-            >
-              Back on top
-            </button>
+        <div className="hidden md:flex justify-between max-w-7xl mx-auto relative z-[2] gap-20 text-left">
+          
+          {/* Left Content Area - Split into two columns */}
+          <div className="flex-2 flex flex-row gap-16">
+            
+            {/* Column 1: Logo, Description, Button */}
+            <div className="flex flex-col items-start max-w-xs">
+              <img 
+                src={titleLogo} 
+                alt="PAMANA Logo" 
+                className="w-72 h-auto mb-6" 
+              />
+              <p className="leading-relaxed text-lg mb-8 text-[#52392F]">
+                Isang interaktibong plataporma sa pagkatuto para sa mga mag-aaral ng Araling Panlipunan 8. 
+              </p>
+              <button
+                onClick={scrollToTop}
+                className="bg-gradient-to-b from-[#772402] to-[#551900] text-white border-none py-3 px-8 rounded-full cursor-pointer text-lg font-bold shadow-lg hover:scale-105 transition-transform hover:shadow-xl"
+              >
+                Back on top
+              </button>
+            </div>
+
+            {/* Column 2: MELCs (Bigger & Better Spaced) */}
+            <div className="text-[#52392F] min-w-max mt-4">
+              <p className="mb-4 text-2xl font-extrabold tracking-wide border-b-2 border-[#772402]/20 pb-2">
+                AP 8 MELCs:
+              </p>
+              <ul className="list-disc pl-6 space-y-3 text-lg font-medium opacity-90">
+                <li>AP8HSK-Ig-6</li>
+                <li>AP8HSK-Ij-10</li>
+                <li>AP8DKT-IIf-8</li>
+                <li>AP8DKT-IIf-8</li>
+              </ul>
+            </div>
+
           </div>
-          <div className="flex-1 pl-36">
-            <h3 className="text-4xl font-bold mb-6">Site Map</h3>
-            <ul className="list-none p-0 m-0">
-              <li className="mb-1">
+
+          {/* Right Content Area - Site Map */}
+          <div className="flex-1 pl-10 border-l border-[#432818]/10">
+            <h3 className="text-4xl font-extrabold mb-8 text-[#432818]">Site Map</h3>
+            <ul className="list-none p-0 m-0 space-y-2">
+              <li>
                 <Link
                   to="/"
-                  className="text-[#432818] no-underline font-bold text-lg"
+                  className="text-[#52392F] no-underline font-bold text-xl hover:text-[#772402] hover:translate-x-1 transition-all inline-block"
                 >
                   Homepage
                 </Link>
               </li>
-              <li className="mb-1">
+              <li>
                 <Link
                   to="/faq"
-                  className="text-[#432818] no-underline font-bold text-lg"
+                  className="text-[#52392F] no-underline font-bold text-xl hover:text-[#772402] hover:translate-x-1 transition-all inline-block"
                 >
                   FAQ Page
                 </Link>
               </li>
-              <li className="mb-1">
+              <li>
                 <Link
                   to="/contact"
-                  className="text-[#432818] no-underline font-bold text-lg"
+                  className="text-[#52392F] no-underline font-bold text-xl hover:text-[#772402] hover:translate-x-1 transition-all inline-block"
                 >
                   Contact Us
                 </Link>
               </li>
-              <li className="mb-1">
+              <li>
                 <Link
                   to="/about"
-                  className="text-[#432818] no-underline font-bold text-lg"
+                  className="text-[#52392F] no-underline font-bold text-xl hover:text-[#772402] hover:translate-x-1 transition-all inline-block"
                 >
                   About Us
                 </Link>
@@ -95,7 +111,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/privacy"
-                  className="text-[#432818] no-underline font-bold text-lg"
+                  className="text-[#52392F] no-underline font-bold text-xl hover:text-[#772402] hover:translate-x-1 transition-all inline-block"
                 >
                   Privacy & Terms
                 </Link>

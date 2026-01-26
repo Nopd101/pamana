@@ -60,9 +60,9 @@ export default function AboutUsPage() {
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Mission</h2>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Misyon</h2>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        To transform the study of Araling Panlipunan into an engaging, interactive, and meaningful journey by combining digital storytelling with gamified learning. PAMANA seeks to empower Grade 8 learners to appreciate cultural heritage, think critically about history, and connect ancient civilizations to modern life.
+                        Makapagbigay ng bagong paraan ng pag-aaral ng Araling Panlipunan tungo sa mas kawili‑wili, interaktibo, at makahulugang karanasan sa pamamagitan ng pagsasanib ng digital storytelling at gamified na pagkatuto. Layunin ng PAMANA na bigyang‑tuon ang mga mag-aaral sa ika-walong baitang upang pahalagahan ang pamana ng kultura, mag-isip nang kritikal tungkol sa kasaysayan, at maiugnay ang sinaunang kabihasnan sa makabagong panahon.
                         </p>
                     </div>
                 </KabihasnanCard>
@@ -70,9 +70,9 @@ export default function AboutUsPage() {
             <AnimatedElement animation="slideInLeft" className="w-full">
                 <KabihasnanCard imagePosition="left">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Vision</h2>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Bisyon</h2>
                         <p className="text-base leading-relaxed font-normal text-white">
-                        We envision a generation of students who see history not as distant facts, but as living narratives that inspire curiosity, creativity, and civic responsibility. Through PAMANA, we aim to cultivate lifelong learners who value cultural diversity, embrace innovation, and carry forward the legacy of humanity’s earliest civilizations.
+                        Hinahangad ng PAMANA ang isang henerasyon ng mga mag-aaral na tumitingin sa kasaysayan hindi bilang malalayong datos, kundi bilang buhay na mga salaysay na nagbibigay‑inspirasyon ng kuryosidad, pagkamalikhain, at pananagutang panlipunan. Sa pamamagitan ng PAMANA, layunin naming hubugin ng panghabambuhay ang mga mag-aaral na magpahalaga sa pagkakaiba‑iba ng kultura, yumayakap sa inobasyon, at nagdadala ng pamana ng pinakamaagang kabihasnan ng sangkatauhan.
                         </p>
                     </div>
                 </KabihasnanCard>
@@ -80,8 +80,8 @@ export default function AboutUsPage() {
             <AnimatedElement animation="slideInRight" className="w-full">
                 <KabihasnanCard imagePosition="right">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Academic Foundation</h2>
-                        <p className="text-base leading-relaxed font-normal text-white">PAMANA is anchored on:</p>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Batayang Akademiko</h2>
+                        <p className="text-base leading-relaxed font-normal text-white"> Ang PAMANA ay nakaugat sa:</p>
                         <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white mt-2">
                             <li>Constructivist Learning Theory – promoting active, participatory learning.</li>
                             <li>Mayer’s Cognitive Theory of Multimedia Learning – integrating visuals and narration for deeper comprehension.</li>
@@ -93,8 +93,8 @@ export default function AboutUsPage() {
             <AnimatedElement animation="slideInLeft" className="w-full">
                 <KabihasnanCard imagePosition="left">
                     <div className="relative z-10 text-left">
-                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Our Team</h2>
-                        <p className="text-base leading-relaxed font-normal text-white">Developed by Social Studies majors of Bulacan State University – Bustos Campus:</p>
+                        <h2 className="text-xl font-bold mb-2 text-[#B89336] tracking-wider">Grupo ng mga Mananaliksik:</h2>
+                        <p className="text-base leading-relaxed font-normal text-white">Ito ay binuo ng mga Social Studies majors ng Bulacan State University – Bustos Campus:</p>
                         <ul className="list-disc list-inside text-base leading-relaxed font-normal text-white mt-2">
                             <li>John Darius A. Mayuyo</li>
                             <li>Gillene Anne D. Polo</li>

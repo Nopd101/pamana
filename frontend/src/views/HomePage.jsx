@@ -75,7 +75,7 @@ function HomePage() {
       try {
         // 1. Fetch User Info
         const userRes = await API.get("me/");
-        setFirstName(userRes.data.first_name || userRes.data.username || "Student");
+        setFirstName(userRes.data.first_name || userRes.data.username || "Mag-aaral");
 
         // 2. Fetch Student Stats (To calculate progress bars)
         const statsRes = await API.get('student/stats/');
@@ -138,11 +138,11 @@ function HomePage() {
         <div className="relative z-10 w-full px-6 md:px-20 mt-10 md:-mt-20">
           <div className="max-w-xl text-white">
             <h1 className="text-4xl md:text-7xl font-extrabold leading-tight font-[var(--font-heading)]">
-              Welcome, {firstName}!
+              Maligayang Pagdating, {firstName}!
             </h1>
 
             <p className="mt-4 text-lg md:text-xl font-[var(--font-heading)]">
-              Choose a civilization to study
+              Pumili ng kabihasnang pag-aaralan
             </p>
 
             <button
@@ -154,7 +154,7 @@ function HomePage() {
               }}
               className="mt-6 bg-amber-700 hover:bg-amber-800 transition px-6 py-3 rounded-md font-semibold cursor-pointer font-[var(--font-body)]"
             >
-              Start Learning
+              Simulan ang Pagkatuto
             </button>
           </div>
         </div>
@@ -171,7 +171,7 @@ function HomePage() {
           {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <h2 className="text-2xl md:text-3xl font-extrabold text-[#7B3306] font-[var(--font-heading)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">
-              THE CIVILIZATIONS
+              MGA KABIHASNAN
             </h2>
             
             <button
@@ -181,7 +181,7 @@ function HomePage() {
               }}
               className="bg-[#7B3306] hover:bg-[#5a2504] text-white px-5 py-2 rounded-lg font-bold shadow-md transition-transform hover:scale-105 flex items-center gap-2 text-sm md:text-base cursor-pointer"
             >
-              Take Post-Test
+              Pagsusulit
             </button>
           </div>
 

@@ -266,8 +266,8 @@ function KabihasnanDetails() {
       subtitle: "Ang Kabihasnang Mesopotamia - ang lupain sa pagitan ng dalawang ilog",
       videoUrl: "https://www.youtube-nocookie.com/embed/72rC4AlZLrw", 
       games: [
-        { title: "MindFlip", desc: "Flip cards to match concepts." },
-        { title: "BrainTease", desc: "Solve riddles of the ancients." },
+        { title: "MindFlip", desc: "I-flip ang mga card at itugma ang mga konsepto." },
+        { title: "BrainTease", desc: "Lutasin ang mga palaisipan ng sinaunang panahon." },
       ],
       quizType: "multiple-choice",
       quizTitle: "QuizStory - Multiple Choice",
@@ -278,8 +278,8 @@ function KabihasnanDetails() {
       subtitle: "Kabihasnang Indus at mga imperyo ng India",
       videoUrl: "https://www.youtube-nocookie.com/embed/y_UlD1pCQFM",
       games: [
-        { title: "HARAPPUZZLE QUEST", desc: "Reconstruct the ancient ruins." },
-        { title: "CASTE YOUR ANSWER", desc: "Identify the social hierarchy." },
+        { title: "HARAPPUZZLE QUEST", desc: "Buuin ang mga sinaunang istruktura." },
+        { title: "CASTE YOUR ANSWER", desc: "Tukuyin ang hirarkiyang panlipunan." },
       ],
       quizType: "true-false",
       quizTitle: "IndusQUIZtery",
@@ -290,8 +290,8 @@ function KabihasnanDetails() {
       subtitle: "Ang duyan ng sinaunang imbensyon at pilosopiya.",
       videoUrl: "https://www.youtube-nocookie.com/embed/GTZP3iPhu3w",
       games: [
-        { title: "DynasSeek", desc: "Find the dynasties in the grid." },
-        { title: "DynastOut", desc: "Eliminate the wrong choices." },
+        { title: "DynasSeek", desc: " Hanapin ang mga dinastiya sa loob ng grid." },
+        { title: "DynastOut", desc: "Tanggalin ang mga maling pagpipilian." },
       ],
       quizType: "identification",
       quizTitle: "IdentiFun - IDENTIFICATION",
@@ -314,8 +314,8 @@ function KabihasnanDetails() {
       subtitle: "Ang sibilisasyon ng mga Maya, Aztec, at iba pang katutubo.",
       videoUrl: "https://www.youtube-nocookie.com/embed/_r7EIipPjy4",
       games: [
-        { title: "MistakeMaze", desc: "Navigate the maze of history." },
-        { title: "Selectify", desc: "Select the correct artifact." },
+        { title: "MistakeMaze", desc: "Tahakin ang Kasaysayan" },
+        { title: "Selectify", desc: "Piliin ang wastong artifact." },
       ],
       quizType: "fill-in-the-blank",
       quizTitle: "MesoQuiz",
