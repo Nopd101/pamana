@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import heroBanner from "../assets/hero-banner.png";
 import bgHome from "../assets/bg-home.png";
 import { useNavigate } from "react-router-dom";
@@ -9,12 +9,33 @@ import indusImg from "../assets/CivilizationPhotos/Indus.png";
 import mesoamericaImg from "../assets/CivilizationPhotos/Mesoamerica.png";
 import mesopotamiaImg from "../assets/CivilizationPhotos/Mesopotamia.png";
 
+// 👇 Import SFX
+import renameTabSfx from "../assets/sfx/rename_tab.mp3";
+
 function HomePage() {
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("Student");
   
-  // 👇 NEW: State to store progress percentages for each civilization
+  // State to store progress percentages for each civilization
   const [progressMap, setProgressMap] = useState({});
+
+  // 👇 FIXED: Use useRef to keep the Audio object alive and prevent garbage collection
+  const sfxRef = useRef(null);
+
+  useEffect(() => {
+    // Initialize audio once on mount
+    sfxRef.current = new Audio(renameTabSfx);
+    sfxRef.current.volume = 0.5; 
+    sfxRef.current.preload = 'auto'; // Force preload
+  }, []);
+
+  // 👇 Audio Helper Function
+  const playSound = () => {
+    if (sfxRef.current) {
+      sfxRef.current.currentTime = 0; // Reset to start so it plays immediately if clicked again
+      sfxRef.current.play().catch((e) => console.error("Audio play failed:", e));
+    }
+  };
 
   const kabihasnanList = [
     {
@@ -60,7 +81,7 @@ function HomePage() {
         const statsRes = await API.get('student/stats/');
         const history = statsRes.data.history;
 
-        // --- CALCULATION LOGIC (Matches StudentProfile.jsx) ---
+        // --- CALCULATION LOGIC ---
         const details = {};
         
         // Initialize all civs
@@ -86,11 +107,10 @@ function HomePage() {
             let tasksDone = 0;
             const d = details[key];
             
-            if (d.video) tasksDone++; // 1 Point for Video
-            if (d.quiz) tasksDone++;  // 1 Point for Quiz
-            if (d.games.size >= 2) tasksDone++; // 1 Point if at least 2 games played
+            if (d.video) tasksDone++; 
+            if (d.quiz) tasksDone++;  
+            if (d.games.size >= 2) tasksDone++; 
             
-            // Total items per civ is 3 (Video, Quiz, Games)
             calculatedProgress[key] = Math.round((tasksDone / 3) * 100);
         });
 
@@ -126,11 +146,12 @@ function HomePage() {
             </p>
 
             <button
-              onClick={() =>
+              onClick={() => {
+                playSound(); // 🔊 Play SFX
                 document
                   .getElementById("civilizations")
-                  .scrollIntoView({ behavior: "smooth" })
-              }
+                  .scrollIntoView({ behavior: "smooth" });
+              }}
               className="mt-6 bg-amber-700 hover:bg-amber-800 transition px-6 py-3 rounded-md font-semibold cursor-pointer font-[var(--font-body)]"
             >
               Start Learning
@@ -154,7 +175,10 @@ function HomePage() {
             </h2>
             
             <button
-              onClick={() => navigate('/post-test')}
+              onClick={() => {
+                playSound(); // 🔊 Play SFX
+                navigate('/post-test');
+              }}
               className="bg-[#7B3306] hover:bg-[#5a2504] text-white px-5 py-2 rounded-lg font-bold shadow-md transition-transform hover:scale-105 flex items-center gap-2 text-sm md:text-base cursor-pointer"
             >
               Take Post-Test
@@ -163,13 +187,15 @@ function HomePage() {
 
           <div className="space-y-4 md:space-y-6">
             {kabihasnanList.map((item) => {
-              // 👇 Get percentage from state, default to 0
               const percentage = progressMap[item.id] || 0;
 
               return (
                 <div
                   key={item.id}
-                  onClick={() => navigate(`/kabihasnan/${item.id}`)}
+                  onClick={() => {
+                    playSound(); // 🔊 Play SFX
+                    navigate(`/kabihasnan/${item.id}`);
+                  }}
                   className="bg-white/85 rounded-xl shadow-md flex flex-col md:flex-row items-center gap-4 transition-transform hover:scale-[1.01] cursor-pointer overflow-hidden p-4 md:p-0 md:pr-8"
                 >
                   {/* Image Container */}
@@ -190,7 +216,7 @@ function HomePage() {
                       {item.description}
                     </p>
 
-                    {/* 👇 RESTORED PROGRESS BAR */}
+                    {/* PROGRESS BAR */}
                     <div className="w-full bg-gray-300 rounded-full h-3 overflow-hidden shadow-inner border border-gray-400/30">
                       <div 
                         className="bg-gradient-to-r from-[#bb6701] to-[#bb6701] h-full rounded-full transition-all duration-1000 ease-out" 
