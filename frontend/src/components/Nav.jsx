@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
+import pamanaTitle from "../assets/pamana-title.png";
 import API from "../api/axios"; // Ensure you have this import for fetching user data
 
 const Navbar = () => {
@@ -85,17 +86,16 @@ const Navbar = () => {
       >
         <div className="w-full flex items-center justify-between px-6 py-4 md:px-10 md:py-6 lg:px-24">
           {/* 👇 LOGO */}
+          {/* 👇 LOGO (Updated to Image) */}
           <Link
             to={isLoggedIn ? "/homepage" : "/"}
-            className="text-2xl md:text-3xl lg:text-[2.34rem] no-underline shrink-0"
-            style={{ 
-              fontFamily: "'Tourney', sans-serif", 
-              fontWeight: 900,
-              color: '#F1F1F1',
-              letterSpacing: '0.05em' 
-            }}
+            className="no-underline shrink-0"
           >
-            PAMANA
+            <img 
+              src={pamanaTitle} 
+              alt="PAMANA" 
+              className="h-8 md:h-10 lg:h-12 w-auto object-contain filter drop-shadow-[0_0_10px_rgba(255,255,255,0.9)]"
+            />
           </Link>
 
           {/* 👇 DESKTOP RIGHT SIDE */}
