@@ -5,6 +5,7 @@ import Navbar from "../components/Nav";
 import BackButton from "../components/BackButton";
 import charImg from "../assets/main-home-character-left.png";
 import API from '../api/axios'; 
+import { toast } from 'react-toastify'; 
 
 // --- Sound Effects ---
 import correctSfx from "../assets/sfx/correct.mp3";
@@ -59,6 +60,16 @@ const questionsData = [
   },
 ];
 
+// 👇 Shared Toast Style
+const toastStyle = {
+  backgroundColor: "#772402",
+  color: "#FDFBF7",
+  border: "2px solid #B89336",
+  borderRadius: "10px",
+  fontWeight: "bold",
+  boxShadow: "0px 4px 10px rgba(0,0,0,0.3)"
+};
+
 const ItamaMoAko = () => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -70,7 +81,6 @@ const ItamaMoAko = () => {
 
   const currentQuestion = questionsData[currentIndex];
 
-  // --- Audio Helper ---
   const playSound = (soundFile) => {
     const audio = new Audio(soundFile);
     audio.volume = 0.5;
@@ -83,25 +93,62 @@ const ItamaMoAko = () => {
   };
 
   const handleSubmit = () => {
-    if (!userAnswer.trim() || feedback === "TAMA!") return;
+    // Handle Empty Answer as Skip
+    if (!userAnswer.trim()) {
+        playSound(incorrectSfx);
+        
+        // Show correct answer toast
+        toast.info(`Skipped! Correct answer: ${currentQuestion.correct}`, {
+            position: "top-center",
+            autoClose: 3000,
+            style: { ...toastStyle, backgroundColor: "#B89336", color: "#3E2b26" },
+            icon: "⏩"
+        });
+
+        // Move to next question (no points)
+        setTimeout(() => {
+            setFeedback("");
+            setUserAnswer("");
+            setIsWordClicked(false);
+            if (currentIndex < questionsData.length - 1) {
+                setCurrentIndex((prev) => prev + 1);
+            } else {
+                setIsGameFinished(true);
+            }
+        }, 2000);
+        
+        return;
+    }
+
+    if (feedback === "TAMA!") return;
 
     const cleanUser = userAnswer.trim().toLowerCase();
     const cleanAnswer = currentQuestion.correct.toLowerCase();
 
     if (cleanUser === cleanAnswer) {
-      // --- CORRECT SFX ---
       playSound(correctSfx);
       handleCorrect();
     } else {
-      // --- INCORRECT SFX ---
       playSound(incorrectSfx);
-      setFeedback("Mali ang iyong sagot. Subukan muli!");
-      setTimeout(() => setFeedback(""), 2000);
+      toast.error("Mali ang iyong sagot. Subukan muli!", {
+        position: "top-center",
+        autoClose: 2000,
+        style: { ...toastStyle, border: "2px solid #ff4444" },
+        icon: "❌"
+      });
     }
   };
 
   const handleCorrect = () => {
     setFeedback("TAMA!");
+    toast.success("TAMA!", {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: true,
+        style: toastStyle,
+        icon: "✅"
+    });
+
     setScore((prev) => prev + 1);
 
     setTimeout(() => {
@@ -117,13 +164,9 @@ const ItamaMoAko = () => {
     }, 1500);
   };
 
-  // 👇 Submit Score & Play Sound when Game Finished
   useEffect(() => {
     if (isGameFinished) {
-        
-        // --- CLEARED SFX ---
         playSound(clearedSfx);
-
         const submitScore = async () => {
             try {
                 await API.post('submit-score/', {
@@ -150,18 +193,21 @@ const ItamaMoAko = () => {
     setIsGameFinished(false);
   };
 
+  // 👇 UPDATED: Changed wordClass to make the word blend in
   const renderSentence = () => {
     const parts = currentQuestion.sentenceParts;
     const errorWord = currentQuestion.error;
 
-    const wordClass = `font-bold cursor-pointer ${
-      isWordClicked ? "text-red-500" : "text-white"
+    const wordClass = `font-bold cursor-pointer transition-colors duration-300 ${
+      isWordClicked 
+        ? "text-red-500 underline decoration-wavy" // If clicked -> Red & Wavy
+        : "text-white hover:text-[#FFDC88]" // If not clicked -> White (Hidden) but turns Yellow on hover
     }`;
 
     return (
       <p className="text-white font-bold text-lg md:text-2xl italic leading-relaxed whitespace-pre-line drop-shadow-md">
         "{parts[0]}
-        <span onClick={handleWordClick} className={wordClass}>
+        <span onClick={handleWordClick} className={wordClass} title="Click the error">
           {errorWord}
         </span>
         {parts[1]}"
@@ -176,21 +222,24 @@ const ItamaMoAko = () => {
     >
       <Navbar />
 
-      {/* --- GAME CLEARED MODAL (FIXED LAYOUT) --- */}
       {isGameFinished && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center">
             
-            {/* Flex container to prevent overlap */}
             <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
                 <img 
                     src={charImg} 
                     alt="Game Cleared Character" 
                     className="w-40 md:w-56 drop-shadow-2xl animate-bounce-short z-10"
                 />
-                <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] text-center md:text-left z-20 leading-tight uppercase tracking-tighter transform -rotate-2">
-                    GAME <br/> CLEARED
-                </h1>
+                <div className="text-center md:text-left z-20">
+                    <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] leading-tight uppercase tracking-tighter transform -rotate-2">
+                        GAME <br/> CLEARED
+                    </h1>
+                    <p className="text-white font-bold text-xl mt-2 drop-shadow-md">
+                        Score: {score} / {questionsData.length}
+                    </p>
+                </div>
             </div>
 
             <div className="flex gap-4 mt-2 z-30">
@@ -253,18 +302,14 @@ const ItamaMoAko = () => {
                   className="w-full mt-4 bg-[#772402] text-white py-3 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg"
                   disabled={feedback === "TAMA!"}
                 >
-                  Submit Answer
+                  {userAnswer.trim() ? "Submit Answer" : "Skip / Reveal Answer"}
                 </button>
               </div>
             )}
 
             {feedback && (
               <div className="mt-4 text-center font-bold text-xl">
-                <p
-                  className={
-                    feedback === "TAMA!" ? "text-green-600" : "text-red-600"
-                  }
-                >
+                <p className={feedback === "TAMA!" ? "text-green-600" : "text-red-600"}>
                   {feedback}
                 </p>
               </div>
