@@ -54,12 +54,13 @@ const MesoRiddleGame = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [score, setScore] = useState(0);
-  const [showHint, setShowHint] = useState(false);
+  
+  // 👇 CHANGED: Hint is now a level (0 = hidden, 1 = first, 2 = last, 3 = middle)
+  const [hintLevel, setHintLevel] = useState(0); 
   const [isGameFinished, setIsGameFinished] = useState(false);
   
   const currentRiddle = RIDDLES[currentIndex];
 
-  // --- Audio Helper ---
   const playSound = (soundFile) => {
     const audio = new Audio(soundFile);
     audio.volume = 0.5; 
@@ -67,7 +68,18 @@ const MesoRiddleGame = () => {
   };
 
   const handleSubmit = () => {
-    if (!userAnswer.trim()) return;
+    // 👇 NEW: Handle Empty Answer (Skip/Reveal)
+    if (!userAnswer.trim()) {
+        playSound(incorrectSfx);
+        toast.info(`Ang tamang sagot ay: ${currentRiddle.answer}`, {
+            position: "top-center",
+            autoClose: 3000,
+            style: { ...toastStyle, backgroundColor: "#B89336", color: "#3E2b26" }, // Different color for reveal
+            icon: "💡"
+        });
+        moveToNextQuestion();
+        return;
+    }
 
     const cleanUser = userAnswer.trim().toUpperCase();
     const cleanAnswer = currentRiddle.answer.toUpperCase();
@@ -78,9 +90,7 @@ const MesoRiddleGame = () => {
     ) {
       handleCorrect();
     } else {
-      // 👇 Incorrect SFX
       playSound(incorrectSfx);
-
       toast.error("Mali ang iyong sagot. Subukan muli!", {
         position: "top-center",
         autoClose: 2000,
@@ -91,9 +101,7 @@ const MesoRiddleGame = () => {
   };
 
   const handleCorrect = () => {
-    // 👇 Correct SFX
     playSound(correctSfx);
-
     toast.success("TAMA!", {
         position: "top-center",
         autoClose: 1000,
@@ -101,45 +109,63 @@ const MesoRiddleGame = () => {
         style: toastStyle,
         icon: "✅"
     });
-
     setScore((prev) => prev + 1);
+    moveToNextQuestion();
+  };
 
+  const moveToNextQuestion = () => {
     setTimeout(() => {
-      setUserAnswer("");
-      setShowHint(false);
+        setUserAnswer("");
+        setHintLevel(0); // Reset hint level
 
-      if (currentIndex < RIDDLES.length - 1) {
-        setCurrentIndex((prev) => prev + 1);
-      } else {
-        setIsGameFinished(true);
-      }
-    }, 1500);
+        if (currentIndex < RIDDLES.length - 1) {
+          setCurrentIndex((prev) => prev + 1);
+        } else {
+          setIsGameFinished(true);
+        }
+      }, 2000); // Increased delay slightly to read reveal message if skipped
   };
 
   const handleReset = () => {
     setCurrentIndex(0);
     setScore(0);
     setUserAnswer("");
-    setShowHint(false);
+    setHintLevel(0);
     setIsGameFinished(false);
+  };
+
+  // 👇 UPDATED: Hint Logic based on Level
+  const handleShowHint = () => {
+    if (hintLevel < 3) {
+        setHintLevel(prev => prev + 1);
+    }
   };
 
   const getHintText = () => {
     const ans = currentRiddle.answer;
-    const firstChar = ans.charAt(0);
-    const hidden = ans
-      .slice(1)
-      .split("")
-      .map((char) => (char === " " ? " " : "_"))
-      .join(" ");
-    return `${firstChar} ${hidden}`;
+    const chars = ans.split("");
+    
+    // Level 0: All hidden (underscores)
+    // Level 1: First letter revealed
+    // Level 2: First + Last letter revealed
+    // Level 3: First + Last + Middle letter revealed
+
+    return chars.map((char, index) => {
+        if (char === " ") return " "; // Keep spaces
+        
+        let shouldReveal = false;
+
+        if (hintLevel >= 1 && index === 0) shouldReveal = true; // First
+        if (hintLevel >= 2 && index === chars.length - 1) shouldReveal = true; // Last
+        if (hintLevel >= 3 && index === Math.floor(chars.length / 2)) shouldReveal = true; // Middle
+
+        return shouldReveal ? char : "_";
+    }).join(" ");
   };
 
   useEffect(() => {
     if (isGameFinished) {
-        // 👇 Cleared SFX
         playSound(clearedSfx);
-
         const submitRiddleScore = async () => {
             try {
                 await API.post('submit-score/', {
@@ -235,8 +261,9 @@ const MesoRiddleGame = () => {
                 disabled={isGameFinished}
               />
 
-              {showHint && (
-                <div className="text-center text-[#772402] font-bold animate-pulse">
+              {/* 👇 HINT DISPLAY (Only show if level > 0) */}
+              {hintLevel > 0 && (
+                <div className="text-center text-[#772402] font-bold animate-pulse text-lg tracking-widest">
                   HINT: {getHintText()}
                 </div>
               )}
@@ -247,14 +274,15 @@ const MesoRiddleGame = () => {
                   disabled={isGameFinished}
                   className="flex-1 bg-[#5a2d0c] text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-[#3E2b26] active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Submit Answer
+                  {/* 👇 Button text changes if input is empty */}
+                  {userAnswer.trim() ? "Submit Answer" : "Skip / Reveal Answer"}
                 </button>
                 <button
-                  onClick={() => setShowHint(true)}
-                  disabled={isGameFinished}
+                  onClick={handleShowHint}
+                  disabled={isGameFinished || hintLevel >= 3}
                   className="flex-1 bg-white text-[#5a2d0c] border-2 border-[#5a2d0c] font-bold py-3 px-6 rounded-lg shadow-sm hover:bg-amber-50 active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Show Hint
+                  {hintLevel === 0 ? "Show Hint (1/3)" : hintLevel === 1 ? "Next Hint (2/3)" : hintLevel === 2 ? "Last Hint (3/3)" : "No More Hints"}
                 </button>
               </div>
             </div>
