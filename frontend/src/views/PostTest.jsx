@@ -322,11 +322,6 @@ const PostTest = () => {
                                         {timer}s
                                     </span>
                                 </div>
-
-                                {/* Right: Score */}
-                                <span className="text-[#772402] font-extrabold text-base md:text-xl">
-                                    Score: {score}
-                                </span>
                             </div>
                             {/* ======================= */}
 
