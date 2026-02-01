@@ -70,7 +70,6 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 class ActivityLogSerializer(serializers.ModelSerializer):
-    # [cite_start]Used for tracking progress and scores [cite: 6]
     class Meta:
         model = ActivityLog
-        fields = '__all__'
+        fields = '__all__' # This automatically includes the new 'details' field

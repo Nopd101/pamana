@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // 👈 Added useLocation
 import Navbar from '../components/Nav';
 import bgHome from '../assets/bg-home.png';
 import API from '../api/axios';
+import { CheckCircle2, XCircle, Clock } from 'lucide-react'; // 👈 Added Icons
 
 // 👇 Import SFX
 import renameTabSfx from '../assets/sfx/rename_tab.mp3';
@@ -115,37 +116,51 @@ const questions = [
 
 const PostTest = () => {
     const navigate = useNavigate();
+    const location = useLocation(); // 👈 Added: To get Teacher Data
+
+    // --- REVIEW MODE DATA ---
+    const isReviewMode = location.state?.reviewMode || false;
+    const studentAnswersReview = location.state?.studentAnswers || {};
+    const reviewStudentName = location.state?.studentName || "Student";
+    const reviewScore = location.state?.score || 0;
+    const reviewTotal = location.state?.total || questions.length;
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [timer, setTimer] = useState(60);
     const [isGameFinished, setIsGameFinished] = useState(false);
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [timeUp, setTimeUp] = useState(false);
+    
+    // 👇 NEW: State to store answers during the test
+    const [userAnswers, setUserAnswers] = useState({});
+
     const timerRef = React.useRef(null);
     
-    // 👇 AUDIO SETUP (Generic)
+    // 👇 AUDIO SETUP
     const playSound = (soundFile) => {
+        if (isReviewMode) return; // Mute in review mode
         const audio = new Audio(soundFile);
         audio.volume = 0.5;
         audio.play().catch(e => console.error("Audio play failed:", e));
     };
 
    const handleNextQuestion = (answerClicked) => {
-        // Prevent multiple clicks
         if (selectedAnswer) return;
 
-        setSelectedAnswer(answerClicked); // Set selected answer to trigger UI change
+        setSelectedAnswer(answerClicked);
+        
+        // 👇 Save Answer using Current Index
+        setUserAnswers(prev => ({ ...prev, [currentIndex]: answerClicked }));
 
         const isCorrect = answerClicked === questions[currentIndex].answer;
 
-        // 👇 Play Correct or Incorrect Sound
         if (isCorrect) {
             playSound(correctSfx);
         } else {
             playSound(incorrectSfx);
         }
 
-        // Delay moving to the next question to show the color feedback
         setTimeout(() => {
             if (isCorrect) {
                 setScore(prev => prev + 1);
@@ -153,25 +168,22 @@ const PostTest = () => {
 
             if (currentIndex < questions.length - 1) {
                 setCurrentIndex(prev => prev + 1);
-                setSelectedAnswer(null); // Reset for next question
+                setSelectedAnswer(null);
             } else {
                 setIsGameFinished(true);
             }
-        }, 1000); // 1 second delay
+        }, 1000);
     };
     
-    // Modified Timer logic
     const handleTimeout = () => {
-        // 1. Mark that time is up
         setTimeUp(true);
-        
-        // 👇 Play Incorrect Sound on Timeout
         playSound(incorrectSfx);
         
-        // 2. Lock the options
+        // Save as Unanswered/TimeUp
+        setUserAnswers(prev => ({ ...prev, [currentIndex]: "NO_ANSWER" }));
+
         setSelectedAnswer("TIME_UP");
 
-        // 3. Wait 1 second then proceed
         setTimeout(() => {
             if (currentIndex < questions.length - 1) {
                 setCurrentIndex(prev => prev + 1);
@@ -183,15 +195,17 @@ const PostTest = () => {
         }, 1000);
     };
 
+    // --- TIMER LOGIC (Disable in Review) ---
     useEffect(() => {
-        setTimer(60); // Reset timer for new question
+        if (isReviewMode) return; // 👈 Stop timer in review
+
+        setTimer(60); 
         if (timerRef.current) clearInterval(timerRef.current);
 
         if (!isGameFinished) {
             timerRef.current = setInterval(() => {
                 setTimer(prev => {
                     if (prev === 1) {
-                        // If user hasn't selected an answer yet and time runs out
                         if (!selectedAnswer) {
                             handleTimeout();
                         }
@@ -203,10 +217,11 @@ const PostTest = () => {
         }
 
         return () => clearInterval(timerRef.current);
-    }, [currentIndex, isGameFinished, selectedAnswer]);
+    }, [currentIndex, isGameFinished, selectedAnswer, isReviewMode]);
 
+    // --- SUBMISSION LOGIC ---
     useEffect(() => {
-        if (isGameFinished) {
+        if (isGameFinished && !isReviewMode) { // 👈 Only submit if NOT review
             const submitPostTestScore = async () => {
                 try {
                     await API.post('submit-score/', {
@@ -214,7 +229,8 @@ const PostTest = () => {
                         activity_type: "Quiz",
                         activity_name: "Post-Test",
                         score: score,
-                        max_score: questions.length
+                        max_score: questions.length,
+                        details: userAnswers // 👈 CRITICAL: Sending answers to DB
                     });
                     console.log("Post-Test score submitted.");
                 } catch (error) {
@@ -223,8 +239,90 @@ const PostTest = () => {
             };
             submitPostTestScore();
         }
-    }, [isGameFinished, score]);
+    }, [isGameFinished, score, userAnswers, isReviewMode]);
 
+    // ============================================
+    // 👇 REVIEW MODE RENDER (TEACHER VIEW)
+    // ============================================
+    if (isReviewMode) {
+        return (
+            <div className="min-h-screen bg-cover bg-center font-[var(--font-body)] overflow-y-auto" style={{ backgroundImage: `url(${bgHome})` }}>
+                <div className="max-w-4xl mx-auto px-4 py-10 pt-24">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="flex items-center text-[#5a2d0c] font-bold mb-6 hover:underline bg-white/80 px-4 py-2 rounded-lg w-fit"
+                    >
+                        ◀ Back to Report
+                    </button>
+
+                    <div className="bg-[#FDFBF7]/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border-4 border-[#C8AA86]/50">
+                        <div className="flex flex-col md:flex-row justify-between items-center border-b-2 border-[#C8AA86]/30 pb-6 mb-8">
+                            <div>
+                                <h1 className="text-3xl font-black text-[#772402] uppercase">Post-Test Review</h1>
+                                <p className="text-[#964B1D] font-bold text-lg">Student: {reviewStudentName}</p>
+                            </div>
+                            <div className="bg-[#772402] text-white px-6 py-3 rounded-xl shadow-lg mt-4 md:mt-0 text-center">
+                                <p className="text-xs uppercase opacity-80 font-bold">Final Score</p>
+                                <p className="text-3xl font-black">{reviewScore} / {reviewTotal}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-8">
+                            {questions.map((q, idx) => {
+                                const studentAns = studentAnswersReview[idx]; // Access by index
+                                const isCorrect = studentAns === q.answer;
+                                const isMissed = !studentAns || studentAns === "NO_ANSWER";
+
+                                return (
+                                    <div key={idx} className={`border-2 rounded-xl p-6 shadow-sm ${isCorrect ? 'border-green-200 bg-green-50/50' : 'border-red-200 bg-red-50/50'}`}>
+                                        <div className="flex justify-between items-start gap-4 mb-4">
+                                            <h3 className="font-bold text-[#5a2d0c] text-lg">
+                                                <span className="bg-[#772402] text-white px-2 py-0.5 rounded mr-3 text-sm">{idx + 1}</span>
+                                                {q.question}
+                                            </h3>
+                                            <div className="shrink-0">
+                                                {isCorrect ? <CheckCircle2 className="text-green-600 w-6 h-6" /> : <XCircle className="text-red-500 w-6 h-6" />}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {q.options.map((option, optIdx) => {
+                                                let btnClass = "border-2 border-gray-200 text-gray-600 bg-white opacity-70";
+                                                
+                                                if (option === q.answer) {
+                                                    // Correct Answer (Always Green)
+                                                    btnClass = "border-green-500 bg-green-100 text-green-900 font-bold opacity-100 ring-2 ring-green-500/20";
+                                                } else if (option === studentAns) {
+                                                    // Wrong Student Selection (Red)
+                                                    btnClass = "border-red-500 bg-red-100 text-red-900 font-bold opacity-100";
+                                                }
+
+                                                return (
+                                                    <div key={optIdx} className={`p-3 rounded-lg text-left transition-all ${btnClass}`}>
+                                                        {option}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                        
+                                        {!isCorrect && (
+                                            <div className="mt-4 text-sm font-bold text-red-700 bg-white/50 p-2 rounded inline-block">
+                                                Student Answer: {isMissed ? "No Answer / Time Up" : studentAns}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ============================================
+    // 👇 STUDENT RENDER (GAME/QUIZ VIEW)
+    // ============================================
     if (isGameFinished) {
         return (
             <div className="min-h-screen bg-cover bg-center font-[var(--font-body)] flex flex-col items-center justify-center" style={{ backgroundImage: `url(${bgHome})` }}>
@@ -236,7 +334,6 @@ const PostTest = () => {
                     </p>
                     <button
                         onClick={() => {
-                            // 👇 Play Cleared SFX on Finish
                             playSound(clearedSfx);
                             navigate('/student-profile');
                         }}
@@ -251,31 +348,19 @@ const PostTest = () => {
 
     const currentQuestion = questions[currentIndex];
 
-   const getOptionClass = (option) => {
+    const getOptionClass = (option) => {
         const baseClass = "font-bold py-4 px-6 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#C8AA86]";
         
-        // Scenario 1: Time Ran Out (No User Click)
         if (timeUp) {
-            if (option === currentQuestion.answer) {
-                return `${baseClass} bg-green-600 text-white`; 
-            } else {
-                return `${baseClass} bg-red-600 text-white`; 
-            }
+            if (option === currentQuestion.answer) return `${baseClass} bg-green-600 text-white`; 
+            return `${baseClass} bg-red-600 text-white`; 
         }
 
-        // Scenario 2: User Clicked an Answer
         if (selectedAnswer && !timeUp) {
-            // Always highlight the correct answer in green
-            if (option === currentQuestion.answer) {
-                return `${baseClass} bg-green-600 text-white`; 
-            }
-            // If this specific option was the one clicked AND it is wrong, highlight it red
-            if (option === selectedAnswer) {
-                return `${baseClass} bg-red-600 text-white`; 
-            }
+            if (option === currentQuestion.answer) return `${baseClass} bg-green-600 text-white`; 
+            if (option === selectedAnswer) return `${baseClass} bg-red-600 text-white`; 
         }
         
-        // Default state
         return `${baseClass} bg-[#83643E] text-white hover:bg-[#7a4e2c]`; 
     };
 
@@ -284,7 +369,6 @@ const PostTest = () => {
             <Navbar />
             <div className="flex flex-col items-center justify-center min-h-screen pt-24 md:pt-32">
                 <div className="w-full max-w-4xl mx-auto px-4 pb-10">
-                    {/* 👇 MANUAL BACK BUTTON with Sound */}
                     <button 
                         onClick={() => {
                             playSound(renameTabSfx);
@@ -307,23 +391,19 @@ const PostTest = () => {
                     <div className="bg-[#FDFBF7] rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 relative flex flex-col items-center">
                         <div className="w-full max-w-3xl">
                             
-                            {/* === HEADER === */}
                             <div className="relative flex justify-between items-center mb-10 border-b-2 border-[#C8AA86]/30 pb-6 pt-2">
-                                {/* Left: Question Count */}
                                 <span className="text-[#772402] font-extrabold text-base md:text-xl">
                                     Q. {currentIndex + 1}/{questions.length}
                                 </span>
 
-                                {/* Center: Timer Badge (Absolute Position) */}
                                 <div className={`absolute left-1/2 transform -translate-x-1/2 shadow-xl rounded-full px-6 py-2 border-2 border-[#FDFBF7] transition-all duration-300 ${
                                     timer <= 10 ? 'bg-red-600 scale-110' : 'bg-[#772402]'
                                 }`}>
-                                    <span className="text-white font-black text-xl tracking-wider">
-                                        {timer}s
+                                    <span className="text-white font-black text-xl tracking-wider flex items-center gap-2">
+                                        <Clock className="w-5 h-5" /> {timer}s
                                     </span>
                                 </div>
                             </div>
-                            {/* ======================= */}
 
                             <div className="bg-gradient-to-b from-[#8B5E3C] to-[#5a2d0c] rounded-xl p-6 md:p-10 shadow-inner mb-6 text-center flex flex-col justify-center min-h-[150px]">
                                 <p className="text-white font-semibold text-lg md:text-xl leading-relaxed whitespace-pre-line drop-shadow-md">
