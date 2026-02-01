@@ -10,8 +10,8 @@ import { toast } from 'react-toastify';
 import correctSfx from "../assets/sfx/correct.mp3";
 import incorrectSfx from "../assets/sfx/incorrect.mp3";
 import clearedSfx from "../assets/sfx/cleared.mp3";
-import letterSfx from "../assets/sfx/rename_tab.mp3"; // 👈 New: Letter press sound
-import hintSfx from "../assets/sfx/hint.mp3";         // 👈 New: Hint button sound
+import letterSfx from "../assets/sfx/rename_tab.mp3"; 
+import hintSfx from "../assets/sfx/hint.mp3"; 
 
 // Import Images
 import p1_1 from "../assets/4Pics1Word/1.png";
@@ -78,7 +78,7 @@ const FourPicsOneWord = () => {
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [showHint, setShowHint] = useState(false);
-  const [hasUsedReveal, setHasUsedReveal] = useState(false); 
+  const [revealCount, setRevealCount] = useState(0); 
   const [isGameFinished, setIsGameFinished] = useState(false);
   
   // Game Logic States
@@ -122,7 +122,7 @@ const FourPicsOneWord = () => {
 
     setShuffledLetters(shuffled);
     setShowHint(false);
-    setHasUsedReveal(false); 
+    setRevealCount(0); 
 
   }, [currentPuzzleIndex]);
 
@@ -130,7 +130,6 @@ const FourPicsOneWord = () => {
   const handlePoolClick = (letterObj) => {
     if (letterObj.isUsed) return;
     
-    // 👇 Play Letter Sound
     playSound(letterSfx);
 
     const firstEmptyIndex = userAnswer.indexOf(null);
@@ -148,9 +147,10 @@ const FourPicsOneWord = () => {
   // 4. Handle Clicking an Answer Slot (Undo)
   const handleSlotClick = (index) => {
     const item = userAnswer[index];
-    if (!item) return;
+    
+    // 👇 NEW: If item doesn't exist OR is Locked (Hint), do nothing
+    if (!item || item.isLocked) return;
 
-    // 👇 Play Letter Sound
     playSound(letterSfx);
 
     const newAnswer = [...userAnswer];
@@ -162,11 +162,10 @@ const FourPicsOneWord = () => {
     setShuffledLetters(newPool);
   };
 
-  // 5. Reveal 2 Random Letters Function
+  // 5. Reveal 1 Random Letter Function (Max 2 uses)
   const handleRevealLetter = () => {
-    if (hasUsedReveal) return; 
+    if (revealCount >= 2) return; 
 
-    // Find indices that are currently empty
     const emptyIndices = userAnswer
       .map((val, idx) => val === null ? idx : null)
       .filter(val => val !== null);
@@ -180,42 +179,35 @@ const FourPicsOneWord = () => {
       return;
     }
 
-    // Determine how many to reveal (max 2)
-    const countToReveal = Math.min(2, emptyIndices.length);
-    
-    // Shuffle empty indices to pick random ones
-    const shuffledIndices = emptyIndices.sort(() => 0.5 - Math.random());
-    const selectedIndices = shuffledIndices.slice(0, countToReveal);
+    const randomIndex = Math.floor(Math.random() * emptyIndices.length);
+    const targetIdx = emptyIndices[randomIndex];
 
     let newAnswer = [...userAnswer];
     let newPool = [...shuffledLetters];
-    let lettersFound = false;
+    let letterFound = false;
 
-    // Loop through selected indices and fill them
-    selectedIndices.forEach((idx) => {
-        const correctChar = currentPuzzle.answer[idx];
+    const correctChar = currentPuzzle.answer[targetIdx];
 
-        // Find that char in the pool (must be unused)
-        const availableLetterObj = newPool.find(
-            item => item.letter === correctChar && !item.isUsed
+    const availableLetterObj = newPool.find(
+        item => item.letter === correctChar && !item.isUsed
+    );
+
+    if (availableLetterObj) {
+        // 👇 NEW: We mark this specific letter as "Locked" in the answer slot
+        const lockedLetter = { ...availableLetterObj, isLocked: true };
+        
+        newAnswer[targetIdx] = lockedLetter;
+        newPool = newPool.map(l =>
+            l.id === availableLetterObj.id ? { ...l, isUsed: true } : l
         );
+        letterFound = true;
+    }
 
-        if (availableLetterObj) {
-            newAnswer[idx] = availableLetterObj;
-            newPool = newPool.map(l =>
-                l.id === availableLetterObj.id ? { ...l, isUsed: true } : l
-            );
-            lettersFound = true;
-        }
-    });
-
-    if (lettersFound) {
-        // 👇 Play Hint Sound
+    if (letterFound) {
         playSound(hintSfx);
-
         setUserAnswer(newAnswer);
         setShuffledLetters(newPool);
-        setHasUsedReveal(true);
+        setRevealCount(prev => prev + 1); 
     } else {
         toast.warn("The letters you need are already on the board! Clear some wrong letters.", {
             position: "top-center",
@@ -233,7 +225,6 @@ const FourPicsOneWord = () => {
       const constructedWord = userAnswer.map(obj => obj.letter).join("");
       
       if (constructedWord === currentPuzzle.answer) {
-        // --- CORRECT SFX ---
         playSound(correctSfx);
 
         setScore(prev => prev + 1);
@@ -247,9 +238,7 @@ const FourPicsOneWord = () => {
 
         setTimeout(() => {
             if (currentPuzzleIndex < puzzles.length - 1) {
-                // Reset userAnswer to empty to prevent false incorrect sound on next stage
                 setUserAnswer([]); 
-                
                 setCurrentPuzzleIndex(prev => prev + 1);
             } else {
                 setIsGameFinished(true);
@@ -257,7 +246,6 @@ const FourPicsOneWord = () => {
         }, 1000);
 
       } else {
-        // --- INCORRECT SFX ---
         playSound(incorrectSfx);
 
         toast.error("Incorrect Arrangement!", {
@@ -271,11 +259,8 @@ const FourPicsOneWord = () => {
   }, [userAnswer, currentPuzzle, currentPuzzleIndex, isGameFinished]);
 
 
-  // 7. Submit Score & Play Sound when Game Finished
   useEffect(() => {
     if (isGameFinished) {
-        
-        // --- CLEARED SFX ---
         playSound(clearedSfx);
 
         const submitScore = async () => {
@@ -306,12 +291,11 @@ const FourPicsOneWord = () => {
       className="min-h-screen bg-cover bg-center overflow-x-hidden relative font-[var(--font-body)]"
       style={{ backgroundImage: `url(${bgHome})` }}
     >
-      {/* --- GAME CLEARED MODAL (FIXED LAYOUT) --- */}
+      {/* --- GAME CLEARED MODAL --- */}
       {isGameFinished && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="relative bg-transparent max-w-2xl w-full flex flex-col items-center justify-center">
             
-            {/* Flex container to prevent overlap */}
             <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
                 <img 
                     src={charImg} 
@@ -374,10 +358,13 @@ const FourPicsOneWord = () => {
               <button
                 key={index}
                 onClick={() => handleSlotClick(index)}
+                disabled={item?.isLocked} // Disable click visually/functionally (though handleSlotClick catches it too)
                 className={`w-10 h-10 md:w-12 md:h-12 border-4 rounded-md font-black text-xl md:text-2xl flex items-center justify-center shadow-inner transition-all ${
                   item 
-                    ? "bg-[#772402] text-white border-[#5a2d0c] scale-105" 
-                    : "bg-[#FDFBF7] border-[#7B3306]"
+                    ? item.isLocked 
+                        ? "bg-[#3E2b26] text-[#C8AA86] border-[#2a1d1a] cursor-not-allowed" // Locked Style
+                        : "bg-[#772402] text-white border-[#5a2d0c] scale-105 hover:bg-[#8B3A0E]" // Normal Filled Style
+                    : "bg-[#FDFBF7] border-[#7B3306]" // Empty Style
                 }`}
               >
                 {item ? item.letter : ""}
@@ -396,7 +383,7 @@ const FourPicsOneWord = () => {
                 ) : (
                 <button 
                     onClick={() => {
-                        playSound(hintSfx); // 👈 Play sound on click
+                        playSound(hintSfx); 
                         setShowHint(true);
                     }}
                     className="text-xs md:text-sm text-[#772402]/80 underline hover:text-[#772402] font-bold"
@@ -409,14 +396,14 @@ const FourPicsOneWord = () => {
              {/* Reveal Letter Button */}
              <button
                 onClick={handleRevealLetter}
-                disabled={hasUsedReveal}
+                disabled={revealCount >= 2}
                 className={`text-xs md:text-sm font-bold py-1 px-3 rounded-full border-2 transition-colors ${
-                    hasUsedReveal 
+                    revealCount >= 2 
                         ? "bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed"
                         : "bg-[#C8AA86] border-[#772402] text-[#772402] hover:bg-[#b08d55] hover:text-white"
                 }`}
              >
-                {hasUsedReveal ? "Letter Used" : "Reveal 2 Letters"}
+                {revealCount >= 2 ? "Max Hints Used" : `Reveal Letter (${2 - revealCount} left)`}
              </button>
           </div>
 

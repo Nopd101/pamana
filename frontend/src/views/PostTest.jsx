@@ -297,7 +297,7 @@ const PostTest = () => {
 
                     <div className="text-center mb-6">
                         <h1 className="text-3xl md:text-5xl font-black text-[#772402] mb-2 font-[var(--font-heading)] uppercase drop-shadow-sm">
-                            Post-Test
+                            Pagsusulit
                         </h1>
                         <p className="text-[#964B1D] font-bold text-xs md:text-base max-w-xl mx-auto leading-relaxed px-4">
                             Basahing mabuti ang bawat tanong. Piliin ang tamang sagot sa mga ibinigay na pagpipilian. Mayroon ka lamang isang minuto para sagutin ang bawat katanungan.

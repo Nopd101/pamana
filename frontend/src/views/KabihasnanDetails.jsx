@@ -5,17 +5,14 @@ import API from "../api/axios";
 import { PlayCircle, Gamepad2, ClipboardList } from "lucide-react";
 import BackButton from "../components/BackButton";
 
-// Import Civilization Header Images
 import chinaImg from "../assets/CivilizationPhotos/China.png";
 import egyptImg from "../assets/CivilizationPhotos/Egypt.png";
 import indusImg from "../assets/CivilizationPhotos/Indus.png";
 import mesoamericaImg from "../assets/CivilizationPhotos/Mesoamerica.png";
 import mesopotamiaImg from "../assets/CivilizationPhotos/Mesopotamia.png";
 
-// 👇 Import SFX
 import renameTabSfx from "../assets/sfx/rename_tab.mp3";
 
-// --- COMPONENT: LetterInputGroup (For Mesoamerica) ---
 const LetterInputGroup = ({ answer, onAnswerChange }) => {
   const [inputs, setInputs] = useState(Array(answer.length).fill(""));
   const inputRefs = useRef([]);
@@ -73,6 +70,12 @@ function KabihasnanDetails() {
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
 
+  // 👇 CHECKER STATES
+  const [quizAlreadyTaken, setQuizAlreadyTaken] = useState(false);
+  const [pastScore, setPastScore] = useState(0);
+  const [pastTotal, setPastTotal] = useState(0);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+
   // --- Matching Type States ---
   const [selectedA, setSelectedA] = useState(null);
   const [connections, setConnections] = useState([]);
@@ -80,7 +83,7 @@ function KabihasnanDetails() {
   const [lineCoords, setLineCoords] = useState([]);
   const [resetKey, setResetKey] = useState(0);
 
-  // 👇 AUDIO SETUP: useRef to prevent garbage collection
+  // 👇 AUDIO SETUP
   const sfxRef = useRef(null);
 
   useEffect(() => {
@@ -91,7 +94,7 @@ function KabihasnanDetails() {
 
   const playSound = () => {
     if (sfxRef.current) {
-      sfxRef.current.currentTime = 0; // Reset to start
+      sfxRef.current.currentTime = 0; 
       sfxRef.current.play().catch((e) => console.error("Audio play failed:", e));
     }
   };
@@ -107,13 +110,119 @@ function KabihasnanDetails() {
 
   const headerImage = CIVILIZATION_IMAGES[id] || mesopotamiaImg;
 
+  // --- DATA DEFINITION ---
+  const civilizationData = {
+    mesopotamia: {
+      title: "Mesopotamia",
+      subtitle: "Ang Kabihasnang Mesopotamia - ang lupain sa pagitan ng dalawang ilog",
+      videoUrl: "https://www.youtube-nocookie.com/embed/72rC4AlZLrw", 
+      games: [
+        { title: "MindFlip", desc: "I-flip ang mga card at itugma ang mga konsepto." },
+        { title: "BrainTease", desc: "Lutasin ang mga palaisipan ng sinaunang panahon." },
+      ],
+      quizType: "multiple-choice",
+      quizTitle: "QuizStory - Multiple Choice",
+      quizInstructions: "Basahin nang mabuti ang bawat tanong. Piliin ang letra ng tamang sagot.",
+    },
+    indus: {
+      title: "Indus",
+      subtitle: "Kabihasnang Indus at mga imperyo ng India",
+      videoUrl: "https://www.youtube-nocookie.com/embed/y_UlD1pCQFM",
+      games: [
+        { title: "HARAPPUZZLE QUEST", desc: "Buuin ang mga sinaunang istruktura." },
+        { title: "CASTE YOUR ANSWER", desc: "Tukuyin ang hirarkiyang panlipunan." },
+      ],
+      quizType: "true-false",
+      quizTitle: "IndusQUIZtery",
+      quizInstructions: "Piliin kung TAMA o MALI ang bawat pahayag tungkol sa Kabihasnang Indus at mga imperyo ng India.",
+    },
+    tsino: {
+      title: "Tsino",
+      subtitle: "Ang duyan ng sinaunang imbensyon at pilosopiya.",
+      videoUrl: "https://www.youtube-nocookie.com/embed/GTZP3iPhu3w",
+      games: [
+        { title: "DynasSeek", desc: "Hanapin ang mga dinastiya sa loob ng grid." },
+        { title: "DynastOut", desc: "Tanggalin ang mga maling pagpipilian." },
+      ],
+      quizType: "identification",
+      quizTitle: "IdentiFun - IDENTIFICATION",
+      quizInstructions: "Ayusin ang mga magulong titik upang mabuo ang tamang termino na may kaugnayan sa Kabihasnang Tsino.",
+    },
+    egypt: {
+      title: "Egypt",
+      subtitle: "Ang Kabihasnang Egyptian at ang pamana ng mga Paraon.",
+      videoUrl: "https://www.youtube-nocookie.com/embed/NTiXxQFn_1M",
+      games: [
+        { title: "PictoWord", desc: "Hulaan ang salita batay sa apat na larawan." },
+        { title: "EgyptHunt", desc: "Tuklasin ang mga nakatagong kayamanan." },
+      ],
+      quizType: "matching-type",
+      quizTitle: "Egypto-Connect",
+      quizInstructions: "Pagtambalin ang mga konsepto mula sa Hanay A patungo sa Hanay B.",
+    },
+    mesoamerica: {
+      title: "Mesoamerica",
+      subtitle: "Ang sibilisasyon ng mga Maya, Aztec, at iba pang katutubo.",
+      videoUrl: "https://www.youtube-nocookie.com/embed/_r7EIipPjy4",
+      games: [
+        { title: "MistakeMaze", desc: "Tahakin ang Kasaysayan" },
+        { title: "Selectify", desc: "Piliin ang wastong artifact." },
+      ],
+      quizType: "fill-in-the-blank",
+      quizTitle: "MesoQuiz",
+      quizInstructions: "Punan ang mga patlang ng tamang sagot.",
+      wordBank: ["Huitzilopochtli", "Francisco Pizarro", "Yucatan Peninsula", "Quetzalcoatl", "Aztec", "Hilagang Mexico", "Halack Uinic", "Mansa Musa", "Maya"],
+    },
+  };
+
+  const currentData = civilizationData[id] || civilizationData.mesopotamia;
+
+  // 👇 CRITICAL FIX: Updated URL to match 'student/stats/' in urls.py
+  useEffect(() => {
+    let isMounted = true;
+    const checkQuizHistory = async () => {
+      try {
+        setIsLoadingHistory(true);
+        // Corrected URL: "student/stats/"
+        const response = await API.get("student/stats/"); 
+        const history = response.data.history; 
+
+        // Check if there is a log matching THIS Civilization + Quiz Type
+        const existingLog = history.find(
+          (log) => 
+            log.civilization === currentData.title && 
+            log.activity_type === "Quiz"
+        );
+
+        if (isMounted && existingLog) {
+          setQuizAlreadyTaken(true);
+          setPastScore(existingLog.score);
+          setPastTotal(existingLog.max_score);
+          
+          // Sync current score states for display
+          setScore(existingLog.score); 
+          setTotalItems(existingLog.max_score); 
+        }
+      } catch (error) {
+        console.error("Error checking quiz history:", error);
+      } finally {
+        if (isMounted) setIsLoadingHistory(false);
+      }
+    };
+
+    checkQuizHistory();
+
+    return () => { isMounted = false; };
+  }, [id, currentData.title]);
+
+
   // --- HANDLERS ---
   const handleAnswerChange = (questionId, value) => {
     setUserAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
   const handleClearAnswers = () => {
-    playSound(); // 🔊
+    playSound(); 
     setConnections([]);
     setLineCoords([]);
     setSelectedA(null);
@@ -121,9 +230,8 @@ function KabihasnanDetails() {
     setResetKey((prev) => prev + 1);
   };
 
-  // Handle Video Completion
   const handleVideoComplete = async () => {
-    playSound(); // 🔊
+    playSound();
     try {
       await API.post("submit-score/", {
         civilization: currentData.title,
@@ -132,7 +240,6 @@ function KabihasnanDetails() {
         score: 1,
         max_score: 1,
       });
-      console.log("Video progress recorded");
     } catch (error) {
       console.error("Error recording video progress:", error);
     }
@@ -140,7 +247,7 @@ function KabihasnanDetails() {
   };
 
   const handleSubmitQuiz = async () => {
-    playSound(); // 🔊
+    playSound();
     let currentScore = 0;
     let maxScore = 0;
 
@@ -191,10 +298,13 @@ function KabihasnanDetails() {
     setScore(currentScore);
     setTotalItems(maxScore);
     setIsQuizFinished(true);
+    setQuizAlreadyTaken(true); // Mark as taken immediately after submit
+    setPastScore(currentScore);
+    setPastTotal(maxScore);
   };
 
   const handleStartGame = (gameTitle) => {
-    playSound(); // 🔊
+    playSound();
     if (gameTitle === "HARAPPUZZLE QUEST") navigate("/harappuzzle-quest");
     else if (gameTitle === "CASTE YOUR ANSWER") navigate("/caste-game");
     else if (gameTitle === "MindFlip") navigate("/mindflip-game");
@@ -208,7 +318,7 @@ function KabihasnanDetails() {
   };
 
   const handleConnect = (idB) => {
-    playSound(); // 🔊
+    playSound();
     if (selectedA) {
       setConnections((prev) => [
         ...prev.filter((c) => c.fromId !== selectedA),
@@ -219,7 +329,7 @@ function KabihasnanDetails() {
   };
 
   const handleSelectA = (idA) => {
-    playSound(); // 🔊
+    playSound();
     setSelectedA(idA);
   };
 
@@ -259,71 +369,7 @@ function KabihasnanDetails() {
     { id: "a5", text: "Malalayang pamayanan o lalawigan sa sinaunang estado ng Egypt.", color: "#704F38" },
   ];
   const hanayB = ["Nomarch", "Nome", "Hieroglyphics", "Chariot", "Polyteismo", "Monoteismo"];
-
-  const civilizationData = {
-    mesopotamia: {
-      title: "Mesopotamia",
-      subtitle: "Ang Kabihasnang Mesopotamia - ang lupain sa pagitan ng dalawang ilog",
-      videoUrl: "https://www.youtube-nocookie.com/embed/72rC4AlZLrw", 
-      games: [
-        { title: "MindFlip", desc: "I-flip ang mga card at itugma ang mga konsepto." },
-        { title: "BrainTease", desc: "Lutasin ang mga palaisipan ng sinaunang panahon." },
-      ],
-      quizType: "multiple-choice",
-      quizTitle: "QuizStory - Multiple Choice",
-      quizInstructions: "Basahin nang mabuti ang bawat tanong. Piliin ang letra ng tamang sagot.",
-    },
-    indus: {
-      title: "Indus",
-      subtitle: "Kabihasnang Indus at mga imperyo ng India",
-      videoUrl: "https://www.youtube-nocookie.com/embed/y_UlD1pCQFM",
-      games: [
-        { title: "HARAPPUZZLE QUEST", desc: "Buuin ang mga sinaunang istruktura." },
-        { title: "CASTE YOUR ANSWER", desc: "Tukuyin ang hirarkiyang panlipunan." },
-      ],
-      quizType: "true-false",
-      quizTitle: "IndusQUIZtery",
-      quizInstructions: " Piliin kung TAMA o MALI ang bawat pahayag tungkol sa Kabihasnang Indus at mga imperyo ng India. Tuklasin ang “mystery” gamit ang tamang sagot!",
-    },
-    tsino: {
-      title: "Tsino",
-      subtitle: "Ang duyan ng sinaunang imbensyon at pilosopiya.",
-      videoUrl: "https://www.youtube-nocookie.com/embed/GTZP3iPhu3w",
-      games: [
-        { title: "DynasSeek", desc: " Hanapin ang mga dinastiya sa loob ng grid." },
-        { title: "DynastOut", desc: "Tanggalin ang mga maling pagpipilian." },
-      ],
-      quizType: "identification",
-      quizTitle: "IdentiFun - IDENTIFICATION",
-      quizInstructions: "Ayusin ang mga magulong titik upang mabuo ang tamang termino na may kaugnayan sa Kabihasnang Tsino. Gamit ang ibinigay na clue o pangungusap, ilagay ang tamang sagot sa patlang.",
-    },
-    egypt: {
-      title: "Egypt",
-      subtitle: "Ang Kabihasnang Egyptian at ang pamana ng mga Paraon.",
-      videoUrl: "https://www.youtube-nocookie.com/embed/NTiXxQFn_1M",
-      games: [
-        { title: "PictoWord", desc: "Hulaan ang salita batay sa apat na larawan." },
-        { title: "EgyptHunt", desc: "Tuklasin ang mga nakatagong kayamanan." },
-      ],
-      quizType: "matching-type",
-      quizTitle: "Egypto-Connect",
-      quizInstructions: "Pagtambalin ang mga konsepto mula sa Hanay A patungo sa Hanay B.",
-    },
-    mesoamerica: {
-      title: "Mesoamerica",
-      subtitle: "Ang sibilisasyon ng mga Maya, Aztec, at iba pang katutubo.",
-      videoUrl: "https://www.youtube-nocookie.com/embed/_r7EIipPjy4",
-      games: [
-        { title: "MistakeMaze", desc: "Tahakin ang Kasaysayan" },
-        { title: "Selectify", desc: "Piliin ang wastong artifact." },
-      ],
-      quizType: "fill-in-the-blank",
-      quizTitle: "MesoQuiz",
-      quizInstructions: "Punan ang mga patlang ng tamang sagot.",
-      wordBank: ["Huitzilopochtli", "Francisco Pizarro", "Yucatan Peninsula", "Quetzalcoatl", "Aztec", "Hilagang Mexico", "Halack Uinic", "Mansa Musa", "Maya"],
-    },
-  };
-
+  
   const mesoQuestions = [
     { id: 1, text1: "Ang salitang ", text2: " ay nangangahulugang “isang nagmula sa Aztlan” isang mitikong lugar sa Hilagang Mexico.", ans: "AZTEC" },
     { id: 2, text1: "Ang salitang ", text2: " ay literal na nangangahulugang “imperyo”.", ans: "INCA" },
@@ -332,18 +378,24 @@ function KabihasnanDetails() {
     { id: 5, text1: "Ang pinakamahalagang Diyos ng mga Aztec ay si ", text2: ", ang Diyos ng araw.", ans: "HUITZILOPOCHTLI" },
   ];
 
-  const currentData = civilizationData[id] || civilizationData.mesopotamia;
+ 
+  if (isQuizFinished || (quizAlreadyTaken && activeTab === "quiz")) {
+    
+    if (isLoadingHistory && activeTab === "quiz") {
+        return <div className="min-h-screen bg-cover bg-center" style={{ backgroundImage: `url(${bgHome})` }} />;
+    }
 
-  if (isQuizFinished) {
     return (
-      <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4" style={{ backgroundImage: `url(${bgHome})` }}>
+      <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4 font-[var(--font-body)]" style={{ backgroundImage: `url(${bgHome})` }}>
         <div className="text-center bg-[#FDFBF7]/90 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 border-4 border-[#C8AA86]/50 max-w-md md:max-w-lg w-full">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-[#5a2d0c]">Congratulations!</h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-[#5a2d0c] font-[var(--font-heading)]">
+            {quizAlreadyTaken && !isQuizFinished ? "Quiz Completed" : "Congratulations!"}
+          </h2>
           <p className="text-xl md:text-3xl mb-6 md:mb-8 text-[#5a2d0c]">
-            Your Final Score: <span className="font-extrabold">{score}/{totalItems}</span>
+            {quizAlreadyTaken && !isQuizFinished ? "Previous Score: " : "Your Final Score: "}
+             <span className="font-extrabold">{quizAlreadyTaken && !isQuizFinished ? pastScore : score}/{quizAlreadyTaken && !isQuizFinished ? pastTotal : totalItems}</span>
           </p>
           <div className="flex flex-col gap-4">
-            <button onClick={() => { playSound(); setIsQuizFinished(false); handleClearAnswers(); }} className="bg-[#772402] text-white py-3 px-8 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg">Retake Quiz</button>
             <button onClick={() => { playSound(); navigate("/homepage"); }} className="bg-white border-2 border-[#772402] text-[#772402] py-3 px-8 rounded-lg shadow-lg hover:bg-gray-100 transition-colors font-bold text-lg">Back to Home</button>
           </div>
         </div>
@@ -380,7 +432,6 @@ function KabihasnanDetails() {
 
         <div className={`${activeTab !== "game" ? "bg-white p-4 md:p-10 rounded-xl shadow-xl" : ""} min-h-[500px]`}>
           
-          {/* VIDEO TAB */}
           {activeTab === "video" && (
             <div className="flex flex-col h-full">
               <h2 className="text-2xl font-bold text-[#5a2d0c] mb-6 font-[var(--font-heading)]">Kabihasnang {currentData.title}</h2>
