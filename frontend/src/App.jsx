@@ -41,15 +41,10 @@ const AppContent = () => {
     <>
       {!isDashboardRoute && <Navbar />}
       
-      {/* Global Toast Container */}
-      <ToastContainer 
-        position="top-center"
-        style={{ zIndex: 99999 }}
-        limit={1}
-      />
+      <ToastContainer position="top-center" style={{ zIndex: 99999 }} limit={1} />
 
       <Routes>
-        {/* --- PUBLIC ROUTES (Accessible by anyone) --- */}
+        {/* --- PUBLIC ROUTES --- */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
@@ -58,14 +53,19 @@ const AppContent = () => {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/privacy" element={<TermsAndAgreementPage />} />
 
-        {/* --- 🛡️ STUDENT ROUTES --- */}
+        {/* --- 🛡️ SHARED LEARNING ROUTES (Accessible by Student AND Teacher for Review) --- */}
+        {/* 👇 THIS IS THE FIX: Allow teachers to access content pages for review */}
+        <Route element={<PrivateRoute allowedRoles={['student', 'teacher']} />}>
+            <Route path="/kabihasnan/:id" element={<KabihasnanDetails />} />
+            <Route path="/post-test" element={<PostTest />} />
+        </Route>
+
+        {/* --- 🛡️ STUDENT ONLY ROUTES --- */}
         <Route element={<PrivateRoute allowedRoles={['student']} />}>
             <Route path="/homepage" element={<HomePage />} />
             <Route path="/student-profile" element={<StudentProfile />} />
-            <Route path="/kabihasnan/:id" element={<KabihasnanDetails />} />
-            <Route path="/post-test" element={<PostTest />} />
             
-            {/* Games */}
+            {/* Games - (Teachers typically don't play these directly, but if they need to, move them up) */}
             <Route path="/caste-game" element={<CasteGame />} />
             <Route path="/mindflip-game" element={<MindFlipGame />} />
             <Route path="/riddle-game" element={<RiddleGame />} />
@@ -95,7 +95,7 @@ const AppContent = () => {
             </Route>
         </Route>
 
-        {/* Catch-all redirect to login if page doesn't exist */}
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>

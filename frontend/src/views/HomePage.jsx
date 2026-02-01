@@ -19,7 +19,7 @@ function HomePage() {
   // State to store progress percentages for each civilization
   const [progressMap, setProgressMap] = useState({});
 
-  // 👇 FIXED: Use useRef to keep the Audio object alive and prevent garbage collection
+  // Use useRef to keep the Audio object alive and prevent garbage collection
   const sfxRef = useRef(null);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ function HomePage() {
     sfxRef.current.preload = 'auto'; // Force preload
   }, []);
 
-  // 👇 Audio Helper Function
+  // Audio Helper Function
   const playSound = () => {
     if (sfxRef.current) {
       sfxRef.current.currentTime = 0; // Reset to start so it plays immediately if clicked again
@@ -166,23 +166,13 @@ function HomePage() {
         className="bg-cover bg-top px-4 md:px-20 py-10 md:py-16 -mt-10 md:-mt-32 relative z-0"
         style={{ backgroundImage: `url(${bgHome})` }}
       >
-        <div className="pt-10 md:pt-32 px-2 md:px-40">
+        <div className="pt-10 md:pt-32 px-2 md:px-40 pb-20"> {/* Added pb-20 for button space */}
           
           {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <h2 className="text-2xl md:text-3xl font-extrabold text-[#7B3306] font-[var(--font-heading)] drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">
               MGA KABIHASNAN
             </h2>
-            
-            <button
-              onClick={() => {
-                playSound(); // 🔊 Play SFX
-                navigate('/post-test');
-              }}
-              className="bg-[#7B3306] hover:bg-[#5a2504] text-white px-5 py-2 rounded-lg font-bold shadow-md transition-transform hover:scale-105 flex items-center gap-2 text-sm md:text-base cursor-pointer"
-            >
-              Pagsusulit
-            </button>
           </div>
 
           <div className="space-y-4 md:space-y-6">
@@ -234,8 +224,23 @@ function HomePage() {
               );
             })}
           </div>
+          
+          {/* 👇 BUTTON ALIGNED TO THE RIGHT BELOW LIST */}
+          <div className="flex justify-end mt-8 w-full">
+            <button
+                onClick={() => {
+                playSound();
+                navigate('/post-test');
+                }}
+                className="bg-[#7B3306] hover:bg-[#5a2504] text-white px-8 py-3 rounded-lg font-bold shadow-lg transition-transform hover:scale-105 flex items-center gap-2 text-lg cursor-pointer"
+            >
+                Pagsusulit  →
+            </button>
+          </div>
+
         </div>
       </section>
+      
     </div>
   );
 }

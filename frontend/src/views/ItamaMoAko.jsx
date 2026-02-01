@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import correctSfx from "../assets/sfx/correct.mp3";
 import incorrectSfx from "../assets/sfx/incorrect.mp3";
 import clearedSfx from "../assets/sfx/cleared.mp3";
+import hintSfx from "../assets/sfx/hint.mp3"; 
 
 const questionsData = [
   {
@@ -79,6 +80,10 @@ const ItamaMoAko = () => {
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [isWordClicked, setIsWordClicked] = useState(false);
 
+  // Hints & Reveals States
+  const [hintLevel, setHintLevel] = useState(0);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+
   const currentQuestion = questionsData[currentIndex];
 
   const playSound = (soundFile) => {
@@ -92,35 +97,63 @@ const ItamaMoAko = () => {
     setIsWordClicked(true);
   };
 
+  // 👇 Hint Logic
+  const getHintText = () => {
+    const ans = currentQuestion.correct;
+    const chars = ans.split("");
+    
+    return chars.map((char, index) => {
+        if (char === " ") return "  "; 
+        
+        let shouldReveal = false;
+        if (hintLevel >= 1 && index === 0) shouldReveal = true; // First
+        if (hintLevel >= 2 && index === chars.length - 1) shouldReveal = true; // Last
+        if (hintLevel >= 3 && index === Math.floor(chars.length / 2)) shouldReveal = true; // Middle
+
+        return shouldReveal ? char : "_";
+    }).join(" ");
+  };
+
+  const handleShowHint = () => {
+    if (hintLevel < 3) {
+        playSound(hintSfx);
+        setHintLevel(prev => prev + 1);
+    }
+  };
+
+  // 👇 Reveal Button Logic
+  const handleForcedReveal = () => {
+      playSound(incorrectSfx);
+      setUserAnswer(currentQuestion.correct); 
+      setFeedback("REVEALED"); 
+      
+      toast.info(`Ang tamang sagot ay: ${currentQuestion.correct}`, {
+        position: "top-center",
+        autoClose: 2000,
+        style: { ...toastStyle, backgroundColor: "#B89336", color: "#3E2b26" },
+        icon: "💡"
+      });
+
+      setTimeout(() => {
+         moveToNextQuestion();
+      }, 2500);
+  };
+
   const handleSubmit = () => {
-    // Handle Empty Answer as Skip
+    // 👇 CHANGED: Removed Skip Logic. 
+    // If empty, warn user to enter answer.
     if (!userAnswer.trim()) {
         playSound(incorrectSfx);
-        
-        // Show correct answer toast
-        toast.info(`Skipped! Correct answer: ${currentQuestion.correct}`, {
+        toast.warn("Mangyaring maglagay ng sagot.", {
             position: "top-center",
-            autoClose: 3000,
-            style: { ...toastStyle, backgroundColor: "#B89336", color: "#3E2b26" },
-            icon: "⏩"
+            autoClose: 2000,
+            style: { ...toastStyle, border: "2px solid #B89336" },
+            icon: "⚠️"
         });
-
-        // Move to next question (no points)
-        setTimeout(() => {
-            setFeedback("");
-            setUserAnswer("");
-            setIsWordClicked(false);
-            if (currentIndex < questionsData.length - 1) {
-                setCurrentIndex((prev) => prev + 1);
-            } else {
-                setIsGameFinished(true);
-            }
-        }, 2000);
-        
-        return;
+        return; // Stop here, do not move next
     }
 
-    if (feedback === "TAMA!") return;
+    if (feedback === "TAMA!" || feedback === "REVEALED") return;
 
     const cleanUser = userAnswer.trim().toLowerCase();
     const cleanAnswer = currentQuestion.correct.toLowerCase();
@@ -130,6 +163,8 @@ const ItamaMoAko = () => {
       handleCorrect();
     } else {
       playSound(incorrectSfx);
+      setWrongAttempts(prev => prev + 1); 
+
       toast.error("Mali ang iyong sagot. Subukan muli!", {
         position: "top-center",
         autoClose: 2000,
@@ -150,18 +185,23 @@ const ItamaMoAko = () => {
     });
 
     setScore((prev) => prev + 1);
-
     setTimeout(() => {
+        moveToNextQuestion();
+    }, 1500);
+  };
+
+  const moveToNextQuestion = () => {
       setFeedback("");
       setUserAnswer("");
       setIsWordClicked(false);
+      setHintLevel(0);    
+      setWrongAttempts(0); 
 
       if (currentIndex < questionsData.length - 1) {
         setCurrentIndex((prev) => prev + 1);
       } else {
         setIsGameFinished(true);
       }
-    }, 1500);
   };
 
   useEffect(() => {
@@ -190,18 +230,19 @@ const ItamaMoAko = () => {
     setUserAnswer("");
     setFeedback("");
     setIsWordClicked(false);
+    setHintLevel(0);
+    setWrongAttempts(0);
     setIsGameFinished(false);
   };
 
-  // 👇 UPDATED: Changed wordClass to make the word blend in
   const renderSentence = () => {
     const parts = currentQuestion.sentenceParts;
     const errorWord = currentQuestion.error;
 
     const wordClass = `font-bold cursor-pointer transition-colors duration-300 ${
       isWordClicked 
-        ? "text-red-500 underline decoration-wavy" // If clicked -> Red & Wavy
-        : "text-white hover:text-[#FFDC88]" // If not clicked -> White (Hidden) but turns Yellow on hover
+        ? "text-red-500 underline decoration-wavy" 
+        : "text-white hover:text-[#FFDC88]" 
     }`;
 
     return (
@@ -288,22 +329,55 @@ const ItamaMoAko = () => {
             </div>
 
             {isWordClicked && (
-              <div className="w-full">
+              <div className="w-full flex flex-col gap-3">
+                
+                {/* 👇 Hint Text Display */}
+                {hintLevel > 0 && (
+                     <div className="text-center font-mono tracking-[0.3em] text-[#772402] font-bold text-xl mb-2 animate-fade-in">
+                         {getHintText()}
+                     </div>
+                )}
+
                 <input
                   type="text"
                   value={userAnswer}
                   onChange={(e) => setUserAnswer(e.target.value)}
                   placeholder="Isulat ang sagot dito..."
-                  className="w-full text-center p-3 border-2 border-[#C8AA86] rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B5E3C] text-[#5a2d0c]"
-                  disabled={feedback === "TAMA!"}
+                  className="w-full text-center p-3 border-2 border-[#C8AA86] rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-[#8B5E3C] text-[#5a2d0c] font-bold"
+                  disabled={feedback === "TAMA!" || feedback === "REVEALED"}
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 />
-                <button
-                  onClick={handleSubmit}
-                  className="w-full mt-4 bg-[#772402] text-white py-3 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg"
-                  disabled={feedback === "TAMA!"}
-                >
-                  {userAnswer.trim() ? "Submit Answer" : "Skip / Reveal Answer"}
-                </button>
+                
+                <div className="flex gap-2">
+                    {/* 👇 Submit Button (Always says "Submit Answer" now) */}
+                    <button
+                    onClick={handleSubmit}
+                    className="flex-1 bg-[#772402] text-white py-3 rounded-lg shadow-lg hover:bg-[#5a3b26] transition-colors font-bold text-lg"
+                    disabled={feedback === "TAMA!" || feedback === "REVEALED"}
+                    >
+                        Submit Answer
+                    </button>
+
+                    {/* 👇 Hint Button */}
+                    <button
+                    onClick={handleShowHint}
+                    disabled={hintLevel >= 3 || feedback !== ""}
+                    className="bg-[#C8AA86] text-[#5a2d0c] py-3 px-4 rounded-lg shadow-lg hover:bg-[#b0936f] transition-colors font-bold border-2 border-[#772402]"
+                    title="Get a Hint"
+                    >
+                        {hintLevel >= 3 ? "No Hints Left" : "💡 Hint"}
+                    </button>
+                </div>
+
+                {/* 👇 Forced Reveal Button (Shows after 3 wrong attempts) */}
+                {wrongAttempts >= 3 && feedback === "" && (
+                     <button
+                        onClick={handleForcedReveal}
+                        className="w-full bg-red-600 text-white py-2 rounded-lg shadow-md hover:bg-red-700 transition-colors font-bold text-sm animate-bounce-short"
+                     >
+                        Reveal Answer (Give Up)
+                     </button>
+                )}
               </div>
             )}
 

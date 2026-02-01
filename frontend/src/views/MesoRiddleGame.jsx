@@ -39,11 +39,10 @@ const RIDDLES = [
   },
 ];
 
-// 👇 SHARED TOAST STYLE (Pamana Theme)
 const toastStyle = {
-  backgroundColor: "#772402", // Primary Brown
-  color: "#FDFBF7",           // Cream Text
-  border: "2px solid #B89336", // Gold/Amber Border
+  backgroundColor: "#772402",
+  color: "#FDFBF7",           
+  border: "2px solid #B89336",
   borderRadius: "10px",
   fontWeight: "bold",
   boxShadow: "0px 4px 10px rgba(0,0,0,0.3)"
@@ -55,8 +54,9 @@ const MesoRiddleGame = () => {
   const [userAnswer, setUserAnswer] = useState("");
   const [score, setScore] = useState(0);
   
-  // 👇 CHANGED: Hint is now a level (0 = hidden, 1 = first, 2 = last, 3 = middle)
   const [hintLevel, setHintLevel] = useState(0); 
+  
+  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [isGameFinished, setIsGameFinished] = useState(false);
   
   const currentRiddle = RIDDLES[currentIndex];
@@ -67,17 +67,28 @@ const MesoRiddleGame = () => {
     audio.play().catch(e => console.error("Audio play failed:", e));
   };
 
-  const handleSubmit = () => {
-    // 👇 NEW: Handle Empty Answer (Skip/Reveal)
+  const handleMainButtonClick = () => {
+    if (isAnswerRevealed) {
+        proceedToNext();
+        return;
+    }
+
+   
+    if (hintLevel >= 3 && userAnswer.trim() === "") {
+        handleReveal();
+        return;
+    }
+
+    handleSubmitAnswer();
+  };
+
+  const handleSubmitAnswer = () => {
     if (!userAnswer.trim()) {
-        playSound(incorrectSfx);
-        toast.info(`Ang tamang sagot ay: ${currentRiddle.answer}`, {
+        toast.warn("Mangyaring maglagay ng sagot.", {
             position: "top-center",
-            autoClose: 3000,
-            style: { ...toastStyle, backgroundColor: "#B89336", color: "#3E2b26" }, // Different color for reveal
-            icon: "💡"
+            autoClose: 2000,
+            style: { ...toastStyle, border: "2px solid #B89336" }
         });
-        moveToNextQuestion();
         return;
     }
 
@@ -91,7 +102,7 @@ const MesoRiddleGame = () => {
       handleCorrect();
     } else {
       playSound(incorrectSfx);
-      toast.error("Mali ang iyong sagot. Subukan muli!", {
+      toast.error("Mali ang iyong sagot. Subukan muli o gamitin ang hints!", {
         position: "top-center",
         autoClose: 2000,
         style: { ...toastStyle, border: "2px solid #ff4444" },
@@ -100,30 +111,45 @@ const MesoRiddleGame = () => {
     }
   };
 
+  const handleReveal = () => {
+    playSound(incorrectSfx);
+    setUserAnswer(currentRiddle.answer); 
+    setIsAnswerRevealed(true); 
+    
+    toast.info(`Ang tamang sagot ay: ${currentRiddle.answer}`, {
+        position: "top-center",
+        autoClose: false,
+        style: { ...toastStyle, backgroundColor: "#B89336", color: "#3E2b26" },
+        icon: "💡"
+    });
+  };
+
   const handleCorrect = () => {
     playSound(correctSfx);
     toast.success("TAMA!", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 1500,
         hideProgressBar: true,
         style: toastStyle,
         icon: "✅"
     });
     setScore((prev) => prev + 1);
-    moveToNextQuestion();
+    
+    setTimeout(() => {
+        proceedToNext();
+    }, 1500);
   };
 
-  const moveToNextQuestion = () => {
-    setTimeout(() => {
-        setUserAnswer("");
-        setHintLevel(0); // Reset hint level
+  const proceedToNext = () => {
+    setUserAnswer("");
+    setHintLevel(0);
+    setIsAnswerRevealed(false);
 
-        if (currentIndex < RIDDLES.length - 1) {
-          setCurrentIndex((prev) => prev + 1);
-        } else {
-          setIsGameFinished(true);
-        }
-      }, 2000); // Increased delay slightly to read reveal message if skipped
+    if (currentIndex < RIDDLES.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      setIsGameFinished(true);
+    }
   };
 
   const handleReset = () => {
@@ -131,10 +157,10 @@ const MesoRiddleGame = () => {
     setScore(0);
     setUserAnswer("");
     setHintLevel(0);
+    setIsAnswerRevealed(false);
     setIsGameFinished(false);
   };
 
-  // 👇 UPDATED: Hint Logic based on Level
   const handleShowHint = () => {
     if (hintLevel < 3) {
         setHintLevel(prev => prev + 1);
@@ -145,19 +171,13 @@ const MesoRiddleGame = () => {
     const ans = currentRiddle.answer;
     const chars = ans.split("");
     
-    // Level 0: All hidden (underscores)
-    // Level 1: First letter revealed
-    // Level 2: First + Last letter revealed
-    // Level 3: First + Last + Middle letter revealed
-
     return chars.map((char, index) => {
-        if (char === " ") return " "; // Keep spaces
+        if (char === " ") return " "; 
         
         let shouldReveal = false;
-
-        if (hintLevel >= 1 && index === 0) shouldReveal = true; // First
-        if (hintLevel >= 2 && index === chars.length - 1) shouldReveal = true; // Last
-        if (hintLevel >= 3 && index === Math.floor(chars.length / 2)) shouldReveal = true; // Middle
+        if (hintLevel >= 1 && index === 0) shouldReveal = true; 
+        if (hintLevel >= 2 && index === chars.length - 1) shouldReveal = true; 
+        if (hintLevel >= 3 && index === Math.floor(chars.length / 2)) shouldReveal = true; 
 
         return shouldReveal ? char : "_";
     }).join(" ");
@@ -182,6 +202,13 @@ const MesoRiddleGame = () => {
         submitRiddleScore();
     }
   }, [isGameFinished, score]);
+
+  const getMainButtonText = () => {
+      if (isAnswerRevealed) return "Next Question ➡";
+      if (hintLevel >= 3 && userAnswer.trim() === "") return "Reveal Answer 💡";
+      
+      return "Submit Answer";
+  };
 
   return (
     <div
@@ -229,7 +256,7 @@ const MesoRiddleGame = () => {
           </h1>
           <p className="text-[#964B1D] font-bold text-xs md:text-base max-w-xl mx-auto leading-relaxed px-4">
             Basahin ng mabuti ang bawat bugtong. Ilagay sa patlang ang iyong
-            sagot. Ulitin hanggang mahulaan ang lahat ng bugtong.
+            sagot.
           </p>
         </div>
 
@@ -256,12 +283,15 @@ const MesoRiddleGame = () => {
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
                 placeholder="Isulat ang sagot dito..."
-                className="w-full p-4 rounded-lg border-2 border-[#8B5E3C] text-center font-bold text-[#5a2d0c] text-lg outline-none focus:ring-4 ring-[#C8AA86]/50 placeholder:text-[#8B5E3C]/50 transition-all"
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                disabled={isGameFinished}
+                className={`w-full p-4 rounded-lg border-2 text-center font-bold text-lg outline-none focus:ring-4 transition-all
+                    ${isAnswerRevealed 
+                        ? "bg-amber-100 border-[#B89336] text-[#772402]" // Style when revealed
+                        : "border-[#8B5E3C] text-[#5a2d0c] ring-[#C8AA86]/50 placeholder:text-[#8B5E3C]/50" 
+                    }`}
+                onKeyDown={(e) => e.key === "Enter" && handleMainButtonClick()}
+                disabled={isGameFinished || isAnswerRevealed} // Lock input when revealed
               />
 
-              {/* 👇 HINT DISPLAY (Only show if level > 0) */}
               {hintLevel > 0 && (
                 <div className="text-center text-[#772402] font-bold animate-pulse text-lg tracking-widest">
                   HINT: {getHintText()}
@@ -270,20 +300,28 @@ const MesoRiddleGame = () => {
 
               <div className="flex flex-col md:flex-row gap-3 pt-2">
                 <button
-                  onClick={handleSubmit}
+                  onClick={handleMainButtonClick}
                   disabled={isGameFinished}
-                  className="flex-1 bg-[#5a2d0c] text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-[#3E2b26] active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`flex-1 font-bold py-3 px-6 rounded-lg shadow-md transition-all uppercase tracking-wider disabled:opacity-50
+                    ${isAnswerRevealed 
+                        ? "bg-[#B89336] text-[#3E2b26] hover:bg-[#a37f2e]" // Next Question Style
+                        : (hintLevel >= 3 && userAnswer.trim() === "")
+                            ? "bg-[#8B5E3C] text-white hover:bg-[#724a2f]" // Reveal Style
+                            : "bg-[#5a2d0c] text-white hover:bg-[#3E2b26]" // Submit Style
+                    }`}
                 >
-                  {/* 👇 Button text changes if input is empty */}
-                  {userAnswer.trim() ? "Submit Answer" : "Skip / Reveal Answer"}
+                  {getMainButtonText()}
                 </button>
-                <button
-                  onClick={handleShowHint}
-                  disabled={isGameFinished || hintLevel >= 3}
-                  className="flex-1 bg-white text-[#5a2d0c] border-2 border-[#5a2d0c] font-bold py-3 px-6 rounded-lg shadow-sm hover:bg-amber-50 active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {hintLevel === 0 ? "Show Hint (1/3)" : hintLevel === 1 ? "Next Hint (2/3)" : hintLevel === 2 ? "Last Hint (3/3)" : "No More Hints"}
-                </button>
+
+                {!isAnswerRevealed && (
+                    <button
+                      onClick={handleShowHint}
+                      disabled={isGameFinished || hintLevel >= 3}
+                      className="flex-1 bg-white text-[#5a2d0c] border-2 border-[#5a2d0c] font-bold py-3 px-6 rounded-lg shadow-sm hover:bg-amber-50 active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {hintLevel === 0 ? "Show Hint (1/3)" : hintLevel === 1 ? "Next Hint (2/3)" : hintLevel === 2 ? "Last Hint (3/3)" : "No More Hints"}
+                    </button>
+                )}
               </div>
             </div>
           </div>

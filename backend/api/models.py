@@ -36,11 +36,15 @@ class ActivityLog(models.Model):
     Tracks scores for Quizzes and MiniGames
     """
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="activities")
-    civilization = models.CharField(max_length=50) # e.g., "Mesopotamia"
-    activity_type = models.CharField(max_length=20) # "Quiz" or "Game"
-    activity_name = models.CharField(max_length=100) # e.g., "Ziggurat Puzzle"
+    civilization = models.CharField(max_length=50) 
+    activity_type = models.CharField(max_length=20) 
+    activity_name = models.CharField(max_length=100) 
     score = models.IntegerField(default=0)
     max_score = models.IntegerField(default=0)
+    
+    # 👇 ADD THIS FIELD to store the actual answers
+    details = models.JSONField(default=dict, blank=True, null=True)
+    
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
